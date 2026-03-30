@@ -226,7 +226,7 @@
     "primary_families":   ["tecnologia"],
     "secondary_families": ["analitica"],
     "skills": ["testing", "Selenium", "casos de prueba", "SQL", "Jira", "automatización de pruebas"],
-    "required_skills": ["SQL", "Jira"],
+    "required_skills": ["testing", "casos de prueba", "bug reporting", "Jira"],
     "experience_signals": ["testing", "prueba", "qa", "software", "proyecto", "practica"],
     "modalities": ["híbrido", "remoto", "presencial"]
   },
@@ -279,7 +279,7 @@
     "primary_families":   ["comunicacion"],
     "secondary_families": ["negocios"],
     "skills": ["redes sociales", "Meta Ads", "contenido digital", "Canva", "analítica de redes", "copywriting"],
-    "required_skills": ["redes sociales", "Canva"],
+    "required_skills": ["Meta Ads", "analítica de redes", "redes sociales", "Canva"],
     "experience_signals": ["redes sociales", "contenido", "comunidad", "marketing", "practica"],
     "modalities": ["híbrido", "presencial", "remoto"]
   },
@@ -400,7 +400,7 @@
     "primary_families":   ["educacion"],
     "secondary_families": ["personas"],
     "skills": ["coordinación académica", "gestión curricular", "Excel", "atención a estudiantes", "PowerPoint"],
-    "required_skills": ["Excel", "PowerPoint"],
+    "required_skills": ["planificación curricular", "gestión educativa", "Excel"],
     "experience_signals": ["academia", "educacion", "coordinacion", "practica", "ayudante", "docencia"],
     "modalities": ["presencial", "híbrido"]
   },
