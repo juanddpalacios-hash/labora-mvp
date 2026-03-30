@@ -1,0 +1,1352 @@
+:root {
+  --bg: #f6f8f7;
+  --surface: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #1a9e72;
+  --primary-dark: #127657;
+  --border: #dbe3df;
+  --danger: #b42318;
+  --warning: #d97706;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.container {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.hero {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.hero-card,
+.form-card,
+.card,
+.role-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  max-width: 760px;
+  padding: 48px;
+  text-align: left;
+}
+
+.hero-microcopy {
+  font-size: 14px;
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+
+.hero-cv-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(26, 158, 114, 0.12);
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+.lead,
+.page-header p,
+.muted,
+.status {
+  color: var(--muted);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: 0.2s ease;
+}
+
+.button.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.button.primary:hover {
+  background: var(--primary-dark);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+/* Step 0 — Intent cards */
+.intent-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.intent-card {
+  position: relative;
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.intent-card:hover {
+  border-color: var(--primary);
+}
+
+.intent-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+  background: rgba(26, 158, 114, 0.05);
+}
+
+.intent-card h3 {
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.intent-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.intent-check {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+}
+
+.intent-card.selected .intent-check {
+  display: flex;
+}
+
+.intent-footer-note {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .intent-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.back-link {
+  color: var(--primary-dark);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.form-card {
+  padding: 24px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.field label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Autocomplete de carrera                                              */
+/* ------------------------------------------------------------------ */
+
+.autocomplete-wrap {
+  position: relative;
+}
+
+.autocomplete-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  z-index: 50;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.autocomplete-list.open {
+  display: block;
+}
+
+.autocomplete-list li {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.1s;
+}
+
+.autocomplete-list li:hover,
+.autocomplete-list li.active {
+  background: rgba(26, 158, 114, 0.07);
+  color: var(--primary-dark);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  background: white;
+  transition: border-color 0.15s;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+fieldset.field {
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 14px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Áreas de interés                                                     */
+/* ------------------------------------------------------------------ */
+
+.interests-fieldset {
+  padding: 18px 20px 16px;
+}
+
+.interests-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.interests-fieldset legend {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  float: left;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.interests-counter {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.interests-counter.at-limit {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.interests-helper {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 0 14px;
+}
+
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.interest-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.interest-option:hover {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.04);
+}
+
+.interest-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.interest-option.selected {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.08);
+  color: var(--primary-dark);
+}
+
+.interest-option.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.interests-limit-msg {
+  display: none;
+  font-size: 13px;
+  color: var(--warning);
+  margin: 10px 0 0;
+}
+
+.interests-limit-msg.visible {
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Preferencias de empresa                                              */
+/* ------------------------------------------------------------------ */
+
+.preferences-fieldset {
+  padding: 18px 20px 16px;
+}
+
+.preferences-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pref-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.pref-item:hover:not(.disabled) {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.04);
+}
+
+.pref-item.selected {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.06);
+  color: var(--primary-dark);
+}
+
+.pref-item.priority {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.12);
+  font-weight: 600;
+}
+
+.pref-item.disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.pref-label {
+  flex: 1;
+}
+
+.pref-priority-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.pref-priority-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+
+.pref-priority-btn.active {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.15);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ */
+/* Modalidad de trabajo                                                 */
+/* ------------------------------------------------------------------ */
+
+.modality-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.modality-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.modality-option:hover {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.04);
+}
+
+.modality-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.modality-option.selected {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.08);
+  color: var(--primary-dark);
+}
+
+@media (max-width: 480px) {
+  .modality-grid {
+    flex-direction: column;
+  }
+}
+
+/* Sugerencias por carrera */
+.interests-suggestion-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.interests-suggestion-hint.no-match {
+  color: var(--warning);
+}
+
+.interest-other-field {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+.interests-separator {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Intereses con prioridad (nuevo sistema sin checkboxes)               */
+/* ------------------------------------------------------------------ */
+
+.interest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.interest-item:hover:not(.disabled) {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.04);
+}
+
+.interest-item.suggested {
+  border-color: rgba(26, 158, 114, 0.5);
+}
+
+.interest-item.selected {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.08);
+  color: var(--primary-dark);
+}
+
+.interest-item.disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.interest-priority-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.interest-label {
+  flex: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Autocomplete — header de categoría                                   */
+/* ------------------------------------------------------------------ */
+
+.autocomplete-list li.category-header {
+  padding: 8px 14px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  cursor: default;
+  pointer-events: none;
+  background: none;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+}
+
+.autocomplete-list li.category-header:first-child {
+  border-top: none;
+  margin-top: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Campo libre de carrera                                               */
+/* ------------------------------------------------------------------ */
+
+.degree-other-field {
+  margin-top: -6px;
+  margin-bottom: 18px;
+}
+
+.form-actions {
+  margin-top: 8px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Multi-step — barra de progreso                                       */
+/* ------------------------------------------------------------------ */
+
+.multistep-progress {
+  margin-bottom: 24px;
+}
+
+.multistep-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.multistep-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.multistep-label {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Multi-step — step header y navegación                                */
+/* ------------------------------------------------------------------ */
+
+.step-header {
+  margin-bottom: 24px;
+}
+
+.step-header h2 {
+  margin-bottom: 6px;
+}
+
+.step-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.button.ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.button.ghost:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.interest-step-note {
+  font-size: 13px;
+  color: var(--primary-dark);
+  background: rgba(26, 158, 114, 0.07);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Multi-step — resumen final                                           */
+/* ------------------------------------------------------------------ */
+
+.summary-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.summary-key {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.summary-val {
+  color: var(--text);
+  text-align: right;
+}
+
+.status {
+  margin-top: 14px;
+  min-height: 20px;
+  font-size: 14px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Loading overlay + barra de progreso                                  */
+/* ------------------------------------------------------------------ */
+
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(246, 248, 247, 0.92);
+  z-index: 100;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.loading-overlay.active {
+  display: flex;
+}
+
+.loading-overlay p {
+  color: var(--primary-dark);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.progress-bar-track {
+  width: 280px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  animation: progress-indeterminate 1.4s ease-in-out infinite;
+  width: 40%;
+}
+
+@keyframes progress-indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Resultados                                                           */
+/* ------------------------------------------------------------------ */
+
+.results-layout {
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  padding: 22px;
+}
+
+.role-list {
+  display: grid;
+  gap: 16px;
+}
+
+.role-card {
+  padding: 20px;
+}
+
+.role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+/* Score badge con colores semánticos */
+.score-badge {
+  min-width: 72px;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.score-badge.score-high {
+  background: rgba(26, 158, 114, 0.12);
+  color: var(--primary-dark);
+}
+
+.score-badge.score-mid {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning);
+}
+
+.score-badge.score-low {
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--muted);
+}
+
+/* Banner de rol recomendado */
+.recommended-banner {
+  border-left: 4px solid var(--primary);
+  background: linear-gradient(135deg, rgba(26,158,114,0.06) 0%, rgba(26,158,114,0.02) 100%);
+}
+
+.recommended-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  background: rgba(26,158,114,0.12);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.recommended-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.recommended-pitch {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Card de rol recomendado */
+.role-card--recommended {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.role-recommended-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+  background: rgba(26,158,114,0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* Interpretación del score debajo del badge */
+.score-interpretation {
+  font-size: 11px;
+  font-weight: 600;
+  margin: 6px 0 0;
+  line-height: 1.3;
+  max-width: 120px;
+}
+.score-interpretation.score-high { color: var(--primary-dark); }
+.score-interpretation.score-mid  { color: var(--warning); }
+.score-interpretation.score-low  { color: var(--muted); }
+
+/* Links a ofertas */
+.role-job-links-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.role-job-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Bloque siguiente paso + CTA */
+.role-cv-builder-action {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.role-next-step {
+  margin-bottom: 14px;
+}
+.role-next-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.role-next-step-text {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.role-cv-builder-action .button {
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* ── Tarjeta piloto (sin score numérico) ────────────────────────── */
+
+.fit-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fit-badge.fit-high {
+  background: rgba(26, 158, 114, 0.12);
+  color: #127657;
+}
+
+.fit-badge.fit-mid {
+  background: rgba(217, 119, 6, 0.12);
+  color: #92400e;
+}
+
+.fit-badge.fit-low {
+  background: rgba(107, 114, 128, 0.12);
+  color: #4b5563;
+}
+
+.role-card--pilot .role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.role-description {
+  margin: 12px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.role-section {
+  margin-top: 20px;
+}
+
+.role-section h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.role-next-step-highlight {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: rgba(26, 158, 114, 0.06);
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+}
+
+.role-next-step-highlight h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.role-next-step-highlight p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.role-card--pilot .role-cv-builder-action {
+  margin-top: 20px;
+}
+
+/* Bloque de área detectada */
+.area-insight {
+  border-left: 4px solid var(--primary);
+  background: rgba(26, 158, 114, 0.04);
+}
+
+.area-insight-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.area-insight-label {
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.area-insight-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.area-insight-subareas {
+  margin-top: 12px;
+}
+
+.area-insight-sublabel {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Desglose de puntaje */
+.score-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.breakdown-item {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.breakdown-item.has-score {
+  border-color: #d7efe5;
+  background: #eef7f3;
+  color: var(--primary-dark);
+}
+
+.list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  line-height: 1.7;
+}
+
+.section-title {
+  margin-bottom: 10px;
+}
+
+.inline-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #eef7f3;
+  color: var(--primary-dark);
+  font-size: 14px;
+  border: 1px solid #d7efe5;
+}
+
+.error {
+  color: var(--danger);
+}
+
+/* ── Perfil hook + área statement ──────────────────────────────── */
+
+.profile-hook {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  margin: 4px 0 0;
+}
+
+.area-insight-statement {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--text);
+}
+
+.area-insight-statement strong {
+  color: var(--primary-dark);
+}
+
+/* ── Tarjeta compacta (roles secundarios) ──────────────────────── */
+
+.role-card--compact {
+  padding: 20px 24px;
+}
+
+.role-card--compact .role-section {
+  margin-top: 12px;
+}
+
+.role-card--compact .role-section h4 {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.role-compact-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.role-compact-actions .button {
+  font-size: 13px;
+  flex: 1;
+  text-align: center;
+  min-width: 140px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                           */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+  .grid.two,
+  .grid.three,
+  .interests-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-card {
+    padding: 28px;
+  }
+
+  .role-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fit-badge {
+    align-self: flex-start;
+  }
+
+  .role-card .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 20px 0 40px;
+  }
+}
+
+/* ================================================================== */
+/* Explore flow — multiselect cards                                   */
+/* ================================================================== */
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.explore-group-label {
+  margin: 14px 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.explore-group-label:first-child {
+  margin-top: 0;
+}
+
+.explore-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  font-size: 15px;
+}
+
+.explore-option:hover {
+  border-color: var(--primary);
+}
+
+.explore-option.selected {
+  border-color: var(--primary);
+  background: rgba(26, 158, 114, 0.06);
+}
+
+.explore-option.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.explore-option-check {
+  display: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.explore-option.selected .explore-option-check {
+  display: flex;
+}
+
+/* Confirmation cards (inferred areas) */
+.explore-confirm-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.explore-confirm-card {
+  position: relative;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.explore-confirm-card:hover {
+  border-color: var(--primary);
+}
+
+.explore-confirm-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+  background: rgba(26, 158, 114, 0.06);
+}
+
+.explore-confirm-card .explore-option-check {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+}
+
+.explore-confirm-card.selected .explore-option-check {
+  display: flex;
+}
+
+.explore-confirm-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.explore-confirm-card .muted {
+  margin: 0;
+  font-size: 14px;
+}

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Builder — Labora</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* ── Layout ─────────────────────────────────────────────────── */
+    .cvb-wrap { max-width: 640px; padding: 32px 16px; margin: 0 auto; }
+    .cvb-back  { font-size: 13px; color: var(--color-muted,#6b7280); text-decoration: none; }
+    .cvb-back:hover { text-decoration: underline; }
+
+    .cvb-header { margin: 16px 0 28px; }
+    .cvb-mode-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+      letter-spacing: .3px;
+    }
+    .cvb-mode-badge.generate { background: #dcfce7; color: #166534; }
+    .cvb-mode-badge.optimize { background: #dbeafe; color: #1d4ed8; }
+
+    .cvb-role-label {
+      font-size: 13px;
+      color: var(--color-muted,#6b7280);
+      margin-bottom: 4px;
+    }
+    .cvb-role-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-text,#111);
+      margin: 0 0 8px;
+    }
+    .cvb-subtitle {
+      font-size: 14px;
+      color: var(--color-muted,#6b7280);
+      margin: 0;
+    }
+
+    /* ── Optimize panel ──────────────────────────────────────────── */
+    #optimize-panel { display: none; }
+    .opt-info-card {
+      background: var(--color-surface,#f9fafb);
+      border: 1px solid var(--color-border,#e5e7eb);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .opt-info-card h3 { font-size: 14px; font-weight: 700; margin: 0 0 12px; }
+    .opt-profile-rows { font-size: 13px; display: flex; flex-direction: column; gap: 6px; }
+    .opt-profile-row  { display: flex; gap: 8px; }
+    .opt-profile-key  { color: var(--color-muted,#6b7280); min-width: 90px; }
+    .opt-profile-val  { font-weight: 500; }
+    .opt-no-rawtext {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #d97706;
+      background: #fef3c7;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+
+    /* ── Generate form ───────────────────────────────────────────── */
+    #generate-form { display: none; }
+    .cvb-section { margin-bottom: 32px; }
+    .cvb-section-title {
+      font-size: 15px; font-weight: 700;
+      color: var(--color-text,#111);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--color-border,#e5e7eb);
+    }
+    .cvb-field { margin-bottom: 16px; }
+    .cvb-field label {
+      display: block; font-size: 13px; font-weight: 600;
+      margin-bottom: 6px; color: var(--color-text,#111);
+    }
+    .cvb-field label .opt { font-weight: 400; color: var(--color-muted,#6b7280); margin-left: 4px; }
+    .cvb-field input[type="text"],
+    .cvb-field input[type="email"],
+    .cvb-field select,
+    .cvb-field textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--color-border,#d1d5db);
+      border-radius: 8px; font-size: 14px; font-family: inherit;
+      background: #fff; box-sizing: border-box; transition: border-color .15s;
+    }
+    .cvb-field input:focus,
+    .cvb-field select:focus,
+    .cvb-field textarea:focus { outline: none; border-color: var(--color-primary,#2563eb); }
+    .cvb-field textarea { resize: vertical; min-height: 72px; }
+    .field-hint { font-size: 12px; color: var(--color-muted,#6b7280); margin-top: 4px; }
+
+    .exp-entry {
+      background: var(--color-surface,#f9fafb);
+      border: 1px solid var(--color-border,#e5e7eb);
+      border-radius: 10px; padding: 16px; margin-bottom: 16px;
+    }
+    .exp-entry-header { font-size: 13px; font-weight: 600; color: var(--color-muted,#6b7280); margin-bottom: 12px; }
+    .exp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .exp-row { grid-template-columns: 1fr; } }
+
+    .add-exp-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: 1px dashed var(--color-border,#d1d5db);
+      border-radius: 8px; padding: 10px 16px; font-size: 13px;
+      color: var(--color-primary,#2563eb); cursor: pointer; width: 100%;
+      justify-content: center; transition: background .15s;
+    }
+    .add-exp-btn:hover { background: var(--color-surface,#f9fafb); }
+
+    /* Tags */
+    .tags-container {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 8px 10px; border: 1px solid var(--color-border,#d1d5db);
+      border-radius: 8px; min-height: 44px; cursor: text; background: #fff;
+    }
+    .tags-container:focus-within { border-color: var(--color-primary,#2563eb); }
+    .tag {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--color-primary,#2563eb); color: #fff;
+      border-radius: 16px; padding: 2px 10px; font-size: 13px;
+    }
+    .tag-remove {
+      background: none; border: none; color: rgba(255,255,255,.7);
+      cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 2px;
+    }
+    .tag-remove:hover { color: #fff; }
+    .tag-input { border: none; outline: none; font-size: 13px; min-width: 120px; flex: 1; font-family: inherit; }
+
+    /* ── Error ───────────────────────────────────────────────────── */
+    .cvb-error { color: #dc2626; font-size: 13px; margin: 8px 0; }
+
+    /* ── Result panel ────────────────────────────────────────────── */
+    #cvb-result { display: none; margin-top: 8px; }
+    .result-header {
+      background: var(--color-surface,#f9fafb);
+      border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+    }
+    .result-version-badge {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+    }
+    .result-version-badge.optimized { background: #dbeafe; color: #1d4ed8; }
+    .result-version-badge.generated { background: #dcfce7; color: #166534; }
+    .result-for-role { font-size: 13px; color: var(--color-muted,#6b7280); margin: 0 0 4px; }
+    .result-role-title { font-size: 20px; font-weight: 700; margin: 0; }
+
+    .result-section-title {
+      font-size: 14px; font-weight: 700;
+      margin: 24px 0 8px; color: var(--color-text,#111);
+    }
+    .result-summary-box {
+      background: var(--color-surface,#f9fafb);
+      border-left: 3px solid var(--color-primary,#2563eb);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px; font-size: 14px; line-height: 1.6;
+    }
+    .result-exp-item { margin-bottom: 16px; }
+    .result-exp-title { font-weight: 600; font-size: 14px; }
+    .result-exp-sub   { font-size: 12px; color: var(--color-muted,#6b7280); margin-bottom: 6px; }
+    .result-bullets   { list-style: none; padding: 0; margin: 0; }
+    .result-bullets li {
+      font-size: 13px; padding: 3px 0 3px 16px; position: relative;
+    }
+    .result-bullets li::before {
+      content: "•"; position: absolute; left: 0;
+      color: var(--color-primary,#2563eb);
+    }
+    .result-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .result-chip {
+      background: var(--color-surface,#f3f4f6);
+      border-radius: 20px; padding: 4px 12px; font-size: 12px;
+    }
+    .result-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px; }
+    @media (max-width: 520px) { .result-two-col { grid-template-columns: 1fr; } }
+    .result-list { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+    .result-list.green li { color: #16a34a; }
+    .result-list.green li::before { content: "✓ "; }
+    .result-list.amber li  { color: #d97706; }
+    .result-list.amber li::before { content: "⚠ "; }
+    .result-list li { padding: 3px 0; }
+    .result-footer-note {
+      margin-top: 20px; font-size: 13px; color: var(--color-muted,#6b7280);
+      background: var(--color-surface,#f9fafb);
+      border-radius: 8px; padding: 12px 16px;
+    }
+    .result-back-link {
+      display: inline-block; margin-top: 20px;
+      font-size: 14px; color: var(--color-primary,#2563eb); text-decoration: none;
+    }
+    .result-back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="cvb-wrap">
+
+  <a href="/results.html" class="cvb-back">← Volver a resultados</a>
+
+  <!-- Header dinámico -->
+  <div class="cvb-header">
+    <p class="cvb-mode-badge" id="cvb-mode-badge"></p>
+    <p class="cvb-role-label">Rol objetivo</p>
+    <h1 class="cvb-role-name" id="cvb-role-name">—</h1>
+    <p class="cvb-subtitle" id="cvb-subtitle"></p>
+  </div>
+
+  <!-- ── PANEL OPTIMIZE ───────────────────────────────────────── -->
+  <div id="optimize-panel">
+    <div class="opt-info-card">
+      <h3>Perfil que se usará para optimizar</h3>
+      <div class="opt-profile-rows" id="opt-profile-rows"></div>
+      <div class="opt-no-rawtext" id="opt-no-rawtext" style="display:none;">
+        No se encontró el texto completo del CV en esta sesión.
+        Las experiencias quedarán con marcadores <strong>(completar)</strong> que deberás editar.
+      </div>
+    </div>
+    <p class="cvb-error" id="opt-error" style="display:none;"></p>
+    <button class="button primary" id="opt-submit" style="width:100%;">
+      Optimizar CV para este rol →
+    </button>
+  </div>
+
+  <!-- ── FORMULARIO GENERATE ──────────────────────────────────── -->
+  <form id="generate-form" novalidate>
+
+    <!-- Bloque 1: Formación -->
+    <div class="cvb-section">
+      <div class="cvb-section-title">Formación</div>
+      <div class="cvb-field">
+        <label for="cvb-institution">Universidad o instituto</label>
+        <input type="text" id="cvb-institution" placeholder="Ej: Universidad de Chile" />
+      </div>
+      <div class="cvb-field">
+        <label for="cvb-degree">Carrera</label>
+        <input type="text" id="cvb-degree" placeholder="Ej: Ingeniería Comercial" />
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="cvb-field">
+          <label for="cvb-academic-status">Etapa actual</label>
+          <select id="cvb-academic-status">
+            <option value="titulado">Titulado/a</option>
+            <option value="egresado">Egresado/a</option>
+            <option value="cursando">Cursando</option>
+          </select>
+        </div>
+        <div class="cvb-field">
+          <label for="cvb-grad-year">Año de egreso / titulación</label>
+          <input type="text" id="cvb-grad-year" placeholder="Ej: 2024" maxlength="4" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque 2: Experiencias -->
+    <div class="cvb-section">
+      <div class="cvb-section-title">Experiencias relevantes</div>
+      <p style="font-size:13px; color:var(--color-muted,#6b7280); margin-top:-8px; margin-bottom:16px;">
+        Incluye prácticas, ayudantías, proyectos, voluntariados o trabajos informales.
+      </p>
+      <div id="cvb-experiences-container"></div>
+      <button type="button" class="add-exp-btn" id="cvb-add-exp" style="display:none;">
+        + Agregar otra experiencia
+      </button>
+    </div>
+
+    <!-- Bloque 3: Herramientas e idiomas -->
+    <div class="cvb-section">
+      <div class="cvb-section-title">Herramientas e idiomas</div>
+      <div class="cvb-field">
+        <label>Herramientas y software <span class="opt">(Enter o coma para agregar)</span></label>
+        <div class="tags-container" id="tools-container">
+          <input class="tag-input" id="tools-input" type="text" placeholder="Ej: Excel, Python, Power BI…" />
+        </div>
+      </div>
+      <div class="cvb-field">
+        <label>Idiomas <span class="opt">(Enter o coma para agregar)</span></label>
+        <div class="tags-container" id="languages-container">
+          <input class="tag-input" id="languages-input" type="text" placeholder="Ej: Inglés B1, Español nativo…" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque 4: Contacto -->
+    <div class="cvb-section">
+      <div class="cvb-section-title">
+        Datos de contacto
+        <span style="font-weight:400; font-size:13px; color:var(--color-muted,#6b7280);">(opcional)</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="cvb-field">
+          <label for="cvb-name">Nombre completo</label>
+          <input type="text" id="cvb-name" placeholder="Tu nombre completo" />
+        </div>
+        <div class="cvb-field">
+          <label for="cvb-email">Email</label>
+          <input type="email" id="cvb-email" placeholder="tucorreo@gmail.com" />
+        </div>
+      </div>
+      <div class="cvb-field">
+        <label for="cvb-linkedin">LinkedIn <span class="opt">(opcional)</span></label>
+        <input type="text" id="cvb-linkedin" placeholder="linkedin.com/in/tu-perfil" />
+      </div>
+    </div>
+
+    <p class="cvb-error" id="gen-error" style="display:none;"></p>
+    <button type="submit" class="button primary" id="gen-submit" style="width:100%;">
+      Generar borrador de CV
+    </button>
+
+  </form>
+
+  <!-- ── RESULTADO (compartido por ambos modos) ────────────────── -->
+  <div id="cvb-result">
+    <div class="result-header">
+      <span class="result-version-badge" id="res-version-badge"></span>
+      <p class="result-for-role">CV generado para el rol</p>
+      <h2 class="result-role-title" id="res-role-title"></h2>
+    </div>
+
+    <div class="result-section-title">Resumen profesional</div>
+    <div class="result-summary-box" id="res-summary"></div>
+
+    <div class="result-section-title" id="res-exp-title" style="display:none;">Experiencias</div>
+    <div id="res-experiences"></div>
+
+    <div class="result-section-title" id="res-tools-title" style="display:none;">Herramientas</div>
+    <div class="result-chips" id="res-tools"></div>
+
+    <div class="result-section-title" id="res-langs-title" style="display:none;">Idiomas</div>
+    <div class="result-chips" id="res-langs"></div>
+
+    <div class="result-two-col">
+      <div>
+        <div class="result-section-title">Qué se mejoró</div>
+        <ul class="result-list green" id="res-improvements"></ul>
+      </div>
+      <div>
+        <div class="result-section-title">Qué falta completar</div>
+        <ul class="result-list amber" id="res-gaps"></ul>
+      </div>
+    </div>
+
+    <div class="result-footer-note" id="res-footer-note"></div>
+    <a href="/results.html" class="result-back-link">← Volver a los resultados del diagnóstico</a>
+  </div>
+
+</div>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════════════════
+let mode       = "generate";
+let targetRole = "";
+let toolTags   = [];
+let langTags   = [];
+let expCount   = 0;
+const MAX_EXP  = 3;
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  mode       = params.get("mode") || "generate";
+  targetRole = params.get("role") || "";
+
+  // Header
+  const modeBadge = document.getElementById("cvb-mode-badge");
+  const roleName  = document.getElementById("cvb-role-name");
+  const subtitle  = document.getElementById("cvb-subtitle");
+
+  roleName.textContent = targetRole || "Sin rol especificado";
+
+  if (mode === "optimize") {
+    modeBadge.textContent = "Optimizar CV existente";
+    modeBadge.className   = "cvb-mode-badge optimize";
+    subtitle.textContent  = "Usaremos tu CV y perfil para reescribir el resumen, mejorar los bullets y priorizar las experiencias más relevantes para este rol.";
+    initOptimizePanel();
+  } else {
+    modeBadge.textContent = "Crear CV desde cero";
+    modeBadge.className   = "cvb-mode-badge generate";
+    subtitle.textContent  = "Completa la información básica y Labora generará un borrador de CV orientado a este rol.";
+    initGenerateForm();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MODE: OPTIMIZE
+// ═══════════════════════════════════════════════════════════════════
+function initOptimizePanel() {
+  document.getElementById("optimize-panel").style.display = "block";
+
+  const raw     = sessionStorage.getItem("laboraResults");
+  const profile = raw ? (JSON.parse(raw).profile || {}) : {};
+  const cvText  = sessionStorage.getItem("laboraCvRawText") || "";
+
+  // Mostrar resumen del perfil
+  const rows = [
+    ["Carrera",       profile.degree        || "—"],
+    ["Etapa",         profile.academic_status || "—"],
+    ["Herramientas",  (profile.tools || []).slice(0,4).join(", ") || "—"],
+    ["Idiomas",       (profile.languages || []).join(", ") || "—"],
+    ["Experiencia",   (profile.experience || []).length
+                        ? profile.experience.slice(0,2).join("; ")
+                        : "No detectada"],
+  ];
+  document.getElementById("opt-profile-rows").innerHTML = rows
+    .map(([k, v]) => `<div class="opt-profile-row">
+      <span class="opt-profile-key">${k}</span>
+      <span class="opt-profile-val">${escapeHtml(v)}</span>
+    </div>`)
+    .join("");
+
+  if (!cvText) {
+    document.getElementById("opt-no-rawtext").style.display = "block";
+  }
+
+  document.getElementById("opt-submit").addEventListener("click", handleOptimize);
+}
+
+async function handleOptimize() {
+  const btn = document.getElementById("opt-submit");
+  btn.disabled    = true;
+  btn.textContent = "Optimizando…";
+  document.getElementById("opt-error").style.display = "none";
+
+  const raw     = sessionStorage.getItem("laboraResults");
+  const profile = raw ? (JSON.parse(raw).profile || {}) : {};
+  const cvText  = sessionStorage.getItem("laboraCvRawText") || "";
+
+  const payload = {
+    flow:       "optimize",
+    targetRole,
+    profile,
+    rawCvText:  cvText,
+  };
+
+  try {
+    const res  = await fetch("/api/cv/build", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || "Error al optimizar el CV.");
+    document.getElementById("optimize-panel").style.display = "none";
+    renderResult(data);
+  } catch (err) {
+    const errEl = document.getElementById("opt-error");
+    errEl.textContent = err.message;
+    errEl.style.display = "block";
+    btn.disabled    = false;
+    btn.textContent = "Optimizar CV para este rol →";
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MODE: GENERATE
+// ═══════════════════════════════════════════════════════════════════
+function initGenerateForm() {
+  document.getElementById("generate-form").style.display = "block";
+
+  // Pre-fill desde perfil guardado
+  const raw     = sessionStorage.getItem("laboraResults");
+  const profile = raw ? (JSON.parse(raw).profile || {}) : {};
+
+  if (profile.degree)          document.getElementById("cvb-degree").value  = profile.degree;
+  if (profile.name)            document.getElementById("cvb-name").value    = profile.name;
+
+  if (profile.academic_status) {
+    const sel = document.getElementById("cvb-academic-status");
+    const val = profile.academic_status.toLowerCase();
+    if (val.includes("titulado") || val.includes("titulo")) sel.value = "titulado";
+    else if (val.includes("egresado"))                      sel.value = "egresado";
+    else if (val.includes("cursando") || val.includes("en curso")) sel.value = "cursando";
+  }
+
+  if (Array.isArray(profile.tools)) {
+    profile.tools.forEach(t => addTag(t, "tools-container", toolTags));
+  }
+  if (Array.isArray(profile.languages)) {
+    profile.languages.forEach(l => addTag(
+      l.charAt(0).toUpperCase() + l.slice(1), "languages-container", langTags
+    ));
+  }
+
+  addExperienceEntry();
+  const addBtn = document.getElementById("cvb-add-exp");
+  addBtn.style.display = "flex";
+  addBtn.addEventListener("click", () => {
+    if (expCount < MAX_EXP) addExperienceEntry();
+    if (expCount >= MAX_EXP) addBtn.style.display = "none";
+  });
+
+  initTagInput("tools-input",     "tools-container",     toolTags);
+  initTagInput("languages-input", "languages-container", langTags);
+
+  document.getElementById("generate-form").addEventListener("submit", handleGenerate);
+}
+
+async function handleGenerate(e) {
+  e.preventDefault();
+
+  const degree = document.getElementById("cvb-degree").value.trim();
+  if (!degree) {
+    showError("gen-error", "Por favor ingresa tu carrera.");
+    return;
+  }
+
+  const btn = document.getElementById("gen-submit");
+  btn.disabled    = true;
+  btn.textContent = "Generando…";
+  hideError("gen-error");
+
+  const experiences = [];
+  for (let i = 1; i <= expCount; i++) {
+    const org   = document.getElementById(`exp-org-${i}`)?.value.trim();
+    const role  = document.getElementById(`exp-role-${i}`)?.value.trim();
+    const dates = document.getElementById(`exp-dates-${i}`)?.value.trim();
+    const what  = document.getElementById(`exp-what-${i}`)?.value.trim();
+    if (org || role || what) {
+      experiences.push({ organization: org, role, date_range: dates, what_did: what });
+    }
+  }
+
+  const userInputs = {
+    full_name:       document.getElementById("cvb-name").value.trim(),
+    email:           document.getElementById("cvb-email").value.trim(),
+    linkedin:        document.getElementById("cvb-linkedin").value.trim(),
+    degree,
+    institution:     document.getElementById("cvb-institution").value.trim(),
+    academic_status: document.getElementById("cvb-academic-status").value,
+    graduation_year: document.getElementById("cvb-grad-year").value.trim(),
+    tools:           [...toolTags],
+    languages:       [...langTags],
+    experiences,
+    courses:         [],
+  };
+
+  const payload = { flow: "generate", targetRole, userInputs };
+
+  try {
+    const res  = await fetch("/api/cv/build", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || "Error al generar el CV.");
+    document.getElementById("generate-form").style.display = "none";
+    renderResult(data);
+  } catch (err) {
+    showError("gen-error", err.message);
+    btn.disabled    = false;
+    btn.textContent = "Generar borrador de CV";
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER RESULTADO (compartido)
+// ═══════════════════════════════════════════════════════════════════
+function renderResult(data) {
+  const cv          = data.cv          || {};
+  const versionType = data.cv_version_type || data.flow || "generated";
+  const role        = data.target_role || targetRole;
+
+  // Badge y título
+  const badge = document.getElementById("res-version-badge");
+  badge.textContent = versionType === "optimized" ? "CV Optimizado" : "CV Generado";
+  badge.className   = `result-version-badge ${versionType === "optimized" ? "optimized" : "generated"}`;
+  document.getElementById("res-role-title").textContent = role;
+
+  // Resumen
+  document.getElementById("res-summary").textContent =
+    cv.professional_summary || "(Sin resumen generado)";
+
+  // Experiencias
+  const expContainer = document.getElementById("res-experiences");
+  const expTitle     = document.getElementById("res-exp-title");
+  if ((cv.experience || []).length) {
+    expTitle.style.display = "block";
+    expContainer.innerHTML = cv.experience.map(exp => `
+      <div class="result-exp-item">
+        <div class="result-exp-title">${escapeHtml(exp.organization)} — ${escapeHtml(exp.role)}</div>
+        <div class="result-exp-sub">${escapeHtml(exp.date_range)}</div>
+        ${(exp.bullets || []).length
+          ? `<ul class="result-bullets">${exp.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+          : ""}
+      </div>`).join("");
+  }
+
+  // Herramientas
+  const softwares = cv.additional_info?.softwares || [];
+  if (softwares.length) {
+    document.getElementById("res-tools-title").style.display = "block";
+    document.getElementById("res-tools").innerHTML =
+      softwares.map(s => `<span class="result-chip">${escapeHtml(s)}</span>`).join("");
+  }
+
+  // Idiomas
+  const langs = cv.additional_info?.languages || [];
+  if (langs.length) {
+    document.getElementById("res-langs-title").style.display = "block";
+    document.getElementById("res-langs").innerHTML =
+      langs.map(l => `<span class="result-chip">${escapeHtml(l)}</span>`).join("");
+  }
+
+  // Mejoras
+  const impList = document.getElementById("res-improvements");
+  (data.improvements_made || []).forEach(m => {
+    const li = document.createElement("li"); li.textContent = m; impList.appendChild(li);
+  });
+
+  // Gaps
+  const gapList = document.getElementById("res-gaps");
+  (data.missing_information || []).forEach(m => {
+    const li = document.createElement("li"); li.textContent = m; gapList.appendChild(li);
+  });
+
+  // Nota footer
+  const note = versionType === "optimized"
+    ? "Tu CV fue optimizado con el contenido de tu archivo original. Revisa y ajusta los datos marcados con (completar)."
+    : "Este borrador es un punto de partida. Completa los campos marcados con (completar) antes de enviarlo a una oferta.";
+  document.getElementById("res-footer-note").textContent = note;
+
+  // Mostrar resultado y hacer scroll
+  const resultEl = document.getElementById("cvb-result");
+  resultEl.style.display = "block";
+  resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPERIENCIAS (generate)
+// ═══════════════════════════════════════════════════════════════════
+function addExperienceEntry() {
+  expCount++;
+  const n   = expCount;
+  const div = document.createElement("div");
+  div.className = "exp-entry";
+  div.id        = `exp-entry-${n}`;
+  div.innerHTML = `
+    <div class="exp-entry-header">Experiencia ${n}</div>
+    <div class="exp-row">
+      <div class="cvb-field">
+        <label for="exp-org-${n}">Organización</label>
+        <input type="text" id="exp-org-${n}" placeholder="Ej: BCI, ONG Techo, Proyecto uni" />
+      </div>
+      <div class="cvb-field">
+        <label for="exp-role-${n}">Rol o tipo</label>
+        <input type="text" id="exp-role-${n}" placeholder="Ej: Práctica, Ayudante, Voluntario" />
+      </div>
+    </div>
+    <div class="cvb-field">
+      <label for="exp-dates-${n}">Período <span class="opt">(opcional)</span></label>
+      <input type="text" id="exp-dates-${n}" placeholder="Ej: Mar 2024 – Jul 2024" />
+    </div>
+    <div class="cvb-field">
+      <label for="exp-what-${n}">¿Qué hiciste ahí?</label>
+      <textarea id="exp-what-${n}" rows="3"
+        placeholder="Ej: Elaboré reportes en Excel, apoyé seguimiento comercial y ordené bases de datos."></textarea>
+      <p class="field-hint">Escribe de forma simple. Separa actividades con punto o salto de línea. Labora transforma el texto en bullets profesionales.</p>
+    </div>`;
+  document.getElementById("cvb-experiences-container").appendChild(div);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAGS INPUT
+// ═══════════════════════════════════════════════════════════════════
+function addTag(text, containerId, tagsArray) {
+  const t = text.trim();
+  if (!t || tagsArray.some(x => x.toLowerCase() === t.toLowerCase())) return;
+  tagsArray.push(t);
+  renderTags(containerId, tagsArray);
+}
+
+function removeTag(index, containerId, tagsArray) {
+  tagsArray.splice(index, 1);
+  renderTags(containerId, tagsArray);
+}
+
+function renderTags(containerId, tagsArray) {
+  const container = document.getElementById(containerId);
+  const input     = container.querySelector(".tag-input");
+  Array.from(container.querySelectorAll(".tag")).forEach(t => t.remove());
+  tagsArray.forEach((tag, i) => {
+    const span = document.createElement("span");
+    span.className = "tag";
+    span.innerHTML = `${escapeHtml(tag)}<button class="tag-remove" type="button" aria-label="Eliminar">×</button>`;
+    span.querySelector(".tag-remove").addEventListener("click", () => removeTag(i, containerId, tagsArray));
+    container.insertBefore(span, input);
+  });
+}
+
+function initTagInput(inputId, containerId, tagsArray) {
+  const input     = document.getElementById(inputId);
+  const container = document.getElementById(containerId);
+  container.addEventListener("click", () => input.focus());
+  input.addEventListener("keydown", e => {
+    if ((e.key === "Enter" || e.key === ",") && input.value.trim()) {
+      e.preventDefault();
+      addTag(input.value, containerId, tagsArray);
+      input.value = "";
+    }
+  });
+  input.addEventListener("blur", () => {
+    if (input.value.trim()) { addTag(input.value, containerId, tagsArray); input.value = ""; }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent    = msg;
+  el.style.display  = "block";
+}
+function hideError(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+init();
+</script>
+</body>
+</html>

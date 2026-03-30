@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labora | Vacantes para tu rol</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .vacantes-header {
+      margin-bottom: 24px;
+    }
+    .vacantes-header h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+    }
+    .vacantes-header .muted {
+      font-size: 15px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .vacancy-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .vacancy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .vacancy-header h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+    .vacancy-company {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+    .vacancy-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .vacancy-meta-tag {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: rgba(107, 114, 128, 0.1);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .vacancy-reqs {
+      margin-bottom: 16px;
+    }
+    .vacancy-reqs h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin: 0 0 8px;
+    }
+    .vacancy-reqs .list { margin: 0; padding-left: 18px; }
+    .vacancy-reqs .list li { font-size: 14px; margin-bottom: 4px; }
+
+    /* Match comparison */
+    .vacancy-match {
+      margin-bottom: 16px;
+      padding: 16px 20px;
+      background: rgba(26, 158, 114, 0.04);
+      border-radius: 10px;
+    }
+    .vacancy-match h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 10px;
+    }
+    .match-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 14px;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .match-icon {
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .match-icon.positive { color: #127657; }
+    .match-icon.negative { color: #b42318; }
+    .match-icon.unclear  { color: #d97706; }
+
+    /* Fit badge for vacancy */
+    .vacancy-fit {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .vacancy-fit.fit-good    { background: rgba(26, 158, 114, 0.12); color: #127657; }
+    .vacancy-fit.fit-partial { background: rgba(217, 119, 6, 0.12); color: #92400e; }
+    .vacancy-fit.fit-low     { background: rgba(107, 114, 128, 0.12); color: #4b5563; }
+
+    /* Main gap */
+    .vacancy-gap {
+      margin-bottom: 14px;
+    }
+    .vacancy-gap h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--danger);
+      margin: 0 0 6px;
+    }
+    .vacancy-gap .list { margin: 0; padding-left: 18px; }
+    .vacancy-gap .list li { font-size: 14px; margin-bottom: 4px; color: var(--text); }
+
+    /* Next step */
+    .vacancy-next-step {
+      padding: 14px 18px;
+      background: rgba(26, 158, 114, 0.06);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+    }
+    .vacancy-next-step h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin: 0 0 4px;
+    }
+    .vacancy-next-step p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .no-vacancies {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="container" id="vacantes-root">
+    <p class="muted">Cargando vacantes...</p>
+  </main>
+
+  <script>
+  // ================================================================
+  // Mock data: vacantes por rol
+  // ================================================================
+
+  const ROLE_JOB_MOCKS = {
+    "Analista Financiero Junior": [
+      {
+        company: "BCI",
+        title: "Analista Financiero Junior",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Excel avanzado",
+          "Análisis de estados financieros",
+          "Inglés intermedio",
+          "Práctica o experiencia en finanzas"
+        ]
+      },
+      {
+        company: "Falabella",
+        title: "Analista de Finanzas Corporativas",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel avanzado",
+          "Modelación financiera",
+          "Conocimiento de VAN y TIR",
+          "Power BI básico",
+          "Título en Ingeniería Comercial o afín"
+        ]
+      },
+      {
+        company: "Itaú Chile",
+        title: "Analista Financiero — Banca Empresas",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Análisis de estados financieros",
+          "Excel avanzado",
+          "Inglés intermedio",
+          "SAP módulo FI (deseable)",
+          "1 año de experiencia o práctica profesional"
+        ]
+      },
+      {
+        company: "KPMG Chile",
+        title: "Analista Junior — Advisory Financiero",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel avanzado",
+          "Valorización de empresas",
+          "Inglés avanzado",
+          "Capacidad analítica demostrable"
+        ]
+      }
+    ],
+    "Analista Control de Gestión Junior": [
+      {
+        company: "Cencosud",
+        title: "Analista Control de Gestión",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Excel avanzado",
+          "Power BI intermedio",
+          "Control presupuestario",
+          "Conocimiento de KPIs operacionales"
+        ]
+      },
+      {
+        company: "Latam Airlines",
+        title: "Analista de Gestión y Presupuesto",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel avanzado",
+          "SAP CO",
+          "Experiencia en reportes de gestión",
+          "Inglés intermedio"
+        ]
+      },
+      {
+        company: "Arauco",
+        title: "Analista Junior — Planificación Financiera",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Power BI",
+          "Excel avanzado",
+          "Análisis de desviaciones",
+          "Práctica profesional en área financiera"
+        ]
+      }
+    ],
+    "Analista Comercial Junior": [
+      {
+        company: "Entel",
+        title: "Analista Comercial Junior",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Excel intermedio",
+          "CRM (Salesforce o HubSpot)",
+          "Análisis de pipeline de ventas",
+          "Habilidades de comunicación"
+        ]
+      },
+      {
+        company: "Coca-Cola Andina",
+        title: "Analista de Desarrollo Comercial",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel avanzado",
+          "Power BI",
+          "Análisis de sell-in / sell-out",
+          "Disponibilidad para trabajo en terreno ocasional"
+        ]
+      },
+      {
+        company: "Wom",
+        title: "Analista de Inteligencia Comercial",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "SQL básico",
+          "Excel avanzado",
+          "Análisis de datos de mercado",
+          "Inglés intermedio (deseable)"
+        ]
+      }
+    ],
+    "Coordinador de Operaciones Junior": [
+      {
+        company: "Ripley",
+        title: "Coordinador de Operaciones Logísticas",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel intermedio",
+          "Conocimiento de cadena de suministro",
+          "SAP MM (deseable)",
+          "Capacidad de coordinación entre áreas"
+        ]
+      },
+      {
+        company: "Mercado Libre",
+        title: "Operations Analyst",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Excel avanzado",
+          "SQL básico",
+          "Lean/Six Sigma (deseable)",
+          "Inglés intermedio",
+          "Experiencia en logística o e-commerce"
+        ]
+      },
+      {
+        company: "Bimbo Chile",
+        title: "Analista de Operaciones — Distribución",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel intermedio",
+          "Conocimiento de rutas y distribución",
+          "Power BI (deseable)",
+          "Práctica o experiencia en operaciones"
+        ]
+      }
+    ],
+    "Asistente de Proyectos Junior": [
+      {
+        company: "SQM",
+        title: "Asistente de Gestión de Proyectos",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Excel intermedio",
+          "Microsoft Project o similar",
+          "Metodología PMI (deseable)",
+          "Habilidades de organización y seguimiento"
+        ]
+      },
+      {
+        company: "Accenture Chile",
+        title: "Junior Project Coordinator",
+        location: "Santiago",
+        modality: "Híbrido",
+        requirements: [
+          "Excel avanzado",
+          "Jira o Trello",
+          "Inglés intermedio",
+          "Capacidad de documentación"
+        ]
+      },
+      {
+        company: "Enel Chile",
+        title: "Analista Junior — PMO",
+        location: "Santiago",
+        modality: "Presencial",
+        requirements: [
+          "Excel intermedio",
+          "Power BI (deseable)",
+          "Conocimiento de metodologías ágiles",
+          "Práctica profesional en gestión de proyectos"
+        ]
+      }
+    ]
+  };
+
+  // ================================================================
+  // Lógica de comparación perfil vs oferta
+  // ================================================================
+
+  function normalizeStr(s) {
+    return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  }
+
+  function matchRequirements(requirements, profile) {
+    const profileItems = new Set([
+      ...(profile.tools || []).map(normalizeStr),
+      ...(profile.skills || []).map(normalizeStr),
+      ...(profile.degree ? [normalizeStr(profile.degree)] : [])
+    ]);
+    const profileLangs = (profile.languages || []).map(normalizeStr);
+    const hasExperience = (profile.experience || []).length > 0 ||
+                          (profile.raw_text_length || 0) > 200;
+
+    const results = [];
+
+    for (const req of requirements) {
+      const reqNorm = normalizeStr(req);
+      let status = "negative"; // default: not found
+
+      // Check tools/skills match
+      for (const item of profileItems) {
+        if (reqNorm.includes(item) || item.includes(reqNorm.split(" ")[0])) {
+          status = "positive";
+          break;
+        }
+      }
+
+      // Check degree match
+      if (status === "negative" && reqNorm.includes("titulo") || reqNorm.includes("ingenieria") || reqNorm.includes("afin")) {
+        if (profile.degree) status = "positive";
+      }
+
+      // Check language match
+      if (status === "negative" && (reqNorm.includes("ingles") || reqNorm.includes("english"))) {
+        if (profileLangs.some(l => l.includes("ingl") || l.includes("english"))) {
+          status = "positive";
+        }
+      }
+
+      // Check experience
+      if (status === "negative" && (reqNorm.includes("experiencia") || reqNorm.includes("practica"))) {
+        if (hasExperience) status = "unclear";
+      }
+
+      // Deseable = unclear if not matched
+      if (status === "negative" && reqNorm.includes("deseable")) {
+        status = "unclear";
+      }
+
+      // Generic soft skills → unclear
+      if (status === "negative" && (
+        reqNorm.includes("capacidad") || reqNorm.includes("habilidad") ||
+        reqNorm.includes("comunicacion") || reqNorm.includes("organizacion")
+      )) {
+        status = "unclear";
+      }
+
+      results.push({ requirement: req, status });
+    }
+
+    return results;
+  }
+
+  function vacancyFitLevel(matchResults) {
+    const pos = matchResults.filter(r => r.status === "positive").length;
+    const total = matchResults.length;
+    const ratio = total > 0 ? pos / total : 0;
+
+    if (ratio >= 0.6) return { label: "Buen encaje",    css: "fit-good" };
+    if (ratio >= 0.3) return { label: "Encaje parcial",  css: "fit-partial" };
+    return               { label: "Encaje bajo",       css: "fit-low" };
+  }
+
+  function buildMainGaps(matchResults) {
+    return matchResults
+      .filter(r => r.status === "negative")
+      .slice(0, 2)
+      .map(r => `Piden ${r.requirement.toLowerCase()} y no aparece en tu perfil.`);
+  }
+
+  function buildVacancyNextStep(matchResults) {
+    const topGap = matchResults.find(r => r.status === "negative");
+    if (!topGap) return "Tu perfil cubre los requisitos principales. Enfócate en destacar tu experiencia en el CV.";
+
+    const req = topGap.requirement;
+    const reqLower = req.toLowerCase();
+
+    if (reqLower.includes("excel") || reqLower.includes("power bi") || reqLower.includes("sql") || reqLower.includes("sap")) {
+      return `Aprende ${req} con un proyecto práctico y agrégalo a tu CV con evidencia concreta.`;
+    }
+    if (reqLower.includes("ingles") || reqLower.includes("english")) {
+      return `Acredita tu nivel de inglés (certificación o evidencia) o prioriza vacantes donde no sea requisito.`;
+    }
+    if (reqLower.includes("experiencia") || reqLower.includes("practica")) {
+      return `Busca una práctica profesional, voluntariado o proyecto que te dé experiencia demostrable en esta área.`;
+    }
+    return `Enfócate en cubrir ${req.toLowerCase()} — es lo que más te acercaría a esta oferta.`;
+  }
+
+  // ================================================================
+  // Render
+  // ================================================================
+
+  function renderVacancyCard(vacancy, profile) {
+    const matchResults = matchRequirements(vacancy.requirements, profile);
+    const fit = vacancyFitLevel(matchResults);
+    const gaps = buildMainGaps(matchResults);
+    const nextStep = buildVacancyNextStep(matchResults);
+
+    const matchIcons = { positive: "check", negative: "close", unclear: "warning" };
+    const matchLabels = { positive: "positive", negative: "negative", unclear: "unclear" };
+
+    return `
+      <div class="vacancy-card">
+        <div class="vacancy-header">
+          <div>
+            <h3>${vacancy.title}</h3>
+            <p class="vacancy-company">${vacancy.company}</p>
+          </div>
+          <span class="vacancy-fit ${fit.css}">${fit.label}</span>
+        </div>
+
+        <div class="vacancy-meta">
+          <span class="vacancy-meta-tag">${vacancy.location}</span>
+          <span class="vacancy-meta-tag">${vacancy.modality}</span>
+        </div>
+
+        <div class="vacancy-reqs">
+          <h4>Requisitos de la oferta</h4>
+          <ul class="list">
+            ${vacancy.requirements.map(r => `<li>${r}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div class="vacancy-match">
+          <h4>Cómo calzas con esta oferta</h4>
+          ${matchResults.map(r => `
+            <div class="match-item">
+              <span class="match-icon ${matchLabels[r.status]}">${
+                r.status === "positive" ? "&#10004;" :
+                r.status === "negative" ? "&#10006;" : "&#9888;"
+              }</span>
+              <span>${r.requirement}${
+                r.status === "positive" ? "" :
+                r.status === "negative" ? " — no aparece en tu perfil" :
+                " — no se puede confirmar"
+              }</span>
+            </div>
+          `).join("")}
+        </div>
+
+        ${gaps.length > 0 ? `
+        <div class="vacancy-gap">
+          <h4>Lo que más te aleja hoy de esta oferta</h4>
+          <ul class="list">
+            ${gaps.map(g => `<li>${g}</li>`).join("")}
+          </ul>
+        </div>` : ""}
+
+        <div class="vacancy-next-step">
+          <h4>Si quisieras acercarte a esta oferta</h4>
+          <p>${nextStep}</p>
+        </div>
+      </div>`;
+  }
+
+  // ================================================================
+  // Init
+  // ================================================================
+
+  (function init() {
+    const root = document.getElementById("vacantes-root");
+    const params = new URLSearchParams(window.location.search);
+    const roleTitle = params.get("role") || "";
+
+    // Get profile from sessionStorage
+    const stored = sessionStorage.getItem("laboraResults");
+    if (!stored) {
+      root.innerHTML = `
+        <div class="card">
+          <h2>No hay perfil cargado</h2>
+          <p class="muted">Primero completa el diagnóstico para ver vacantes.</p>
+          <a class="button primary" href="/upload.html">Ir al diagnóstico</a>
+        </div>`;
+      return;
+    }
+
+    const data = JSON.parse(stored);
+    const profile = data.profile || {};
+
+    // Find mock vacancies
+    const vacancies = ROLE_JOB_MOCKS[roleTitle] || null;
+
+    if (!vacancies) {
+      root.innerHTML = `
+        <a href="/results.html" class="back-link">&larr; Volver a resultados</a>
+        <div class="card no-vacancies">
+          <h2>Aún no tenemos vacantes para este rol</h2>
+          <p class="muted">Estamos trabajando en ampliar la cobertura. Por ahora, puedes buscar ofertas en LinkedIn o Indeed.</p>
+        </div>`;
+      return;
+    }
+
+    const vacancyCards = vacancies.map(v => renderVacancyCard(v, profile)).join("");
+
+    root.innerHTML = `
+      <a href="/results.html" class="back-link">&larr; Volver a resultados</a>
+
+      <div class="vacantes-header">
+        <h1>Vacantes reales para: ${roleTitle}</h1>
+        <p class="muted">Estas ofertas te ayudan a aterrizar qué pide realmente el mercado para este rol.</p>
+      </div>
+
+      ${vacancyCards}`;
+  })();
+  </script>
+</body>
+</html>

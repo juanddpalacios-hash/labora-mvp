@@ -1,0 +1,197 @@
+[
+  {
+    "id": "analista-datos-junior",
+    "title": "Analista de Datos Junior",
+    "pitch": "Extrae insights desde datos usando SQL y Python, y los comunica en dashboards.",
+    "area": "Analítica",
+    "subarea": "Datos",
+    "category": "analitica",
+    "related_degrees": [
+      "Ingeniería Comercial", "Ingeniería Civil Industrial",
+      "Estadística", "Ingeniería en Informática", "Economía"
+    ],
+    "primary_families":   ["analitica"],
+    "secondary_families": ["negocios", "ingenieria"],
+    "skills": ["SQL", "Python", "Power BI", "análisis de datos", "visualización de datos", "Excel"],
+    "required_skills": ["SQL", "Python", "Excel"],
+    "experience_signals": ["analisis", "dashboard", "sql", "python", "tesis", "practica"],
+    "modalities": ["híbrido", "remoto", "presencial"]
+  },
+  {
+    "id": "analista-reporting-junior",
+    "title": "Analista de Reporting Junior",
+    "pitch": "Construye reportes de gestión y dashboards para que otros tomen mejores decisiones.",
+    "area": "Analítica",
+    "subarea": "Reporting",
+    "category": "analitica",
+    "related_degrees": [
+      "Ingeniería Comercial", "Ingeniería Civil Industrial",
+      "Contador Auditor", "Estadística", "Economía"
+    ],
+    "primary_families":   ["analitica", "finanzas"],
+    "secondary_families": ["negocios"],
+    "skills": ["Power BI", "dashboards", "SQL", "KPIs", "análisis de datos", "Excel"],
+    "required_skills": ["Power BI", "Excel", "SQL"],
+    "experience_signals": ["reporte", "dashboard", "kpi", "practica", "tesis"],
+    "modalities": ["híbrido", "remoto", "presencial"]
+  },
+  {
+    "id": "analista-financiero-junior",
+    "title": "Analista Financiero Junior",
+    "pitch": "Modela flujos de caja, valora activos y analiza estados financieros.",
+    "area": "Finanzas",
+    "subarea": "Análisis Financiero",
+    "category": "finanzas",
+    "related_degrees": [
+      "Ingeniería Comercial", "Contador Auditor", "Economía", "Ingeniería Civil Industrial"
+    ],
+    "primary_families":   ["finanzas", "negocios"],
+    "secondary_families": ["analitica"],
+    "skills": ["análisis financiero", "estados financieros", "flujo de caja", "valorización", "Excel", "PowerPoint"],
+    "required_skills": ["Excel", "análisis financiero", "estados financieros"],
+    "experience_signals": ["finanza", "financier", "inversion", "practica", "tesis"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "analista-control-gestion-junior",
+    "title": "Analista Control de Gestión Junior",
+    "pitch": "Controla presupuestos, mide desviaciones y reporta KPIs a la gerencia.",
+    "area": "Finanzas",
+    "subarea": "Control de Gestión",
+    "category": "finanzas",
+    "related_degrees": [
+      "Ingeniería Comercial", "Ingeniería Civil Industrial",
+      "Contador Auditor", "Economía"
+    ],
+    "primary_families":   ["finanzas", "operaciones"],
+    "secondary_families": ["negocios", "analitica"],
+    "skills": ["control de gestión", "presupuesto", "KPIs", "variaciones", "Power BI", "Excel"],
+    "required_skills": ["Excel", "Power BI", "control de gestión"],
+    "experience_signals": ["control", "presupuesto", "gestion", "practica", "tesis"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "analista-comercial-junior",
+    "title": "Analista Comercial Junior",
+    "pitch": "Analiza el pipeline de ventas, comportamiento de clientes y oportunidades de mercado.",
+    "area": "Comercial",
+    "subarea": "Análisis Comercial",
+    "category": "comercial",
+    "related_degrees": [
+      "Ingeniería Comercial", "Administración de Empresas",
+      "Economía", "Logística"
+    ],
+    "primary_families":   ["negocios"],
+    "secondary_families": ["analitica", "operaciones"],
+    "skills": ["análisis comercial", "CRM", "pipeline de ventas", "Power BI", "Excel", "PowerPoint"],
+    "required_skills": ["Excel", "CRM"],
+    "experience_signals": ["ventas", "clientes", "comercial", "practica", "proyecto"],
+    "modalities": ["híbrido", "presencial", "remoto"]
+  },
+  {
+    "id": "analista-marketing-junior",
+    "title": "Analista de Marketing Junior",
+    "pitch": "Gestiona campañas digitales, mide su impacto y analiza el comportamiento del consumidor.",
+    "area": "Comercial",
+    "subarea": "Marketing Digital",
+    "category": "comercial",
+    "related_degrees": [
+      "Ingeniería Comercial", "Administración de Empresas",
+      "Comunicación Audiovisual", "Periodismo", "Relaciones Públicas"
+    ],
+    "primary_families":   ["comunicacion", "negocios"],
+    "secondary_families": ["ciencias-sociales"],
+    "skills": ["Google Analytics", "marketing digital", "redes sociales", "campañas digitales", "CRM", "Excel"],
+    "required_skills": ["Google Analytics", "CRM", "Excel"],
+    "experience_signals": ["marketing", "redes sociales", "campana", "publicidad", "practica"],
+    "modalities": ["híbrido", "presencial", "remoto"]
+  },
+  {
+    "id": "coordinador-operaciones-junior",
+    "title": "Coordinador de Operaciones Junior",
+    "pitch": "Optimiza procesos, coordina equipos y asegura que las operaciones funcionen sin fricciones.",
+    "area": "Operaciones",
+    "subarea": "Operaciones",
+    "category": "operaciones",
+    "related_degrees": [
+      "Ingeniería Civil Industrial", "Ingeniería Comercial", "Logística"
+    ],
+    "primary_families":   ["operaciones", "ingenieria"],
+    "secondary_families": ["negocios"],
+    "skills": ["gestión de procesos", "indicadores operacionales", "análisis de datos", "coordinación", "Excel"],
+    "required_skills": ["Excel", "gestión de procesos"],
+    "experience_signals": ["operaciones", "procesos", "coordinacion", "practica", "proyecto"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "asistente-proyectos-junior",
+    "title": "Asistente de Proyectos Junior",
+    "pitch": "Apoya la planificación, seguimiento y cierre de proyectos en equipos multidisciplinarios.",
+    "area": "Proyectos",
+    "subarea": "Gestión de Proyectos",
+    "category": "proyectos",
+    "related_degrees": [
+      "Ingeniería Civil Industrial", "Ingeniería Comercial",
+      "Administración de Empresas"
+    ],
+    "primary_families":   ["operaciones", "negocios"],
+    "secondary_families": ["ingenieria"],
+    "skills": ["gestión de proyectos", "planificación", "coordinación", "PowerPoint", "Excel"],
+    "required_skills": ["Excel", "PowerPoint"],
+    "experience_signals": ["proyecto", "ayudante", "practica", "coordinacion"],
+    "modalities": ["presencial", "híbrido", "remoto"]
+  },
+  {
+    "id": "asistente-rrhh-junior",
+    "title": "Asistente de RRHH Junior",
+    "pitch": "Recluta, selecciona y acompaña procesos de gestión de personas en la organización.",
+    "area": "Personas",
+    "subarea": "Recursos Humanos",
+    "category": "personas",
+    "related_degrees": [
+      "Psicología", "Trabajo Social", "Ingeniería Comercial",
+      "Administración de Empresas", "Sociología"
+    ],
+    "primary_families":   ["personas"],
+    "secondary_families": ["negocios", "ciencias-sociales"],
+    "skills": ["selección de personal", "reclutamiento", "gestión de personas", "entrevistas", "Excel"],
+    "required_skills": ["Excel", "selección de personal", "reclutamiento"],
+    "experience_signals": ["rrhh", "seleccion", "personas", "ayudante", "practica", "voluntariado"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "analista-gis-junior",
+    "title": "Analista GIS Junior",
+    "pitch": "Analiza datos espaciales y genera cartografía para decisiones territoriales y ambientales.",
+    "area": "Geociencias",
+    "subarea": "Análisis Espacial",
+    "category": "geociencias",
+    "related_degrees": [
+      "Geología", "Geografía", "Ingeniería en Recursos Naturales"
+    ],
+    "primary_families":   ["geociencias"],
+    "secondary_families": ["medioambiente", "ingenieria"],
+    "skills": ["QGIS", "ArcGIS", "análisis espacial", "cartografía", "Python"],
+    "required_skills": ["QGIS", "ArcGIS"],
+    "experience_signals": ["cartografia", "terreno", "gis", "tesis", "practica"],
+    "modalities": ["presencial", "híbrido", "remoto"]
+  },
+  {
+    "id": "analista-ambiental-junior",
+    "title": "Analista Ambiental Junior",
+    "pitch": "Evalúa impactos ambientales, trabaja en terreno y vela por el cumplimiento normativo.",
+    "area": "Medioambiente",
+    "subarea": "Gestión Ambiental",
+    "category": "medioambiente",
+    "related_degrees": [
+      "Geología", "Ingeniería Ambiental", "Biología",
+      "Ingeniería en Recursos Naturales"
+    ],
+    "primary_families":   ["medioambiente", "geociencias"],
+    "secondary_families": ["ingenieria", "ciencias"],
+    "skills": ["gestión ambiental", "normativa ambiental", "levantamiento de datos", "reportes técnicos", "Excel"],
+    "required_skills": ["Excel", "normativa ambiental"],
+    "experience_signals": ["terreno", "ambiental", "practica", "tesis", "proyecto"],
+    "modalities": ["presencial", "híbrido"]
+  }
+]

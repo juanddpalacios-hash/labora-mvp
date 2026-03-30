@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labora | Diagnóstico laboral</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <!-- Overlay de carga mientras se analiza el perfil -->
+  <div class="loading-overlay" id="loading-overlay">
+    <p>Estamos analizando tu perfil...</p>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- STEP 0: Intención (guided / explore) -->
+    <section id="step-intent">
+      <div class="page-header">
+        <h1>Elige cómo quieres usar Labora hoy</h1>
+        <p>Te mostraremos roles donde ya tienes base, caminos cercanos y qué necesitas reforzar para avanzar.</p>
+        <p class="hero-microcopy">Toma menos de 1 minuto. Puedes hacerlo con o sin CV.</p>
+      </div>
+      <div class="intent-cards">
+        <div class="intent-card card" data-mode="guided">
+          <span class="intent-check" aria-hidden="true">✓</span>
+          <h3>Ya tengo una idea</h3>
+          <p>Quiero validar si voy bien encaminado y ver qué roles realmente calzan conmigo.</p>
+        </div>
+        <div class="intent-card card" data-mode="explore">
+          <span class="intent-check" aria-hidden="true">✓</span>
+          <h3>Quiero explorar</h3>
+          <p>No tengo claro mi camino y quiero descubrir las opciones donde hoy tengo mejor base.</p>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button id="intent-continue" class="button primary" disabled>Comenzar diagnóstico</button>
+      </div>
+      <p class="intent-footer-note">Después podrás contarnos tu perfil, con o sin CV, para obtener un diagnóstico más preciso.</p>
+    </section>
+
+    <!-- Barra de progreso multi-step -->
+    <div id="step-progress" hidden>
+      <div class="multistep-progress">
+        <div class="multistep-bar">
+          <div class="multistep-bar-fill" id="step-progress-fill"></div>
+        </div>
+        <p class="multistep-label" id="step-progress-label">Paso 1 de 5</p>
+      </div>
+    </div>
+
+    <!-- Formulario multi-step -->
+    <form id="cv-form" class="form-card" hidden>
+
+      <!-- Step 1: Carrera -->
+      <div class="step" id="step-1">
+        <div class="step-header">
+          <h2>¿Qué estudiaste?</h2>
+          <p class="muted">Escribe tu carrera o elige una de las sugerencias.</p>
+        </div>
+        <div class="field">
+          <label for="degree">Carrera</label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="degree" name="degree" autocomplete="off" placeholder="Ej: Ingeniería Comercial" />
+            <ul class="autocomplete-list" id="degree-suggestions"></ul>
+          </div>
+        </div>
+        <div class="field degree-other-field">
+          <label for="degree_other">¿No encuentras tu carrera? <span class="optional">(opcional)</span></label>
+          <input type="text" id="degree_other" name="degree_other" autocomplete="off"
+                 placeholder="Escríbela como aparece en tu título" />
+          <span class="field-hint">Si tu carrera no aparece en las sugerencias, escríbela aquí.</span>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-1">← Atrás</button>
+          <button type="button" class="button primary" id="next-1">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Etapa académica -->
+      <div class="step" id="step-2" hidden>
+        <div class="step-header">
+          <h2>¿En qué etapa estás?</h2>
+          <p class="muted">Esto nos ayuda a mostrarte roles adecuados para tu momento.</p>
+        </div>
+        <div class="field">
+          <label for="academicStatus">Etapa académica</label>
+          <select id="academicStatus" name="academicStatus">
+            <option value="">Selecciona</option>
+            <option value="estudiante">Estoy estudiando</option>
+            <option value="egresado">Ya terminé la carrera (pero no tengo título aún)</option>
+            <option value="titulado">Ya tengo mi título</option>
+          </select>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-2">← Atrás</button>
+          <button type="button" class="button primary" id="next-2">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Intereses (solo modo guided) -->
+      <div class="step" id="step-3" hidden>
+        <div class="step-header">
+          <h2 id="interest-step-title">¿En qué área te interesa trabajar?</h2>
+          <p class="muted">Elige hasta 2. El primero tendrá más peso en tu resultado.</p>
+          <p class="interest-step-note" id="interest-step-note"></p>
+        </div>
+        <div class="interests-header" style="margin-bottom: 8px;">
+          <span class="interests-counter" id="interests-counter">Elige en orden de prioridad (máx. 2)</span>
+        </div>
+        <p class="interests-suggestion-hint" id="interests-suggestion-hint" hidden></p>
+        <div class="interests-grid">
+          <!-- renderizado por JS -->
+        </div>
+        <p class="interests-limit-msg" id="interests-limit-msg">Ya elegiste 2. Haz clic en una para deseleccionar.</p>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-3">← Atrás</button>
+          <button type="button" class="button primary" id="next-3">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Explore Step 1: Tareas que te atraen -->
+      <div class="step" id="step-explore-1" hidden>
+        <div class="step-header">
+          <h2>¿Qué tipo de tareas te atraen más?</h2>
+          <p class="muted">Elige hasta 2. No tiene que ser algo que ya hayas hecho.</p>
+        </div>
+        <div class="explore-grid" id="explore-tasks-grid">
+          <!-- renderizado por JS -->
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-explore-1">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-1">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Explore Step 2: Qué preferirías evitar -->
+      <div class="step" id="step-explore-2" hidden>
+        <div class="step-header">
+          <h2>¿Qué preferirías evitar?</h2>
+          <p class="muted">Marca lo que no va contigo. Sin límite.</p>
+        </div>
+        <div class="explore-grid" id="explore-avoid-grid">
+          <!-- renderizado por JS -->
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-explore-2">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-2">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Explore Step 3: Motivación -->
+      <div class="step" id="step-explore-3" hidden>
+        <div class="step-header">
+          <h2>¿Qué priorizarías en un trabajo, aunque implique ceder en otras cosas?</h2>
+          <p class="muted">Elige hasta 2.</p>
+        </div>
+        <div class="explore-grid" id="explore-motivation-grid">
+          <!-- renderizado por JS -->
+        </div>
+        <div class="field" style="margin-top: 16px;">
+          <label for="extra-motivation">¿Algo más que te importe? <span class="optional">(opcional)</span></label>
+          <input type="text" id="extra-motivation" placeholder="Ej: Que tenga proyección internacional" />
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-explore-3">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-3">Ver mis áreas sugeridas</button>
+        </div>
+      </div>
+
+      <!-- Explore Step 4: Confirmación de áreas inferidas -->
+      <div class="step" id="step-explore-confirm" hidden>
+        <div class="step-header">
+          <h2>Estos caminos hacen más sentido para tu perfil hoy</h2>
+          <p class="muted" id="explore-confirm-explanation">Según tus respuestas, estos son los caminos que más se alinean con tu perfil.</p>
+          <p class="muted" style="margin-top: 4px;">Elige 1 o 2 para enfocar tu diagnóstico.</p>
+        </div>
+        <div class="explore-confirm-grid" id="explore-confirm-grid">
+          <!-- renderizado por JS -->
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-explore-confirm">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-confirm" disabled>Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Step 4: CV (elección explícita) -->
+      <div class="step" id="step-4" hidden>
+        <div class="step-header">
+          <h2>¿Quieres subir tu CV?</h2>
+          <p class="muted">Mejora mucho la precisión del análisis, pero no es obligatorio.</p>
+        </div>
+        <div class="intent-cards">
+          <div class="intent-card card" id="cv-yes-card">
+            <span class="intent-check" aria-hidden="true">✓</span>
+            <h3>Sí, subir CV</h3>
+            <p>Obtendrás un análisis más preciso de tus fortalezas y brechas.</p>
+          </div>
+          <div class="intent-card card" id="cv-no-card">
+            <span class="intent-check" aria-hidden="true">✓</span>
+            <h3>Continuar sin CV</h3>
+            <p>Igual recibirás resultados basados en tu carrera e intereses.</p>
+          </div>
+        </div>
+        <div id="cv-upload-area" hidden style="margin-top: 16px;">
+          <div class="field">
+            <label for="cv">Sube tu CV <span class="optional">(PDF o DOCX)</span></label>
+            <input type="file" id="cv" name="cv" accept=".pdf,.docx" />
+          </div>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-4">← Atrás</button>
+          <button type="button" class="button primary" id="next-4" disabled>Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Ciudad + Modalidad -->
+      <div class="step" id="step-5" hidden>
+        <div class="step-header">
+          <h2>¿Dónde y cómo quieres trabajar?</h2>
+          <p class="muted">Puedes dejarlo vacío si aún no lo tienes claro.</p>
+        </div>
+        <div class="field">
+          <label for="city">Ciudad <span class="optional">(opcional)</span></label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="city" name="city" autocomplete="off"
+                   placeholder="Ej: Santiago, Concepción, Viña del Mar" />
+            <ul class="autocomplete-list" id="city-suggestions"></ul>
+          </div>
+          <input type="hidden" id="cityRegion" name="cityRegion" />
+        </div>
+        <div class="field">
+          <label>Modalidad <span class="optional">(opcional)</span></label>
+          <div class="modality-grid">
+            <label class="modality-option">
+              <input type="checkbox" name="desiredModality" value="presencial" />
+              <span>Presencial</span>
+            </label>
+            <label class="modality-option">
+              <input type="checkbox" name="desiredModality" value="híbrido" />
+              <span>Híbrido</span>
+            </label>
+            <label class="modality-option">
+              <input type="checkbox" name="desiredModality" value="remoto" />
+              <span>Remoto</span>
+            </label>
+          </div>
+          <span class="field-hint">Sin preferencia si no marcas ninguna.</span>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-5">← Atrás</button>
+          <button type="button" class="button primary" id="next-5">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Resumen antes de analizar -->
+      <div class="step" id="step-6" hidden>
+        <div class="step-header">
+          <h2>¿Todo listo?</h2>
+          <p class="muted">Revisa tu información antes de analizar.</p>
+        </div>
+        <div class="summary-card" id="summary-content">
+          <!-- renderizado por JS -->
+        </div>
+        <div class="step-actions" style="margin-top: 20px;">
+          <button type="button" class="button ghost" id="back-6">← Atrás</button>
+          <button type="submit" class="button primary">Analizar mi perfil →</button>
+        </div>
+        <p id="form-status" class="status error"></p>
+      </div>
+
+    </form>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
