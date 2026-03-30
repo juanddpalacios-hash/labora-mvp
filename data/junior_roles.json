@@ -193,5 +193,233 @@
     "required_skills": ["Excel", "normativa ambiental"],
     "experience_signals": ["terreno", "ambiental", "practica", "tesis", "proyecto"],
     "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "desarrollador-web-junior",
+    "title": "Desarrollador Web Junior",
+    "pitch": "Construye y mantiene interfaces web y APIs, convirtiendo diseños en productos funcionales.",
+    "area": "Tecnología",
+    "subarea": "Desarrollo Web",
+    "category": "tecnologia",
+    "related_degrees": [
+      "Ingeniería en Informática", "Ingeniería en Computación", "Ingeniería en Sistemas",
+      "Ingeniería de Software", "Ingeniería en Desarrollo de Software", "Ciencias de la Computación"
+    ],
+    "primary_families":   ["tecnologia"],
+    "secondary_families": ["analitica"],
+    "skills": ["HTML", "CSS", "JavaScript", "React", "Git", "APIs REST", "Node.js"],
+    "required_skills": ["HTML", "CSS", "JavaScript", "Git"],
+    "experience_signals": ["desarrollo", "programacion", "web", "app", "github", "proyecto", "practica"],
+    "modalities": ["híbrido", "remoto", "presencial"]
+  },
+  {
+    "id": "qa-tester-junior",
+    "title": "QA Tester Junior",
+    "pitch": "Diseña y ejecuta casos de prueba para garantizar que el software funciona sin errores.",
+    "area": "Tecnología",
+    "subarea": "Calidad de Software",
+    "category": "tecnologia",
+    "related_degrees": [
+      "Ingeniería en Informática", "Ingeniería en Computación",
+      "Ingeniería de Software", "Análisis de Sistemas"
+    ],
+    "primary_families":   ["tecnologia"],
+    "secondary_families": ["analitica"],
+    "skills": ["testing", "Selenium", "casos de prueba", "SQL", "Jira", "automatización de pruebas"],
+    "required_skills": ["SQL", "Jira"],
+    "experience_signals": ["testing", "prueba", "qa", "software", "proyecto", "practica"],
+    "modalities": ["híbrido", "remoto", "presencial"]
+  },
+  {
+    "id": "analista-soporte-ti-junior",
+    "title": "Analista de Soporte TI Junior",
+    "pitch": "Resuelve incidencias técnicas, administra sistemas y mantiene la infraestructura TI operativa.",
+    "area": "Tecnología",
+    "subarea": "Soporte TI",
+    "category": "tecnologia",
+    "related_degrees": [
+      "Ingeniería en Informática", "Ingeniería en Redes",
+      "Ingeniería en Telecomunicaciones", "Análisis de Sistemas"
+    ],
+    "primary_families":   ["tecnologia"],
+    "secondary_families": ["operaciones"],
+    "skills": ["soporte técnico", "Active Directory", "redes", "Windows Server", "tickets", "diagnóstico de fallas"],
+    "required_skills": ["soporte técnico", "Windows Server"],
+    "experience_signals": ["soporte", "redes", "sistemas", "practica", "proyecto"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "disenador-uxui-junior",
+    "title": "Diseñador UX/UI Junior",
+    "pitch": "Diseña interfaces centradas en el usuario, desde la investigación hasta el prototipo navegable.",
+    "area": "Diseño",
+    "subarea": "UX/UI",
+    "category": "diseno",
+    "related_degrees": [
+      "Diseño Gráfico", "Ingeniería en Informática",
+      "Comunicación Audiovisual", "Diseño Industrial"
+    ],
+    "primary_families":   ["diseno"],
+    "secondary_families": ["tecnologia"],
+    "skills": ["Figma", "prototipado", "UX research", "usabilidad", "Adobe XD", "wireframes"],
+    "required_skills": ["Figma", "prototipado"],
+    "experience_signals": ["diseno", "ux", "ui", "figma", "prototipo", "proyecto", "practica"],
+    "modalities": ["híbrido", "presencial", "remoto"]
+  },
+  {
+    "id": "community-manager-junior",
+    "title": "Community Manager Junior",
+    "pitch": "Gestiona comunidades digitales, crea contenido y mide el impacto en redes sociales.",
+    "area": "Comunicación",
+    "subarea": "Social Media",
+    "category": "comunicacion",
+    "related_degrees": [
+      "Periodismo", "Relaciones Públicas", "Comunicación Audiovisual", "Publicidad"
+    ],
+    "primary_families":   ["comunicacion"],
+    "secondary_families": ["negocios"],
+    "skills": ["redes sociales", "Meta Ads", "contenido digital", "Canva", "analítica de redes", "copywriting"],
+    "required_skills": ["redes sociales", "Canva"],
+    "experience_signals": ["redes sociales", "contenido", "comunidad", "marketing", "practica"],
+    "modalities": ["híbrido", "presencial", "remoto"]
+  },
+  {
+    "id": "redactor-contenidos-junior",
+    "title": "Redactor de Contenidos Junior",
+    "pitch": "Produce artículos, blogs y piezas digitales que informan, posicionan y conectan con audiencias.",
+    "area": "Comunicación",
+    "subarea": "Contenidos",
+    "category": "comunicacion",
+    "related_degrees": [
+      "Periodismo", "Comunicación Audiovisual", "Publicidad"
+    ],
+    "primary_families":   ["comunicacion"],
+    "secondary_families": [],
+    "skills": ["redacción", "SEO", "WordPress", "storytelling", "edición de contenidos", "Canva"],
+    "required_skills": ["redacción", "WordPress"],
+    "experience_signals": ["redaccion", "contenido", "blog", "articulo", "nota", "practica"],
+    "modalities": ["híbrido", "remoto", "presencial"]
+  },
+  {
+    "id": "relacionador-publico-junior",
+    "title": "Relacionador Público Junior",
+    "pitch": "Construye y cuida la imagen de organizaciones a través de medios, eventos y comunicación estratégica.",
+    "area": "Comunicación",
+    "subarea": "Relaciones Públicas",
+    "category": "comunicacion",
+    "related_degrees": [
+      "Relaciones Públicas", "Periodismo", "Sociología", "Comunicación Audiovisual"
+    ],
+    "primary_families":   ["comunicacion"],
+    "secondary_families": ["ciencias-sociales"],
+    "skills": ["comunicación corporativa", "relaciones con medios", "PR", "organización de eventos", "redacción"],
+    "required_skills": ["redacción", "comunicación corporativa"],
+    "experience_signals": ["relaciones publicas", "prensa", "medios", "evento", "practica"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "asistente-contable-junior",
+    "title": "Asistente Contable Junior",
+    "pitch": "Registra transacciones, concilia cuentas y apoya los procesos contables del área financiera.",
+    "area": "Finanzas",
+    "subarea": "Contabilidad",
+    "category": "finanzas",
+    "related_degrees": [
+      "Contador Auditor", "Administración de Empresas", "Auditoría"
+    ],
+    "primary_families":   ["finanzas"],
+    "secondary_families": ["negocios"],
+    "skills": ["contabilidad", "SAP", "ERP", "Excel", "facturación", "conciliación bancaria"],
+    "required_skills": ["Excel", "contabilidad"],
+    "experience_signals": ["contabilidad", "factura", "balance", "practica", "tesis"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "analista-logistica-junior",
+    "title": "Analista de Logística Junior",
+    "pitch": "Coordina la cadena de suministro, controla inventarios y optimiza el flujo de mercancías.",
+    "area": "Operaciones",
+    "subarea": "Logística",
+    "category": "operaciones",
+    "related_degrees": [
+      "Logística", "Ingeniería Civil Industrial", "Ingeniería en Gestión Industrial",
+      "Administración de Empresas"
+    ],
+    "primary_families":   ["operaciones"],
+    "secondary_families": ["negocios"],
+    "skills": ["supply chain", "logística", "WMS", "control de inventario", "Excel", "coordinación de fletes"],
+    "required_skills": ["Excel", "supply chain"],
+    "experience_signals": ["logistica", "inventario", "bodega", "supply", "practica", "proyecto"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "asistente-legal-junior",
+    "title": "Asistente Legal Junior",
+    "pitch": "Apoya la gestión jurídica de contratos, normativa y procesos legales en organizaciones.",
+    "area": "Derecho",
+    "subarea": "Derecho Corporativo",
+    "category": "derecho",
+    "related_degrees": [
+      "Derecho"
+    ],
+    "primary_families":   ["derecho"],
+    "secondary_families": ["negocios"],
+    "skills": ["investigación jurídica", "redacción legal", "contratos", "normativa", "due diligence"],
+    "required_skills": ["investigación jurídica", "redacción legal"],
+    "experience_signals": ["practica", "juridico", "contrato", "normativa", "tesis"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "analista-compliance-junior",
+    "title": "Analista de Compliance Junior",
+    "pitch": "Vela por el cumplimiento de la normativa regulatoria y apoya la gestión de riesgos legales.",
+    "area": "Derecho",
+    "subarea": "Compliance",
+    "category": "derecho",
+    "related_degrees": [
+      "Derecho", "Ingeniería Comercial", "Contador Auditor"
+    ],
+    "primary_families":   ["derecho"],
+    "secondary_families": ["negocios", "finanzas"],
+    "skills": ["cumplimiento normativo", "riesgo legal", "regulatorio", "Excel", "reportes de compliance"],
+    "required_skills": ["Excel", "cumplimiento normativo"],
+    "experience_signals": ["compliance", "normativa", "riesgo", "auditoria", "practica"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "coordinador-academico-junior",
+    "title": "Coordinador Académico Junior",
+    "pitch": "Gestiona procesos educativos, apoya a docentes y coordina la experiencia de aprendizaje.",
+    "area": "Educación",
+    "subarea": "Gestión Académica",
+    "category": "educacion",
+    "related_degrees": [
+      "Pedagogía en Educación Básica", "Pedagogía en Educación Media",
+      "Psicología", "Trabajo Social", "Educación Diferencial"
+    ],
+    "primary_families":   ["educacion"],
+    "secondary_families": ["personas"],
+    "skills": ["coordinación académica", "gestión curricular", "Excel", "atención a estudiantes", "PowerPoint"],
+    "required_skills": ["Excel", "PowerPoint"],
+    "experience_signals": ["academia", "educacion", "coordinacion", "practica", "ayudante", "docencia"],
+    "modalities": ["presencial", "híbrido"]
+  },
+  {
+    "id": "analista-customer-success-junior",
+    "title": "Analista de Customer Success Junior",
+    "pitch": "Acompaña a los clientes en su adopción del producto, reduce churn y maximiza su satisfacción.",
+    "area": "Negocios",
+    "subarea": "Customer Success",
+    "category": "negocios",
+    "related_degrees": [
+      "Ingeniería Comercial", "Psicología", "Administración de Empresas",
+      "Relaciones Públicas"
+    ],
+    "primary_families":   ["negocios"],
+    "secondary_families": ["personas"],
+    "skills": ["atención al cliente", "CRM", "onboarding", "Net Promoter Score", "comunicación", "Excel"],
+    "required_skills": ["CRM", "Excel"],
+    "experience_signals": ["clientes", "atencion", "soporte", "satisfaccion", "practica", "proyecto"],
+    "modalities": ["híbrido", "presencial", "remoto"]
   }
 ]

@@ -23,7 +23,7 @@ const CAREER_FAMILIES = {
   "ciencia politica":                 { primary: ["ciencias-sociales"],                 secondary: ["personas"] },
   "comunicacion audiovisual":         { primary: ["comunicacion"],                      secondary: [] },
   "contador auditor":                 { primary: ["finanzas", "negocios"],              secondary: ["analitica"] },
-  "derecho":                          { primary: [],                                    secondary: ["negocios"] },
+  "derecho":                          { primary: ["derecho"],                           secondary: ["negocios"] },
   "diseno grafico":                   { primary: ["diseno"],                            secondary: ["comunicacion"] },
   "economia":                         { primary: ["negocios", "analitica"],             secondary: ["finanzas"] },
   "enfermeria":                       { primary: ["salud"],                             secondary: [] },
@@ -76,6 +76,8 @@ const CAREER_FAMILIES = {
   "ingenieria en telecomunicaciones": { primary: ["tecnologia", "ingenieria"],          secondary: [] },
   "ingenieria forestal":              { primary: ["medioambiente", "ingenieria"],       secondary: [] },
   // Tecnología — carreras nuevas
+  "ingenieria en sistemas":           { primary: ["tecnologia", "analitica"],           secondary: ["ingenieria"] },
+  "ingenieria en redes":              { primary: ["tecnologia", "ingenieria"],          secondary: [] },
   "analisis de sistemas":             { primary: ["tecnologia", "analitica"],           secondary: [] },
   "ciencias de la computacion":       { primary: ["tecnologia", "analitica"],           secondary: ["ingenieria"] },
   "ingenieria de software":           { primary: ["tecnologia"],                        secondary: ["analitica"] },
@@ -208,7 +210,7 @@ const FAMILY_KEYWORD_MAP = [
   { keywords: ["educacion", "pedagogia", "docencia", "profesor", "parvularia"],                                             family: "educacion"  },
   { keywords: ["comunicacion", "periodismo", "publicidad", "relaciones publicas", "prensa", "medios"],                      family: "comunicacion" },
   { keywords: ["diseno", "arquitectura", "arte", "grafico", "visual"],                                                      family: "diseno"     },
-  { keywords: ["derecho", "juridico", "legal", "abogado", "leyes"],                                                         family: "ciencias-sociales" },
+  { keywords: ["derecho", "juridico", "legal", "abogado", "leyes"],                                                         family: "derecho" },
   { keywords: ["psicolog", "sociolog", "antropolog", "trabajo social", "filosofia"],                                        family: "ciencias-sociales" },
   { keywords: ["turismo", "hoteleria", "gastronomia", "hospitalidad"],                                                      family: "operaciones" }
 ];
