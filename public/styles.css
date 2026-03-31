@@ -1056,6 +1056,33 @@ fieldset.field {
   margin-top: 20px;
 }
 
+/* Banner contextual según tipo de usuario */
+.context-banner {
+  border-left: 4px solid var(--primary);
+  background: rgba(26, 158, 114, 0.05);
+  padding: 16px 20px;
+}
+
+.context-headline {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+/* Mensaje de sin resultados */
+.no-results-card {
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.no-results-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
 /* Bloque de área detectada */
 .area-insight {
   border-left: 4px solid var(--primary);

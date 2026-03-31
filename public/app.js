@@ -279,11 +279,35 @@ function renderResults() {
     </section>` : "";
 
   // 5) Roles: 1 principal completo + resto compactos
-  const noResultsMsg = `
-    <div class="card">
-      <p class="muted">No encontramos caminos con suficiente conexión con tu perfil actual.
-      Intenta agregar más información o ajustar tus áreas de interés.</p>
-    </div>`;
+  const userType = matches.user_type || "aligned";
+  const noResultsMsg = (() => {
+    if (userType === "explore") {
+      return `
+        <div class="card no-results-card">
+          <p class="no-results-title">No seleccionaste áreas de interés</p>
+          <p class="muted">Elige al menos 1 área de interés para que Labora pueda orientarte hacia roles concretos.</p>
+        </div>`;
+    }
+    if (userType === "misaligned") {
+      return `
+        <div class="card no-results-card">
+          <p class="no-results-title">Tus intereses y tu formación apuntan en direcciones distintas</p>
+          <p class="muted">Considera explorar otras áreas más cercanas a tu carrera.${!currentHasCv ? " También puedes agregar tu CV para que Labora encuentre más señales en tu perfil." : ""}</p>
+        </div>`;
+    }
+    if (!currentHasCv) {
+      return `
+        <div class="card no-results-card">
+          <p class="no-results-title">No encontramos roles con suficiente base aún</p>
+          <p class="muted">Agrega tu CV para que Labora pueda analizar tus habilidades concretas y encontrar mejores coincidencias.</p>
+        </div>`;
+    }
+    return `
+      <div class="card no-results-card">
+        <p class="no-results-title">No encontramos caminos compatibles con tu perfil actual</p>
+        <p class="muted">Intenta ajustar tus áreas de interés o ampliar las modalidades de trabajo aceptadas.</p>
+      </div>`;
+  })();
 
   // Banner contextual
   const contextBanner = contextMsg ? `
@@ -808,7 +832,6 @@ function getCareerSpecificInterests(normalizedDegree) {
 
   // 1. Match exacto (clave del objeto ya normalizada en el literal)
   if (CAREER_SPECIFIC_INTERESTS[key]) {
-    console.log("[Labora] match exacto en CAREER_SPECIFIC_INTERESTS con clave:", key);
     return CAREER_SPECIFIC_INTERESTS[key];
   }
 
@@ -816,7 +839,6 @@ function getCareerSpecificInterests(normalizedDegree) {
   const entries = Object.entries(CAREER_SPECIFIC_INTERESTS);
   const exactEntry = entries.find(([k]) => normalizeStr(k) === key);
   if (exactEntry) {
-    console.log("[Labora] match exacto normalizado con clave:", exactEntry[0]);
     return exactEntry[1];
   }
 
@@ -826,11 +848,9 @@ function getCareerSpecificInterests(normalizedDegree) {
     return key.includes(nk) || nk.includes(key);
   });
   if (subEntry) {
-    console.log("[Labora] match por substring con clave:", subEntry[0]);
     return subEntry[1];
   }
 
-  console.log("[Labora] sin match en CAREER_SPECIFIC_INTERESTS para:", key);
   return [];
 }
 
@@ -894,12 +914,8 @@ function updateInterestUI() {
  * Preserva selecciones al cambiar de carrera.
  */
 function renderInterestsForCareer(rawDegree) {
-  console.log("[updateInterestOptions] se disparó");
-
   const grid = document.querySelector(".interests-grid");
   const hint = document.getElementById("interests-suggestion-hint");
-
-  console.log("[render] container:", grid);
 
   if (!grid) {
     console.warn("[render] ABORTADO — no se encontró .interests-grid en el DOM");
@@ -908,21 +924,11 @@ function renderInterestsForCareer(rawDegree) {
 
   currentRawDegree = rawDegree || "";
 
-  const careerValue   = currentRawDegree;
-  const canonical     = normalizeDegree(careerValue) || careerValue;
+  const careerValue      = currentRawDegree;
+  const canonical        = normalizeDegree(careerValue) || careerValue;
   const normalizedCareer = normalizeStr(canonical);
 
-  console.log("[career raw]", careerValue);
-  console.log("[career normalized]", normalizedCareer);
-
   const areas = getCareerSpecificInterests(normalizedCareer);
-  const matchedCareerKey = areas.length ? normalizedCareer : null;
-
-  console.log("[match found]", matchedCareerKey);
-  console.log("[areas found]", areas);
-
-  // --- render ---
-  console.log("[render] areas to paint:", areas);
 
   grid.innerHTML = "";
 
@@ -961,8 +967,6 @@ function renderInterestsForCareer(rawDegree) {
     });
   }
 
-  console.log("[render] final HTML:", grid.innerHTML.slice(0, 300));
-
   updateInterestUI();
 }
 
@@ -977,7 +981,6 @@ function updateInterestSuggestions(rawDegree) {
  *   window.testCareerInterests("Ingeniería Comercial")
  */
 window.testCareerInterests = function(carrera) {
-  console.log("=== TEST MANUAL:", carrera, "===");
   renderInterestsForCareer(carrera);
 };
 
