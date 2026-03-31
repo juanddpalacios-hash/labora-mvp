@@ -284,28 +284,28 @@ function renderResults() {
     if (userType === "explore") {
       return `
         <div class="card no-results-card">
-          <p class="no-results-title">No seleccionaste áreas de interés</p>
-          <p class="muted">Elige al menos 1 área de interés para que Labora pueda orientarte hacia roles concretos.</p>
+          <p class="no-results-title">No encontramos roles con tus criterios actuales.</p>
+          <p class="muted">Prueba seleccionando otras áreas de interés o cambia la modalidad.</p>
         </div>`;
     }
     if (userType === "misaligned") {
       return `
         <div class="card no-results-card">
-          <p class="no-results-title">Tus intereses y tu formación apuntan en direcciones distintas</p>
-          <p class="muted">Considera explorar otras áreas más cercanas a tu carrera.${!currentHasCv ? " También puedes agregar tu CV para que Labora encuentre más señales en tu perfil." : ""}</p>
+          <p class="no-results-title">Tu carrera y tus intereses apuntan a áreas muy distintas.</p>
+          <p class="muted">Eso no es malo — significa que estás explorando. Prueba agregando tu CV para que el sistema encuentre más señales.</p>
         </div>`;
     }
     if (!currentHasCv) {
       return `
         <div class="card no-results-card">
-          <p class="no-results-title">No encontramos roles con suficiente base aún</p>
-          <p class="muted">Agrega tu CV para que Labora pueda analizar tus habilidades concretas y encontrar mejores coincidencias.</p>
+          <p class="no-results-title">Agregando tu CV podemos analizar tus habilidades reales</p>
+          <p class="muted">y encontrar roles que hoy no aparecen.</p>
         </div>`;
     }
     return `
       <div class="card no-results-card">
-        <p class="no-results-title">No encontramos caminos compatibles con tu perfil actual</p>
-        <p class="muted">Intenta ajustar tus áreas de interés o ampliar las modalidades de trabajo aceptadas.</p>
+        <p class="no-results-title">No encontramos matches con estos criterios.</p>
+        <p class="muted">Ajusta tus intereses o prueba con otra modalidad.</p>
       </div>`;
   })();
 
