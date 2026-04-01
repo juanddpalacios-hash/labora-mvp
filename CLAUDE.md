@@ -14,7 +14,7 @@ Archivos clave:
 - `server/services/roleMatcher.js` — motor de scoring (6 dimensiones, pesos dinámicos)
 - `server/routes/analyze.js` — POST /api/analyze, recibe CV + metadatos del formulario
 - `server/services/aiExtractor.js` — extrae perfil estructurado del texto del CV
-- `data/junior_roles.json` — catálogo de 11 roles junior con required_skills, families, etc.
+- `data/junior_roles.json` — catálogo de 24 roles junior con required_skills, families, etc.
 - `public/app.js` — lógica frontend + renderizado de resultados
 - `public/upload.html` — formulario de onboarding
 - `server/utils/text.js` — `normalizeText`, `arrayIncludesNormalized`, `overlapCount`
@@ -166,9 +166,9 @@ pm2 restart labora-mvp       # reiniciar servidor tras cambios
 pm2 logs labora-mvp          # ver logs en tiempo real
 pm2 status                   # estado del proceso
 
-# Test rápido (sin CV, sin caracteres especiales)
+# Test rápido (sin CV) — Windows-compatible (sin /dev/stdin)
 curl -s -X POST http://localhost:3000/api/analyze \
   -H "Content-Type: application/json" \
-  -d '{"name":"Test","degree":"Ingenieria Comercial","academicStatus":"titulado","city":"Santiago","desiredModality":"[]","areasOfInterest":"[{\"value\":\"finanzas\",\"weight\":3}]"}' \
-  | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); console.log('roles:', (d.matches?.strong_matches?.length||0)+(d.matches?.stretch_matches?.length||0), '| user_type:', d.matches?.user_type)"
+  -d "{\"degree\":\"Ingenieria Comercial\",\"academicStatus\":\"titulado\",\"city\":\"Santiago\",\"desiredModality\":\"[]\",\"areasOfInterest\":\"[{\\\"value\\\":\\\"finanzas\\\",\\\"weight\\\":3}]\"}" \
+  > C:/Temp/result.json && node -e "const d=JSON.parse(require('fs').readFileSync('C:/Temp/result.json','utf8')); console.log('roles:', (d.matches?.strong_matches?.length||0)+(d.matches?.stretch_matches?.length||0), '| user_type:', d.matches?.user_type)"
 ```
