@@ -10,6 +10,9 @@ let currentRawDegree  = "";
 // Indicador global: si el usuario cargó un CV (se setea en renderResults)
 let currentHasCv = false;
 
+// Indicador global: estudiante en año no final (cambia el copy de resultados)
+let currentIsStudentNotLastYear = false;
+
 // Intención del usuario (step 0)
 let userIntentMode = "guided";
 
@@ -126,6 +129,7 @@ async function handleFormSubmit(event) {
     formData.append("raw_degree",      rawDegree);
     formData.append("degree",          normalizedDegree);
     formData.append("academicStatus",  document.getElementById("academicStatus").value);
+    formData.append("isLastYear",      document.getElementById("isLastYear")?.value || "");
     formData.append("city",            document.getElementById("city")?.value || "");
     formData.append("desiredModality", JSON.stringify(getCheckedValues("desiredModality")));
     formData.append("areasOfInterest", JSON.stringify(weightedInterests));
@@ -153,6 +157,12 @@ async function handleFormSubmit(event) {
     sessionStorage.setItem("laboraResults", JSON.stringify(data));
     // Guardar texto crudo por separado (puede ser grande; evitar inflar laboraResults)
     sessionStorage.setItem("laboraCvRawText", data.cvRawText || "");
+    // Guardar si es estudiante en año no final (para ajustar copy de resultados)
+    const academicStatusVal = document.getElementById("academicStatus")?.value || "";
+    const isLastYearVal     = document.getElementById("isLastYear")?.value || "";
+    sessionStorage.setItem("laboraIsStudentNotLastYear",
+      academicStatusVal === "estudiante" && isLastYearVal === "false" ? "true" : "false"
+    );
     window.location.href = "/results.html";
   } catch (error) {
     setLoading(false);
@@ -216,6 +226,33 @@ function cleanStrengths(strengths) {
   return clean;
 }
 
+/** Capitaliza herramientas y acrónimos conocidos para display */
+function displayTool(t) {
+  const KNOWN_CAPS = {
+    "sql": "SQL", "sap": "SAP", "vba": "VBA", "crm": "CRM",
+    "erp": "ERP", "kpi": "KPI", "api": "API", "bi": "BI",
+    "spss": "SPSS", "stata": "Stata", "matlab": "MATLAB",
+    "dbt": "dbt", "git": "Git", "github": "GitHub",
+    "r": "R", "seo": "SEO", "sem": "SEM",
+    "excel": "Excel", "word": "Word", "powerpoint": "PowerPoint",
+    "python": "Python", "javascript": "JavaScript", "typescript": "TypeScript",
+    "java": "Java", "php": "PHP", "html": "HTML", "css": "CSS",
+    "tensorflow": "TensorFlow", "pytorch": "PyTorch", "langchain": "LangChain",
+    "figma": "Figma", "notion": "Notion", "jira": "Jira",
+    "hubspot": "HubSpot", "salesforce": "Salesforce",
+    "trello": "Trello", "asana": "Asana", "zapier": "Zapier",
+    "tableau": "Tableau", "looker": "Looker",
+    "qgis": "QGIS", "arcgis": "ArcGIS", "autocad": "AutoCAD",
+  };
+  const norm = t.toLowerCase().trim();
+  if (KNOWN_CAPS[norm]) return KNOWN_CAPS[norm];
+  // Multi-word: capitalizar cada palabra
+  return t.split(" ").map(w => {
+    const wn = w.toLowerCase();
+    return KNOWN_CAPS[wn] || (w.charAt(0).toUpperCase() + w.slice(1));
+  }).join(" ");
+}
+
 function renderResults() {
   if (!resultsRoot) return;
 
@@ -236,6 +273,7 @@ function renderResults() {
   const matches = data.matches || {};
 
   currentHasCv = (profile.raw_text_length || 0) > 0;
+  currentIsStudentNotLastYear = sessionStorage.getItem("laboraIsStudentNotLastYear") === "true";
 
   const strongMatches  = matches.strong_matches  || [];
   const stretchMatches = matches.stretch_matches || [];
@@ -249,7 +287,7 @@ function renderResults() {
 
   // 2) Herramientas + Idiomas separados
   const toolsTags = (profile.tools || []).length > 0
-    ? (profile.tools || []).map(t => `<span class="tag">${t}</span>`).join("")
+    ? (profile.tools || []).map(t => `<span class="tag">${displayTool(t)}</span>`).join("")
     : "<span class='muted'>No detectadas</span>";
 
   const languages = profile.languages || [];
@@ -265,9 +303,12 @@ function renderResults() {
   const strengths = cleanStrengths(profile.strengths);
 
   // 4) Bloque de dirección principal
+  // detectedArea.label puede venir como clave raw (ej: "clinica-psico") si el backend
+  // no tiene entrada en AREA_LABELS — usar INTEREST_REGISTRY como fallback de traducción.
+  const areaDisplayLabel = INTEREST_REGISTRY[detectedArea?.label] || detectedArea?.label;
   const areaBlock = detectedArea ? `
     <section class="card area-insight">
-      <p class="area-insight-statement">Tienes una alta coherencia con el área de <strong>${detectedArea.label}</strong>.</p>
+      <p class="area-insight-statement">Tienes una alta coherencia con el área de <strong>${areaDisplayLabel}</strong>.</p>
       <p class="muted" style="margin-top:4px;">Estas son las opciones más naturales para comenzar.</p>
       ${detectedArea.subareas.length > 0 ? `
         <div class="area-insight-subareas">
@@ -324,7 +365,9 @@ function renderResults() {
 
     rolesSection = `
       <section class="card">
-        <h2 class="section-title">Estos son los caminos más coherentes para empezar según tu perfil</h2>
+        <h2 class="section-title">${currentIsStudentNotLastYear
+          ? "Estos son los caminos hacia los que puedes orientar tu formación"
+          : "Estos son los caminos más coherentes para empezar según tu perfil"}</h2>
         <div class="role-list">
           ${renderRoleCard(primaryRole)}
         </div>
@@ -340,13 +383,7 @@ function renderResults() {
       </section>` : ""}`;
   }
 
-  resultsRoot.innerHTML = `
-    <section class="card">
-      <h2 class="section-title">
-        ${profile.name ? `Hola, ${profile.name}` : "Tu perfil"}
-      </h2>
-      <p class="profile-hook">${profileHook}</p>
-
+  const profileColumns = currentHasCv ? `
       <div class="grid three" style="margin-top:16px;">
         <div>
           <h3>Herramientas</h3>
@@ -362,12 +399,26 @@ function renderResults() {
             ${strengths.map(s => `<li>${s}</li>`).join("")}
           </ul>
         </div>
-      </div>
+      </div>` : (strengths.length > 0 ? `
+      <div style="margin-top:16px;">
+        <h3>Fortalezas</h3>
+        <ul class="list">
+          ${strengths.map(s => `<li>${s}</li>`).join("")}
+        </ul>
+      </div>` : "");
+
+  resultsRoot.innerHTML = `
+    <section class="card">
+      <h2 class="section-title">
+        ${profile.name ? `Hola, ${profile.name}` : "Tu perfil"}
+      </h2>
+      <p class="profile-hook">${profileHook}</p>
+      ${profileColumns}
     </section>
 
     ${areaBlock}
 
-    ${totalMatches === 0 ? noResultsMsg : contextBanner + rolesSection}`;
+    ${totalMatches === 0 ? noResultsMsg : rolesSection}`;
 }
 
 /** Renderiza el desglose de puntaje como chips */
@@ -442,26 +493,29 @@ function buildMarketGaps(role, profile) {
   const roleArea      = role.area || role.category || "";
 
   // A) Herramientas / skills faltantes (las más relevantes primero)
-  for (const skill of missingSkills.slice(0, 2)) {
-    gaps.push(`En roles de ${roleArea.toLowerCase()} se suele pedir ${skill}, y no aparece en tu perfil.`);
+  if (missingSkills.length > 0) {
+    gaps.push(`En roles de ${roleArea.toLowerCase()} se suele pedir ${missingSkills[0]}, y no aparece en tu perfil.`);
+  }
+  if (missingSkills.length > 1) {
+    gaps.push(`También se pide ${missingSkills[1]}.`);
   }
 
   // B) Experiencia
   if (breakdown.experiencia === 0) {
-    gaps.push(`Se valora experiencia práctica en ${roleArea.toLowerCase()} (prácticas, proyectos o ayudantías), y no hay evidencia en tu perfil.`);
+    gaps.push(`Se valora experiencia práctica en el área.`);
   }
 
   // C) Idiomas — revisar si el perfil tiene inglés
   const profileLangs = (profile?.languages || []).map(l => l.toLowerCase());
   const hasEnglish   = profileLangs.some(l => l.includes("ingl") || l.includes("english"));
   if (!hasEnglish) {
-    gaps.push(`Muchas ofertas de ${roleArea.toLowerCase()} requieren inglés intermedio, y no aparece en tu perfil.`);
+    gaps.push(`Inglés intermedio es requisito frecuente en estas posiciones.`);
   }
 
   // D) Skills adicionales del rol (si quedan slots)
   if (gaps.length < 4 && missingSkills.length > 2) {
     const extra = missingSkills[2];
-    gaps.push(`También se valora manejo de ${extra} para ${roleTitle}, y no se observa en tu perfil.`);
+    gaps.push(`También se valora manejo de ${extra}.`);
   }
 
   // Fallback: si no se generó ninguna brecha
@@ -472,27 +526,169 @@ function buildMarketGaps(role, profile) {
   return gaps.slice(0, 4);
 }
 
+// Descripciones cualitativas de qué caracteriza a alguien exitoso por área
+const ROLE_AREA_PROFILE = {
+  "Finanzas":    "un perfil analítico con capacidad para interpretar información financiera y apoyar decisiones de negocio",
+  "Analítica":   "un perfil orientado a datos con habilidad para transformar información en insights accionables",
+  "Comercial":   "un perfil orientado al cliente con habilidad para gestionar relaciones y generar negocio",
+  "Marketing":   "un perfil creativo y estratégico con visión de marca y dominio de canales digitales",
+  "Personas":    "un perfil humano con capacidad para gestionar procesos de talento y relaciones organizacionales",
+  "Operaciones": "un perfil sistemático con visión de procesos y capacidad de coordinar equipos",
+  "Logística":   "un perfil orientado a la eficiencia, con capacidad de coordinación en la cadena de suministro",
+  "Tecnología":  "un perfil técnico con pensamiento lógico y orientación a la resolución de problemas",
+};
+
+const ROLE_AREA_EXPECTATIONS = {
+  "Finanzas":    "Las personas en este tipo de roles trabajan con modelos financieros y datos de gestión. Se espera orientación al detalle, capacidad analítica y habilidad para comunicar resultados a equipos no financieros. Las herramientas específicas varían según la empresa.",
+  "Analítica":   "Las personas en este tipo de roles trabajan con datos y herramientas de visualización. Se espera pensamiento analítico, curiosidad por los números y capacidad para comunicar hallazgos de forma simple. Las plataformas concretas dependen del stack de cada empresa.",
+  "Comercial":   "Las personas en este tipo de roles gestionan relaciones con clientes y oportunidades de negocio. Se espera comunicación efectiva, orientación a resultados y resiliencia ante el rechazo. El dominio de herramientas CRM y prospección se aprende en el puesto.",
+  "Marketing":   "Las personas en este tipo de roles crean contenido, gestionan canales y miden resultados. Se espera creatividad, mentalidad de prueba y error, y familiaridad con plataformas digitales. Las herramientas varían mucho según el foco del equipo.",
+  "Personas":    "Las personas en este tipo de roles gestionan procesos de talento, clima y administración. Se espera empatía, discreción y capacidad organizativa. El manejo de sistemas HRIS específicos se aprende en el rol.",
+  "Operaciones": "Las personas en este tipo de roles coordinan procesos, equipos y recursos. Se espera visión sistémica, orientación a la mejora continua y capacidad de comunicación entre áreas. Las metodologías específicas dependen del sector.",
+  "Logística":   "Las personas en este tipo de roles gestionan flujos físicos y de información. Se espera orientación al detalle, manejo de presión y capacidad para coordinar múltiples frentes al mismo tiempo.",
+  "Tecnología":  "Las personas en este tipo de roles desarrollan o mantienen sistemas. Se espera pensamiento lógico, capacidad de aprender rápido y orientación a la resolución de problemas. Los lenguajes y frameworks específicos se aprenden en el puesto.",
+};
+
 /**
- * Genera el "próximo paso recomendado" basado en la brecha principal.
+ * Frase puente específica según carrera (normalizada) y área del rol.
+ * Reemplaza el genérico "tu carrera tiene puntos de contacto…"
  */
+function _buildBridgeSentence(degreeNorm, roleArea) {
+  const d = degreeNorm;
+  const a = (roleArea || "").toLowerCase();
+
+  // Psicología → cualquier área
+  if (d.includes("psicolog")) {
+    if (a.includes("personas") || a.includes("recursos"))
+      return "Tu formación en psicología te da base directa en comportamiento humano y dinámicas organizacionales.";
+    if (a.includes("educacion"))
+      return "Tu carrera en psicología tiene aplicación directa en entornos educativos y de desarrollo humano.";
+    return "Tu formación en psicología es transferible a roles que involucran personas, procesos o análisis de comportamiento.";
+  }
+
+  // Kinesiología / terapia ocupacional / fonoaudiología → fuera del área clínica
+  if (d.includes("kinesio") || d.includes("terapia ocupacional") || d.includes("fonoaudio")) {
+    if (a.includes("personas") || a.includes("recursos"))
+      return "Tu carrera en salud te da comprensión profunda de las personas y sus necesidades, base valiosa en roles de personas.";
+    return "Tu formación en salud te da capacidad analítica y orientación al servicio que se transfiere a distintos entornos laborales.";
+  }
+
+  // Ingeniería comercial / administración → roles de tecnología o analítica
+  if (d.includes("ingenieria comercial") || d.includes("administracion de empresas") || d.includes("ingenieria en administracion")) {
+    if (a.includes("tecnolog") || a.includes("analitica"))
+      return "Tu formación en gestión te da contexto de negocio que potencia cualquier rol técnico o de datos.";
+    return "Tu base en negocios y gestión es aplicable en la mayoría de áreas funcionales de una organización.";
+  }
+
+  // Comunicación / periodismo / publicidad
+  if (d.includes("periodismo") || d.includes("comunicacion") || d.includes("publicidad") || d.includes("relaciones publicas")) {
+    if (a.includes("marketing") || a.includes("comercial"))
+      return "Tu base en comunicación es directamente transferible a roles comerciales y de marketing.";
+    if (a.includes("personas") || a.includes("recursos"))
+      return "Tu carrera en comunicación te da habilidades de escucha, narrativa y relacionamiento clave en roles de personas.";
+    return "Tu formación en comunicación es un diferenciador en roles que requieren transmitir información con claridad e impacto.";
+  }
+
+  // Ingeniería (genérico) → roles de negocios o personas
+  if (d.includes("ingenieria") || d.includes("computacion") || d.includes("sistemas")) {
+    if (a.includes("analitica") || a.includes("tecnolog"))
+      return "Tu base técnica y lógica es el insumo más directo para roles de tecnología y datos.";
+    return "Tu formación te da rigor analítico y capacidad de resolución de problemas, atributos valorados en casi cualquier rol.";
+  }
+
+  // Ciencias sociales (sociología, trabajo social, historia, etc.)
+  if (d.includes("sociolog") || d.includes("trabajo social") || d.includes("antropolog") || d.includes("ciencia politica")) {
+    if (a.includes("personas") || a.includes("recursos"))
+      return "Tu carrera en ciencias sociales te da perspectiva sobre grupos humanos y organizaciones, base sólida para roles de personas.";
+    return "Tu formación te entrega herramientas para entender contextos sociales y organizacionales complejos.";
+  }
+
+  // Educación
+  if (d.includes("pedagogia") || d.includes("educacion")) {
+    if (a.includes("personas") || a.includes("recursos"))
+      return "Tu experiencia formando y acompañando personas se transfiere a roles de desarrollo y gestión de talento.";
+    return "Tu formación en educación te da capacidad comunicativa y de facilitación valiosa en distintos entornos profesionales.";
+  }
+
+  // Fallback genérico mejorado
+  return `Tu carrera tiene elementos formativos que conectan con el tipo de trabajo que requiere este rol.`;
+}
+
+/**
+ * Genera razonamiento cualitativo de por qué el perfil encaja con el rol.
+ * Basado en área del rol, carrera del perfil e intereses declarados.
+ */
+function buildRoleAlignment(role, profile) {
+  const items  = [];
+  const degree = profile?.degree || "";
+  const area   = role.area || "";
+  const pitch  = role.pitch || "";
+
+  // 1. Qué necesita este rol (cualitativo + pitch)
+  const areaProfile = ROLE_AREA_PROFILE[area];
+  if (areaProfile && pitch) {
+    items.push(`Este rol requiere ${areaProfile}. En concreto: ${pitch.endsWith(".") ? pitch : pitch + "."}`);
+  } else if (pitch) {
+    items.push(pitch);
+  }
+
+  // 2. Conexión formativa
+  const relatedDegrees = (role.related_degrees || []).map(d => d.toLowerCase());
+  const degreeNorm     = degree.toLowerCase();
+  const directMatch    = relatedDegrees.some(d => d === degreeNorm ||
+    (degreeNorm.length > 5 && (d.includes(degreeNorm.split(" ")[0]) || degreeNorm.includes(d.split(" ")[0]))));
+
+  if (degree) {
+    if (directMatch) {
+      items.push(`Tu formación en ${degree} cubre la base que necesita este rol.`);
+    } else {
+      // Frases puente específicas por tipo de carrera y área del rol
+      items.push(_buildBridgeSentence(degreeNorm, area));
+    }
+  }
+
+  // 3. Interés declarado
+  const matchedInterest = (profile?.areas_of_interest || []).find(i => {
+    const val = typeof i === "object" ? i.value : i;
+    return val === (role.category || "");
+  });
+  if (matchedInterest) {
+    const weight = typeof matchedInterest === "object" ? matchedInterest.weight : 1;
+    const phrase = weight === 3
+      ? `${area} es tu área de interés principal — estás apuntando directo a este camino.`
+      : `Tienes interés declarado en ${area}, que es el campo de este rol.`;
+    items.push(phrase);
+  }
+
+  return items.slice(0, 3);
+}
+
+/**
+ * Describe qué se espera de alguien en este rol.
+ * Sin mencionar lo que le falta al usuario.
+ */
+function buildRoleExpectations(role) {
+  const area = role.area || "";
+  const expectation = ROLE_AREA_EXPECTATIONS[area];
+  if (expectation) return [expectation];
+
+  // Fallback con skills del rol
+  const skills = (role.skills || []).slice(0, 4);
+  if (skills.length > 0) {
+    return [`Quienes trabajan en este tipo de roles suelen manejar ${skills.join(", ")}. El perfil base es consistente aunque las herramientas específicas varían por empresa.`];
+  }
+  return [`Este rol requiere un perfil con base técnica y orientación al trabajo en equipo. Los requisitos específicos varían según la empresa.`];
+}
+
 function buildNextStep(role, profile) {
-  const missingSkills = role.missing_skills || [];
-  const breakdown     = role.score_breakdown || {};
-  const roleArea      = role.area || role.category || "";
+  const area      = role.area || role.category || "";
+  const breakdown = role.score_breakdown || {};
 
-  // Prioridad 1: skill faltante más importante
-  if (missingSkills.length > 0) {
-    const topSkill = missingSkills[0];
-    return `Enfócate en aprender ${topSkill} con un caso práctico. Un proyecto personal o curso corto puede marcar la diferencia en tu CV.`;
-  }
-
-  // Prioridad 2: experiencia
   if (breakdown.experiencia === 0) {
-    return `Busca una práctica profesional, proyecto universitario o voluntariado en ${roleArea.toLowerCase()} para sumar experiencia concreta.`;
+    return `Si quieres fortalecer tu candidatura, busca una práctica, proyecto universitario o voluntariado en ${area.toLowerCase()} donde puedas aplicar lo que sabes y documentar el resultado en tu CV.`;
   }
 
-  // Default
-  return `Refuerza tu perfil con experiencia práctica en ${roleArea.toLowerCase()} y asegúrate de que tu CV refleje tus habilidades actuales.`;
+  return `Conecta con profesionales de ${area.toLowerCase()} en LinkedIn para ganar visibilidad. Los referidos son la principal fuente de entrevistas junior — una conversación puede abrirte una puerta antes que cualquier aplicación en frío.`;
 }
 
 // ------------------------------------------------------------------ //
@@ -508,7 +704,6 @@ function renderRoleCard(role) {
   const storedData = sessionStorage.getItem("laboraResults");
   const profile    = storedData ? JSON.parse(storedData).profile : null;
 
-  const marketGaps = buildMarketGaps(role, profile);
   const nextStep   = buildNextStep(role, profile);
 
   // Limitar match_reasons a 3, sin repeticiones obvias
@@ -522,27 +717,28 @@ function renderRoleCard(role) {
           <h3>${role.title}</h3>
           <p class="muted" style="margin:2px 0 0;">${role.area || role.category || ""}${role.subarea ? ` · ${role.subarea}` : ""}</p>
         </div>
-        <span class="fit-badge ${fit.css}">${fit.label}</span>
+        ${currentHasCv ? `<span class="fit-badge ${fit.css}">${fit.label}</span>` : ""}
       </div>
 
-      <p class="role-description">${description}</p>
+      ${currentHasCv ? `<p class="role-description">${description}</p>` : ""}
 
       <div class="role-section">
-        <h4>Por qué este rol hace sentido para ti</h4>
+        <h4>Por qué este rol encaja con tu perfil</h4>
         <ul class="list">
           ${
-            reasons.map((r) => `<li>${r}</li>`).join("") ||
+            buildRoleAlignment(role, profile).map(r => `<li>${r}</li>`).join("") ||
             "<li>Tu perfil tiene elementos que conectan con este rol.</li>"
           }
         </ul>
       </div>
 
+      ${currentHasCv ? `
       <div class="role-section">
-        <h4>Lo que suele pedir el mercado para este rol</h4>
+        <h4>Qué se espera de alguien en este rol</h4>
         <ul class="list">
-          ${marketGaps.map(g => `<li>${g}</li>`).join("")}
+          ${buildRoleExpectations(role).map(e => `<li>${e}</li>`).join("")}
         </ul>
-      </div>
+      </div>` : ""}
 
       <div class="role-next-step-highlight">
         <h4>Próximo paso recomendado</h4>
@@ -568,7 +764,6 @@ function renderCompactRoleCard(role) {
 
   const storedData = sessionStorage.getItem("laboraResults");
   const profile    = storedData ? JSON.parse(storedData).profile : null;
-  const marketGaps = buildMarketGaps(role, profile);
 
   return `
     <article class="role-card role-card--compact${extraClass}">
@@ -577,15 +772,16 @@ function renderCompactRoleCard(role) {
           <h3>${role.title}</h3>
           <p class="muted" style="margin:2px 0 0;">${role.area || role.category || ""}${role.subarea ? ` · ${role.subarea}` : ""}</p>
         </div>
-        <span class="fit-badge ${fit.css}">${fit.label}</span>
+        ${currentHasCv ? `<span class="fit-badge ${fit.css}">${fit.label}</span>` : ""}
       </div>
 
+      ${currentHasCv ? `
       <div class="role-section">
-        <h4>Lo que suele pedir el mercado</h4>
+        <h4>Qué se espera en este rol</h4>
         <ul class="list">
-          ${marketGaps.slice(0, 2).map(g => `<li>${g}</li>`).join("")}
+          ${buildRoleExpectations(role).slice(0, 1).map(e => `<li>${e}</li>`).join("")}
         </ul>
-      </div>
+      </div>` : ""}
 
       <div class="role-compact-actions">
         <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary">Ver vacantes</a>
@@ -607,6 +803,25 @@ function renderCompactRoleCard(role) {
  * participan en el scoring. Los demás se almacenan para uso futuro.
  */
 const INTEREST_REGISTRY = {
+  // ── Traducciones de nivel de área (para el banner de área detectada) ──
+  // Claves que el backend puede enviar como detectedArea.label cuando no hay
+  // entrada en AREA_LABELS — mapeamos al nombre de área legible.
+  "clinica-psico":          "Psicología",
+  "organizacional":         "Recursos Humanos",
+  "salud-mental":           "Psicología",
+  "rehab-clinica":          "Kinesiología / Salud",
+  "rehab-deportiva":        "Kinesiología Deportiva",
+  "clinica-hosp":           "Salud Clínica",
+  "clinica":                "Salud Clínica",
+  "docencia":               "Educación",
+  "desarrollo-sw":          "Tecnología",
+  "infra-sistemas":         "Tecnología",
+  "litigacion":             "Derecho",
+  "corporativo":            "Derecho",
+  "medios":                 "Comunicación",
+  "comunicaciones-corp":    "Comunicación",
+  "sector-publico":         "Administración Pública",
+  "investigacion":          "Investigación",
   // ── Generales (fallback) ──────────────────────────────────────────────
   "analitica":              "Analítica / Datos",
   "comercial":              "Comercial / Ventas",
@@ -862,7 +1077,7 @@ function createInterestItem(value, label, suggested) {
   const div = document.createElement("div");
   const idx = selectedInterests.indexOf(value);
   const isSelected = idx >= 0;
-  const atLimit    = selectedInterests.length >= 2;
+  const atLimit    = selectedInterests.length >= 3;
 
   div.className = "interest-item" +
     (suggested  && !isSelected ? " suggested" : "") +
@@ -881,7 +1096,7 @@ function createInterestItem(value, label, suggested) {
     const currentIdx = selectedInterests.indexOf(value);
     if (currentIdx >= 0) {
       selectedInterests.splice(currentIdx, 1);       // deseleccionar
-    } else if (selectedInterests.length < 2) {
+    } else if (selectedInterests.length < 3) {
       selectedInterests.push(value);                  // seleccionar
     }
     renderInterestsForCareer(currentRawDegree);
@@ -895,17 +1110,76 @@ function updateInterestUI() {
   const counter  = document.getElementById("interests-counter");
   const limitMsg = document.getElementById("interests-limit-msg");
   const count    = selectedInterests.length;
-  const atLimit  = count >= 2;
+  const atLimit  = count >= 3;
 
   if (counter) {
     counter.textContent = atLimit
-      ? "Orden guardado (2 de 2)"
+      ? "Orden guardado (3 de 3)"
       : count === 0
-        ? "Elige en orden de prioridad (máx. 2)"
-        : `${count} de 2 elegida${count > 1 ? "s" : ""}`;
+        ? "Elige en orden de prioridad (máx. 3)"
+        : `${count} de 3 elegida${count > 1 ? "s" : ""}`;
     counter.classList.toggle("at-limit", atLimit);
   }
   if (limitMsg) limitMsg.classList.toggle("visible", atLimit);
+}
+
+/**
+ * Filtra GENERAL_INTERESTS según la carrera.
+ * Aplica dos capas de filtro:
+ *  1. geociencias/medioambiente solo aparecen si la carrera los tiene específicamente.
+ *  2. Por dominio de carrera, se excluyen áreas que no tienen conexión razonable.
+ */
+function getFilteredGeneralInterests(careerSpecificInterests, normalizedCareer) {
+  const EXCLUDE_IF_NOT_SPECIFIC = new Set(["geociencias", "medioambiente"]);
+
+  // Carreras por dominio → qué áreas de GENERAL_INTERESTS excluir
+  const DOMAIN_CAREERS = {
+    salud: [
+      "psicologia", "kinesiologia", "medicina", "enfermeria", "fonoaudiologia",
+      "terapia ocupacional", "nutricion y dietetica", "odontologia",
+      "medicina veterinaria", "obstetricia", "quimico farmaceutico", "tecnologia medica"
+    ],
+    "ciencias-sociales": [
+      "sociologia", "trabajo social", "antropologia", "ciencia politica",
+      "historia", "filosofia"
+    ],
+    tecnologia: [
+      "ingenieria en informatica", "ingenieria de software", "ingenieria en desarrollo de software",
+      "ingenieria en computacion", "ciencias de la computacion", "analisis de sistemas",
+      "ingenieria en ciberseguridad", "ingenieria en sistemas", "ingenieria en redes"
+    ],
+    comunicacion: [
+      "periodismo", "comunicacion social", "comunicacion audiovisual", "publicidad",
+      "diseno grafico", "relaciones publicas"
+    ]
+  };
+  const DOMAIN_EXCLUSIONS = {
+    salud:              ["finanzas", "analitica", "tecnologia"],
+    "ciencias-sociales":["finanzas", "analitica", "tecnologia"],
+    tecnologia:         ["medioambiente", "geociencias", "personas"],
+    comunicacion:       ["finanzas", "geociencias", "medioambiente"]
+  };
+
+  let domainExclusions = [];
+  if (normalizedCareer) {
+    for (const [domain, careers] of Object.entries(DOMAIN_CAREERS)) {
+      if (careers.includes(normalizedCareer)) {
+        domainExclusions = DOMAIN_EXCLUSIONS[domain] || [];
+        break;
+      }
+    }
+  }
+
+  if (!careerSpecificInterests || careerSpecificInterests.length === 0) {
+    return GENERAL_INTERESTS.filter(val => !domainExclusions.includes(val));
+  }
+  return GENERAL_INTERESTS.filter(val => {
+    if (EXCLUDE_IF_NOT_SPECIFIC.has(val)) {
+      return careerSpecificInterests.includes(val);
+    }
+    if (domainExclusions.includes(val)) return false;
+    return true;
+  });
 }
 
 /**
@@ -948,11 +1222,11 @@ function renderInterestsForCareer(rawDegree) {
     sep.textContent = "Otras opciones";
     grid.appendChild(sep);
 
-    GENERAL_INTERESTS
-      .filter((val) => !areas.includes(val))
-      .forEach((val) => {
-        grid.appendChild(createInterestItem(val, INTEREST_REGISTRY[val] || val, false));
-      });
+    const filteredGeneral = getFilteredGeneralInterests(areas, normalizedCareer)
+      .filter((val) => !areas.includes(val));
+    filteredGeneral.forEach((val) => {
+      grid.appendChild(createInterestItem(val, INTEREST_REGISTRY[val] || val, false));
+    });
   } else {
     const hasInput = careerValue.trim().length > 0;
     if (hint) {
@@ -1356,6 +1630,30 @@ function initDegreeAutocomplete() {
   document.addEventListener("click", (e) => {
     if (!input.contains(e.target) && !list.contains(e.target)) closeList();
   });
+
+  // Cambio 1: toggle degree-other
+  const degreeOtherWrapper = document.getElementById("degree-other-wrapper");
+  const toggleBtn          = document.getElementById("toggle-degree-other");
+
+  if (toggleBtn && degreeOtherWrapper) {
+    toggleBtn.addEventListener("click", () => {
+      degreeOtherWrapper.hidden = false;
+      toggleBtn.hidden = true;
+    });
+  }
+
+  // Cuando el autocomplete hace match → ocultar wrapper
+  // Cuando no hay matches y hay texto → mostrar toggle
+  const originalOpenList = openList;
+  input.addEventListener("input", () => {
+    const query = input.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    if (degreeOtherWrapper && toggleBtn) {
+      if (!query) {
+        degreeOtherWrapper.hidden = true;
+        toggleBtn.hidden = false;
+      }
+    }
+  });
 }
 
 // ------------------------------------------------------------------ //
@@ -1489,12 +1787,22 @@ function initCityAutocomplete() {
 // ------------------------------------------------------------------ //
 
 function initModality() {
+  const nextBtn = document.getElementById("next-5");
+
+  function updateModalityNext() {
+    const anyChecked = [...document.querySelectorAll('input[name="desiredModality"]')].some(cb => cb.checked);
+    if (nextBtn) nextBtn.disabled = !anyChecked;
+  }
+
   document.querySelectorAll('input[name="desiredModality"]').forEach((cb) => {
     cb.addEventListener("change", () => {
       const label = cb.closest(".modality-option");
       if (label) label.classList.toggle("selected", cb.checked);
+      updateModalityNext();
     });
   });
+
+  updateModalityNext(); // estado inicial
 }
 
 // ------------------------------------------------------------------ //
@@ -1733,6 +2041,11 @@ function renderExploreGrid(containerId, options, selectedArr, maxSelections) {
         selectedArr.push(value);
       }
       renderExploreGrid(containerId, options, selectedArr, maxSelections);
+      // Habilitar siguiente en el step de tareas cuando hay al menos 1 selección
+      if (containerId === "explore-tasks-grid") {
+        const nextBtn = document.getElementById("next-explore-1");
+        if (nextBtn) nextBtn.disabled = selectedArr.length === 0;
+      }
     });
 
     grid.appendChild(card);
@@ -1882,6 +2195,9 @@ function updateExploreProgress(step) {
 function initExploreFlow() {
   // Render grids
   renderExploreGrid("explore-tasks-grid", EXPLORE_TASKS, exploreTaskPrefs, 2);
+  // Asegurar estado inicial del botón siguiente (tareas)
+  const nextExplore1Btn = document.getElementById("next-explore-1");
+  if (nextExplore1Btn) nextExplore1Btn.disabled = exploreTaskPrefs.length === 0;
   renderExploreAvoidGrid("explore-avoid-grid", EXPLORE_AVOID_GROUPS, exploreAvoid);
   renderExploreGrid("explore-motivation-grid", EXPLORE_MOTIVATIONS, exploreMotivations, 2);
 
@@ -1932,6 +2248,7 @@ function initIntentStep() {
   });
 
   continueBtn.addEventListener("click", () => {
+    if (!userIntentMode) return;
     stepIntent.hidden = true;
     cvForm.hidden = false;
     stepProgress.hidden = false;
@@ -2027,32 +2344,64 @@ function renderSummary() {
   const container = document.getElementById("summary-content");
   if (!container) return;
 
-  const degree  = document.getElementById("degree")?.value.trim() ||
-                  document.getElementById("degree_other")?.value.trim() || "—";
-  const statusEl = document.getElementById("academicStatus");
-  const status  = statusEl?.options[statusEl.selectedIndex]?.text || "—";
-  const city    = document.getElementById("city")?.value.trim() || "Sin preferencia";
-  const mods    = getCheckedValues("desiredModality");
-  const modText = mods.length ? mods.join(", ") : "Sin preferencia";
-  const iLabels = selectedInterests.map((v) => INTEREST_REGISTRY[v] || v).join(", ") || "Sin selección";
-  const cvText  = cvChoice === "yes"
-    ? (document.getElementById("cv")?.files[0]?.name || "Con CV")
-    : "Sin CV";
-  const modeText = userIntentMode === "guided" ? "Ya tengo una idea" : "Quiero explorar";
+  const degree     = document.getElementById("degree")?.value.trim() ||
+                     document.getElementById("degree_other")?.value.trim() || "—";
+  const statusRaw  = document.getElementById("academicStatus")?.value || "";
+  const hasPostgrad = document.getElementById("hasPostgrad")?.value === "true";
+  const STATUS_LABELS = { estudiante: "Estoy estudiando", egresado: "Egresado", titulado: "Titulado" };
+  const statusLabel = STATUS_LABELS[statusRaw] || statusRaw || "—";
+  const statusBadge = statusLabel + (hasPostgrad ? " · Con postgrado" : "");
 
-  const interestRow = userIntentMode === "explore"
-    ? `<div class="summary-row"><span class="summary-key">Áreas sugeridas</span><span class="summary-val">${iLabels}</span></div>`
-    : `<div class="summary-row"><span class="summary-key">Intereses</span><span class="summary-val">${iLabels}</span></div>`;
+  const city    = document.getElementById("city")?.value.trim() || "";
+  const mods    = getCheckedValues("desiredModality");
+  const cvFile  = cvChoice === "yes" ? (document.getElementById("cv")?.files[0]?.name || null) : null;
+
+  const interestValues = selectedInterests;
+  const interestLabel  = userIntentMode === "explore" ? "Áreas sugeridas" : "Intereses";
+  const interestTags   = interestValues.length > 0
+    ? interestValues.map((v) => `<span class="summary-tag summary-tag--interest">${INTEREST_REGISTRY[v] || v}</span>`).join("")
+    : `<span class="summary-tag summary-tag--empty">Sin selección</span>`;
+
+  const modTags = mods.length > 0
+    ? mods.map((m) => `<span class="summary-tag summary-tag--mod">${m.charAt(0).toUpperCase() + m.slice(1)}</span>`).join("")
+    : `<span class="summary-tag summary-tag--empty">Sin preferencia</span>`;
 
   container.innerHTML = `
-    <div class="summary-list">
-      <div class="summary-row"><span class="summary-key">Modo</span><span class="summary-val">${modeText}</span></div>
-      <div class="summary-row"><span class="summary-key">Carrera</span><span class="summary-val">${degree}</span></div>
-      <div class="summary-row"><span class="summary-key">Etapa</span><span class="summary-val">${status}</span></div>
-      ${interestRow}
-      <div class="summary-row"><span class="summary-key">CV</span><span class="summary-val">${cvText}</span></div>
-      <div class="summary-row"><span class="summary-key">Ciudad</span><span class="summary-val">${city}</span></div>
-      <div class="summary-row"><span class="summary-key">Modalidad</span><span class="summary-val">${modText}</span></div>
+    <div class="summary-v2">
+      <div class="summary-degree-block">
+        <p class="summary-degree-name">${degree}</p>
+        <span class="summary-status-badge">${statusBadge}</span>
+      </div>
+
+      <div class="summary-tags-row">
+        <div class="summary-tags-col">
+          <p class="summary-col-label">${interestLabel}</p>
+          <div class="summary-tags-list">${interestTags}</div>
+        </div>
+        <div class="summary-tags-col">
+          <p class="summary-col-label">Modalidad</p>
+          <div class="summary-tags-list">${modTags}</div>
+        </div>
+      </div>
+
+      <div class="summary-tags-row summary-meta-row">
+        <div class="summary-tags-col">
+          <p class="summary-col-label">Ubicación</p>
+          <div class="summary-tags-list">
+            ${city
+              ? `<span class="summary-tag summary-tag--meta">${city}</span>`
+              : `<span class="summary-tag summary-tag--empty">Sin especificar</span>`}
+          </div>
+        </div>
+        <div class="summary-tags-col">
+          <p class="summary-col-label">CV</p>
+          <div class="summary-tags-list">
+            ${cvFile
+              ? `<span class="summary-tag summary-tag--cv">${cvFile}</span>`
+              : `<span class="summary-tag summary-tag--empty">Sin CV</span>`}
+          </div>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -2081,6 +2430,64 @@ function initMultiStep() {
     }
   });
   document.getElementById("back-2")?.addEventListener("click", () => showStep(1));
+
+  // Tarjetas de etapa académica (cambio 2)
+  document.querySelectorAll(".academic-status-cards .intent-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".academic-status-cards .intent-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const statusInput = document.getElementById("academicStatus");
+      if (statusInput) statusInput.value = card.dataset.status;
+
+      // Mostrar pregunta de postgrado solo para titulados
+      const postgradQ   = document.getElementById("postgrad-question");
+      const postgradVal = document.getElementById("hasPostgrad");
+      if (postgradQ) postgradQ.hidden = (card.dataset.status !== "titulado");
+      if (postgradVal && card.dataset.status !== "titulado") postgradVal.value = "false";
+
+      // Mostrar pregunta de último año solo para estudiantes
+      const lastYearQ    = document.getElementById("last-year-question");
+      const lastYearVal  = document.getElementById("isLastYear");
+      const lastYearInfo = document.getElementById("last-year-info");
+      if (lastYearQ) lastYearQ.hidden = (card.dataset.status !== "estudiante");
+      if (lastYearVal && card.dataset.status !== "estudiante") lastYearVal.value = "";
+      if (lastYearInfo) lastYearInfo.hidden = true;
+      // Reset selección de tarjetas último año al cambiar etapa
+      document.querySelectorAll(".last-year-cards .intent-card").forEach(c => c.classList.remove("selected"));
+
+      const nextBtn = document.getElementById("next-2");
+      if (nextBtn) {
+        // Si es estudiante, esperar respuesta de último año antes de habilitar
+        nextBtn.disabled = (card.dataset.status === "estudiante");
+      }
+    });
+  });
+
+  // Tarjetas de postgrado
+  document.querySelectorAll(".postgrad-cards .intent-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".postgrad-cards .intent-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const postgradVal = document.getElementById("hasPostgrad");
+      if (postgradVal) postgradVal.value = card.dataset.postgrad;
+    });
+  });
+
+  // Tarjetas de último año (solo visibles cuando "Estoy estudiando" está seleccionado)
+  document.querySelectorAll(".last-year-cards .intent-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".last-year-cards .intent-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const lastYearVal  = document.getElementById("isLastYear");
+      const lastYearInfo = document.getElementById("last-year-info");
+      if (lastYearVal) lastYearVal.value = card.dataset.lastyear;
+      // Mostrar mensaje informativo solo si responde "No"
+      if (lastYearInfo) lastYearInfo.hidden = (card.dataset.lastyear !== "false");
+      // Habilitar siguiente
+      const nextBtn = document.getElementById("next-2");
+      if (nextBtn) nextBtn.disabled = false;
+    });
+  });
 
   // Step 3 (interests, guided only) next/back
   document.getElementById("next-3")?.addEventListener("click", () => showStep(4));
@@ -2144,3 +2551,22 @@ initCityAutocomplete();
 initInterests();
 initModality();
 initPreferences();
+
+// CV drop zone: actualizar nombre de archivo al seleccionar
+(function initCvDropZone() {
+  const cvInput    = document.getElementById("cv");
+  const cvFileName = document.getElementById("cv-file-name");
+  const dropZone   = document.getElementById("cv-drop-zone");
+  if (!cvInput || !cvFileName) return;
+
+  cvInput.addEventListener("change", () => {
+    const file = cvInput.files[0];
+    if (file) {
+      cvFileName.textContent = file.name;
+      if (dropZone) dropZone.classList.add("has-file");
+    } else {
+      cvFileName.textContent = "PDF o DOCX, máx. 10 MB";
+      if (dropZone) dropZone.classList.remove("has-file");
+    }
+  });
+})();

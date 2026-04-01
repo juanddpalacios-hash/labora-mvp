@@ -53,8 +53,18 @@ router.post("/", upload.single("cv"), async (req, res) => {
       interest_other:            req.body.interest_other || "",
       company_preferences:       req.body.company_preferences ? JSON.parse(req.body.company_preferences) : [],
       company_preferences_other: req.body.company_preferences_other || "",
-      user_intent_mode:          req.body.user_intent_mode || "guided"
+      user_intent_mode:          req.body.user_intent_mode || "guided",
+      avoidPreferences:          req.body.avoid_preferences ? JSON.parse(req.body.avoid_preferences) : []
     };
+
+    // Estudiante en último año → tratarlo como egresado en el scoring
+    const isLastYear = req.body.isLastYear === "true";
+    if (metadata.academicStatus === "estudiante" && isLastYear) {
+      metadata.academicStatus = "egresado";
+    }
+
+    // has_postgrad declarado explícitamente en el formulario (sin CV)
+    const formPostgrad = req.body.hasPostgrad === "true";
 
     let extractedProfile;
     let parsedText = "";
@@ -80,6 +90,8 @@ router.post("/", upload.single("cv"), async (req, res) => {
 
       // 2. Extraer perfil estructurado del texto
       extractedProfile = await extractProfileFromCV(parsedText, metadata);
+      // Fusionar: la declaración del formulario refuerza lo que detectó el CV
+      extractedProfile.has_postgrad = extractedProfile.has_postgrad || formPostgrad;
     } else {
       // Sin CV: perfil mínimo basado solo en los datos del formulario
       extractedProfile = {
@@ -95,7 +107,7 @@ router.post("/", upload.single("cv"), async (req, res) => {
         skills:            [],
         languages:         [],
         specialization:    [],
-        has_postgrad:      false,
+        has_postgrad:      formPostgrad,
         experience:        [],
         projects:          [],
         strengths:         [],

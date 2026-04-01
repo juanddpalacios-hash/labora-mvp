@@ -42,19 +42,19 @@ const CAREER_FAMILIES = {
   "ingenieria en informatica":        { primary: ["tecnologia", "analitica"],           secondary: ["negocios"] },
   "ingenieria en minas":              { primary: ["ingenieria", "geociencias"],         secondary: [] },
   "ingenieria en recursos naturales": { primary: ["geociencias", "medioambiente"],      secondary: ["ingenieria"] },
-  "kinesiologia":                     { primary: ["salud"],                             secondary: [] },
+  "kinesiologia":                     { primary: ["salud", "personas"],                 secondary: ["ciencias-sociales"] },
   "logistica":                        { primary: ["operaciones", "negocios"],           secondary: [] },
   "medicina":                         { primary: ["salud"],                             secondary: ["ciencias"] },
   "nutricion y dietetica":            { primary: ["salud"],                             secondary: ["ciencias"] },
   "odontologia":                      { primary: ["salud"],                             secondary: [] },
   "pedagogia en educacion basica":    { primary: ["educacion", "personas"],             secondary: [] },
   "periodismo":                       { primary: ["comunicacion"],                      secondary: ["ciencias-sociales"] },
-  "psicologia":                       { primary: ["personas"],                          secondary: ["salud"] },
+  "psicologia":                       { primary: ["personas", "ciencias-sociales", "educacion"], secondary: ["salud"] },
   "quimica":                          { primary: ["ciencias"],                          secondary: [] },
   "relaciones publicas":              { primary: ["comunicacion", "negocios"],          secondary: ["personas"] },
   "sociologia":                       { primary: ["personas", "ciencias-sociales"],     secondary: ["analitica"] },
   "trabajo social":                   { primary: ["personas"],                          secondary: ["ciencias-sociales"] },
-  "terapia ocupacional":              { primary: ["salud"],                             secondary: ["personas"] },
+  "terapia ocupacional":              { primary: ["salud", "personas"],                 secondary: ["ciencias-sociales"] },
   // Negocios — carreras nuevas
   "auditoria":                        { primary: ["finanzas", "negocios"],              secondary: ["analitica"] },
   "comercio internacional":           { primary: ["negocios"],                          secondary: ["operaciones"] },
@@ -445,12 +445,12 @@ function buildMissingSkills(profile, role) {
   return missing;
 }
 
-// Frases rotativas para brechas de skills — tono accionable, orientado a progreso
+// Frases rotativas para brechas de skills — primera verbosa, el resto directas
 const SKILL_GAP_PHRASES = [
-  (s) => `Practicar ${s} te acercaría más a este rol.`,
-  (s) => `Reforzar tu manejo de ${s} te daría más base para este rol.`,
-  (s) => `Sumar práctica en ${s} fortalecería tu candidatura.`,
-  (s) => `Aprender ${s} marcaría diferencia para este rol.`
+  (s) => `Para acercarte a este rol, refuerza ${s}.`,
+  (s) => `También se pide ${s}.`,
+  (s) => `Se valora experiencia con ${s}.`,
+  (s) => `Conocer ${s} marcaría diferencia.`
 ];
 
 function buildGaps(profile, role) {
@@ -480,15 +480,24 @@ function buildGaps(profile, role) {
 // -------------------------------------------------------------------
 
 const AREA_LABELS = {
-  finanzas:      "Finanzas",
-  analitica:     "Analítica y Datos",
-  marketing:     "Marketing Digital",
-  comercial:     "Comercial",
-  personas:      "Recursos Humanos",
-  operaciones:   "Operaciones",
-  logistica:     "Logística",
-  geociencias:   "Geociencias",
-  medioambiente: "Medioambiente"
+  finanzas:           "Finanzas",
+  analitica:          "Analítica y Datos",
+  marketing:          "Marketing Digital",
+  comercial:          "Comercial",
+  personas:           "Recursos Humanos y Personas",
+  operaciones:        "Operaciones",
+  logistica:          "Logística",
+  geociencias:        "Geociencias",
+  medioambiente:      "Medioambiente",
+  tecnologia:         "Tecnología",
+  comunicacion:       "Comunicación",
+  derecho:            "Derecho y Cumplimiento",
+  educacion:          "Educación",
+  negocios:           "Negocios",
+  ingenieria:         "Ingeniería",
+  "ciencias-sociales":"Ciencias Sociales",
+  diseno:             "Diseño",
+  salud:              "Salud"
 };
 
 /**
@@ -516,8 +525,15 @@ function buildDetectedArea(profile, strongMatches, stretchMatches) {
 
   if (!mainArea) return null;
 
-  const allMatches = [...strongMatches, ...stretchMatches];
-  const subareas   = [...new Set(allMatches.map((m) => m.subarea).filter(Boolean))].slice(0, 4);
+  // Filtrar matches cuyo área coincide con mainArea para extraer solo subareas relevantes
+  const mainAreaNorm = normalizeText(mainArea);
+  const allMatches   = [...strongMatches, ...stretchMatches];
+  const areaMatches  = allMatches.filter((m) => {
+    const mArea = normalizeText(m.area || m.category || "");
+    return mArea === mainAreaNorm || normalizeText(AREA_LABELS[mArea] || "") === mainAreaNorm;
+  });
+  const sourceMatches = areaMatches.length > 0 ? areaMatches : allMatches;
+  const subareas      = [...new Set(sourceMatches.map((m) => m.subarea).filter(Boolean))].slice(0, 4);
 
   return { label: mainArea, subareas };
 }
@@ -728,7 +744,36 @@ function buildContextMessage(userType, profile, topMatch) {
 // -------------------------------------------------------------------
 
 const STRONG_THRESHOLD  = 65;
-const STRETCH_THRESHOLD = 35;
+const STRETCH_THRESHOLD = 25;
+
+// Mapeo de opciones "evitar" a categorías/familias que penalizan.
+// Se verifica contra role.category (más específico) Y role.primary_families (más amplio).
+// Valores de clave coinciden con los que envía el frontend (exploreAvoid).
+const AVOID_PENALTIES = {
+  "ventas-metas":         { categories: ["comercial"],              families: [] },
+  "atencion-clientes":    { categories: ["comercial", "personas"],  families: [] },
+  "trabajo-terreno":      { categories: ["geociencias", "medioambiente"], families: ["geociencias", "medioambiente"] },
+  "ambiente-competitivo": { categories: ["comercial"],              families: [] }
+  // "trabajo-repetitivo" y "industrias-no-van" no se mapean sin LLM
+};
+
+/**
+ * Retorna 0.75 si el rol pertenece a una categoría o familia que el usuario quiere evitar.
+ * La penalización se aplica una sola vez aunque múltiples avoid coincidan.
+ */
+function computeAvoidPenalty(avoidPreferences, role) {
+  if (!avoidPreferences || avoidPreferences.length === 0) return 1;
+  const roleCategory = role.category || "";
+  const roleFamilies = new Set(role.primary_families || []);
+
+  for (const avoidVal of avoidPreferences) {
+    const rule = AVOID_PENALTIES[avoidVal];
+    if (!rule) continue;
+    if (rule.categories.includes(roleCategory)) return 0.75;
+    if (rule.families.some((f) => roleFamilies.has(f))) return 0.75;
+  }
+  return 1;
+}
 
 function matchRoles(profile, roleCatalog, metadata = {}) {
   const enrichedProfile = {
@@ -737,10 +782,19 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
     desired_modality:  metadata.desiredModality  || profile.desired_modality  || [],
     specialization:    profile.specialization    || []
   };
+  const avoidPreferences = metadata.avoidPreferences || [];
 
   // Evaluar calidad del perfil UNA VEZ antes del loop
   const profileQuality  = evaluateProfileQuality(enrichedProfile);
-  const weights         = getDynamicWeights(profileQuality);
+  const baseWeights     = getDynamicWeights(profileQuality);
+
+  // Si la carrera no está en el catálogo, reducir peso de carrera y aumentar intereses
+  // para que el motor confíe más en lo que el usuario declara que le interesa.
+  const isUnknownCareer = !getCareerFamilies(enrichedProfile.degree || "");
+  const weights = isUnknownCareer
+    ? { ...baseWeights, carrera: Math.max(10, baseWeights.carrera - 15), intereses: baseWeights.intereses + 15 }
+    : baseWeights;
+
   const totalWeightSum  = Object.values(weights).reduce((a, b) => a + b, 0);
 
   const allScored = roleCatalog
@@ -764,8 +818,18 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
 
       const rawScore = Math.round((weightedRaw / totalWeightSum) * 100);
 
-      // Sin overlap formativo → penalización suave (×0.6) en vez de exclusión total
-      const score = Math.min(100, degreeScore === 0 ? Math.round(rawScore * 0.6) : rawScore);
+      // Postgrado: penalizar roles básicos (Asistente) cuando el perfil tiene posgrado
+      const isBasicRole         = /^Asistente\s/i.test(role.title);
+      const postgraduatePenalty = (enrichedProfile.has_postgrad && isBasicRole) ? 0.7 : 1;
+      // Evitar: penalizar roles cuya familia primaria el usuario quiere evitar
+      const avoidPenalty        = computeAvoidPenalty(avoidPreferences, role);
+      // Sin overlap formativo → penalización suave (×0.6) en vez de exclusión total.
+      // Para carreras desconocidas (isUnknownCareer) ya se redujo el peso de carrera;
+      // no aplicar doble penalización si degreeScore termina en 0.
+      const noFamilyPenalty = (degreeScore === 0 && !isUnknownCareer) ? 0.6 : 1;
+      const score = Math.min(100, Math.round(
+        rawScore * postgraduatePenalty * avoidPenalty * noFamilyPenalty
+      ));
 
       const missingSkills = buildMissingSkills(enrichedProfile, role);
 

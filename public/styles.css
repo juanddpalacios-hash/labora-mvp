@@ -1,15 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 :root {
-  --bg: #f6f8f7;
+  --bg: #fafaf8;
   --surface: #ffffff;
-  --text: #1f2937;
+  --text: #1a2018;
   --muted: #6b7280;
-  --primary: #1a9e72;
-  --primary-dark: #127657;
-  --border: #dbe3df;
+  --primary: #1a5c45;
+  --primary-dark: #134535;
+  --primary-light: rgba(26, 92, 69, 0.08);
+  --accent: #d48b2e;
+  --accent-light: rgba(212, 139, 46, 0.12);
+  --border: #dde5e0;
   --danger: #b42318;
   --warning: #d97706;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  --radius: 18px;
+  --shadow: 0 4px 16px rgba(26, 92, 69, 0.07);
+  --shadow-hover: 0 8px 28px rgba(212, 139, 46, 0.15);
+  --radius: 16px;
 }
 
 * {
@@ -18,9 +24,20 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', Arial, sans-serif;
   color: var(--text);
   background: var(--bg);
+}
+
+h1, h2 {
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  font-weight: 600;
 }
 
 .container {
@@ -43,6 +60,12 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover,
+.role-card:hover {
+  box-shadow: var(--shadow-hover);
 }
 
 .hero-card {
@@ -51,10 +74,31 @@ body {
   text-align: left;
 }
 
+.brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 28px;
+}
+
+.brand-icon {
+  font-size: 18px;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.brand-name {
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
 .hero-microcopy {
   font-size: 14px;
-  color: var(--primary-dark);
-  font-weight: 600;
+  color: var(--muted);
+  font-weight: 400;
   margin: 0 0 20px;
 }
 
@@ -69,7 +113,7 @@ body {
   margin-bottom: 14px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(26, 158, 114, 0.12);
+  background: rgba(26, 92, 69, 0.12);
   color: var(--primary-dark);
   font-weight: 700;
   font-size: 14px;
@@ -105,8 +149,10 @@ h1, h2, h3 {
   color: white;
 }
 
-.button.primary:hover {
+.button.primary:hover:not(:disabled) {
   background: var(--primary-dark);
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(26, 92, 69, 0.3);
 }
 
 .button:disabled {
@@ -140,7 +186,7 @@ h1, h2, h3 {
 .intent-card.selected {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px var(--primary);
-  background: rgba(26, 158, 114, 0.05);
+  background: rgba(26, 92, 69, 0.05);
 }
 
 .intent-card h3 {
@@ -271,7 +317,7 @@ h1, h2, h3 {
 
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
-  background: rgba(26, 158, 114, 0.07);
+  background: rgba(26, 92, 69, 0.07);
   color: var(--primary-dark);
 }
 
@@ -368,7 +414,7 @@ fieldset.field {
 
 .interest-option:hover {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.04);
+  background: rgba(26, 92, 69, 0.04);
 }
 
 .interest-option input[type="checkbox"] {
@@ -381,7 +427,7 @@ fieldset.field {
 
 .interest-option.selected {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.08);
+  background: rgba(26, 92, 69, 0.08);
   color: var(--primary-dark);
 }
 
@@ -434,18 +480,18 @@ fieldset.field {
 
 .pref-item:hover:not(.disabled) {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.04);
+  background: rgba(26, 92, 69, 0.04);
 }
 
 .pref-item.selected {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.06);
+  background: rgba(26, 92, 69, 0.06);
   color: var(--primary-dark);
 }
 
 .pref-item.priority {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.12);
+  background: rgba(26, 92, 69, 0.12);
   font-weight: 600;
 }
 
@@ -478,7 +524,7 @@ fieldset.field {
 
 .pref-priority-btn.active {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.15);
+  background: rgba(26, 92, 69, 0.15);
   color: var(--primary-dark);
   font-weight: 600;
 }
@@ -510,7 +556,7 @@ fieldset.field {
 
 .modality-option:hover {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.04);
+  background: rgba(26, 92, 69, 0.04);
 }
 
 .modality-option input[type="checkbox"] {
@@ -523,7 +569,7 @@ fieldset.field {
 
 .modality-option.selected {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.08);
+  background: rgba(26, 92, 69, 0.08);
   color: var(--primary-dark);
 }
 
@@ -582,16 +628,16 @@ fieldset.field {
 
 .interest-item:hover:not(.disabled) {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.04);
+  background: rgba(26, 92, 69, 0.04);
 }
 
 .interest-item.suggested {
-  border-color: rgba(26, 158, 114, 0.5);
+  border-color: rgba(26, 92, 69, 0.5);
 }
 
 .interest-item.selected {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.08);
+  background: rgba(26, 92, 69, 0.08);
   color: var(--primary-dark);
 }
 
@@ -663,7 +709,7 @@ fieldset.field {
 }
 
 .multistep-bar {
-  height: 6px;
+  height: 4px;
   background: var(--border);
   border-radius: 999px;
   overflow: hidden;
@@ -671,7 +717,7 @@ fieldset.field {
 
 .multistep-bar-fill {
   height: 100%;
-  background: var(--primary);
+  background: linear-gradient(90deg, var(--primary-dark) 0%, #2d8f6a 100%);
   border-radius: 999px;
   transition: width 0.3s ease;
   width: 0%;
@@ -715,7 +761,7 @@ fieldset.field {
 .interest-step-note {
   font-size: 13px;
   color: var(--primary-dark);
-  background: rgba(26, 158, 114, 0.07);
+  background: rgba(26, 92, 69, 0.07);
   border-radius: 8px;
   padding: 8px 12px;
   margin: 8px 0 0;
@@ -732,32 +778,98 @@ fieldset.field {
   padding: 20px;
 }
 
-.summary-list {
+/* Summary v2 — rediseñado */
+.summary-v2 {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 
-.summary-row {
+.summary-degree-block {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  font-size: 15px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.summary-key {
-  color: var(--muted);
+.summary-degree-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.summary-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
   font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
+  align-self: flex-start;
 }
 
-.summary-val {
-  color: var(--text);
-  text-align: right;
+.summary-tags-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.summary-col-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.summary-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.summary-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.summary-tag--interest {
+  background: var(--primary);
+  color: #fff;
+}
+
+.summary-tag--mod {
+  background: #374151;
+  color: #fff;
+}
+
+.summary-tag--meta {
+  background: #374151;
+  color: #fff;
+}
+
+.summary-tag--cv {
+  background: #374151;
+  color: #fff;
+}
+
+.summary-tag--empty {
+  background: var(--border);
+  color: var(--muted);
+}
+
+/* summary-meta-row: misma estructura visual que las filas de arriba */
+.summary-meta-row {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .status {
@@ -856,7 +968,7 @@ fieldset.field {
 }
 
 .score-badge.score-high {
-  background: rgba(26, 158, 114, 0.12);
+  background: rgba(26, 92, 69, 0.12);
   color: var(--primary-dark);
 }
 
@@ -873,7 +985,7 @@ fieldset.field {
 /* Banner de rol recomendado */
 .recommended-banner {
   border-left: 4px solid var(--primary);
-  background: linear-gradient(135deg, rgba(26,158,114,0.06) 0%, rgba(26,158,114,0.02) 100%);
+  background: linear-gradient(135deg, rgba(26,92,69,0.06) 0%, rgba(26,92,69,0.02) 100%);
 }
 
 .recommended-label {
@@ -883,7 +995,7 @@ fieldset.field {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--primary);
-  background: rgba(26,158,114,0.12);
+  background: rgba(26,92,69,0.12);
   padding: 3px 8px;
   border-radius: 4px;
   margin-bottom: 8px;
@@ -914,9 +1026,9 @@ fieldset.field {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--primary);
-  background: rgba(26,158,114,0.1);
-  padding: 2px 7px;
+  color: #ffffff;
+  background: var(--primary);
+  padding: 3px 9px;
   border-radius: 4px;
   margin-bottom: 4px;
 }
@@ -989,18 +1101,18 @@ fieldset.field {
 }
 
 .fit-badge.fit-high {
-  background: rgba(26, 158, 114, 0.12);
-  color: #127657;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .fit-badge.fit-mid {
-  background: rgba(217, 119, 6, 0.12);
-  color: #92400e;
+  background: #dbeafe;
+  color: #1e40af;
 }
 
 .fit-badge.fit-low {
-  background: rgba(107, 114, 128, 0.12);
-  color: #4b5563;
+  background: #dbeafe;
+  color: #1e40af;
 }
 
 .role-card--pilot .role-header {
@@ -1031,7 +1143,7 @@ fieldset.field {
 .role-next-step-highlight {
   margin-top: 20px;
   padding: 16px 20px;
-  background: rgba(26, 158, 114, 0.06);
+  background: rgba(26, 92, 69, 0.06);
   border-left: 4px solid var(--primary);
   border-radius: 8px;
 }
@@ -1059,7 +1171,7 @@ fieldset.field {
 /* Banner contextual según tipo de usuario */
 .context-banner {
   border-left: 4px solid var(--primary);
-  background: rgba(26, 158, 114, 0.05);
+  background: rgba(26, 92, 69, 0.05);
   padding: 16px 20px;
 }
 
@@ -1086,7 +1198,7 @@ fieldset.field {
 /* Bloque de área detectada */
 .area-insight {
   border-left: 4px solid var(--primary);
-  background: rgba(26, 158, 114, 0.04);
+  background: rgba(26, 92, 69, 0.04);
 }
 
 .area-insight-header {
@@ -1304,7 +1416,7 @@ fieldset.field {
 
 .explore-option.selected {
   border-color: var(--primary);
-  background: rgba(26, 158, 114, 0.06);
+  background: rgba(26, 92, 69, 0.06);
 }
 
 .explore-option.disabled {
@@ -1355,7 +1467,86 @@ fieldset.field {
 .explore-confirm-card.selected {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px var(--primary);
-  background: rgba(26, 158, 114, 0.06);
+  background: rgba(26, 92, 69, 0.06);
+}
+
+/* CV drop zone — cambio 5 */
+.cv-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 24px;
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  background: var(--surface);
+}
+
+.cv-drop-zone:hover {
+  border-color: var(--primary);
+  background: rgba(26, 92, 69, 0.04);
+}
+
+.cv-drop-zone.has-file {
+  border-color: var(--primary);
+  background: rgba(26, 92, 69, 0.06);
+}
+
+.cv-drop-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.cv-drop-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.cv-file-name {
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+}
+
+.cv-drop-zone.has-file .cv-file-name {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.cv-input-hidden {
+  display: none;
+}
+
+/* Link button — cambio 1 */
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-btn:hover {
+  opacity: 0.75;
+}
+
+/* Tarjetas etapa académica — cambio 2 */
+.academic-status-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 540px) {
+  .academic-status-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 .explore-confirm-card .explore-option-check {

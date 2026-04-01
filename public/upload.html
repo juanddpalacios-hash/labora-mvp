@@ -23,7 +23,7 @@
       <div class="page-header">
         <h1>Elige cómo quieres usar Labora hoy</h1>
         <p>Te mostraremos roles donde ya tienes base, caminos cercanos y qué necesitas reforzar para avanzar.</p>
-        <p class="hero-microcopy">Toma menos de 1 minuto. Puedes hacerlo con o sin CV.</p>
+        <p class="hero-microcopy">Toma menos de 3 minutos. Puedes hacerlo con o sin CV.</p>
       </div>
       <div class="intent-cards">
         <div class="intent-card card" data-mode="guided">
@@ -69,11 +69,16 @@
             <ul class="autocomplete-list" id="degree-suggestions"></ul>
           </div>
         </div>
-        <div class="field degree-other-field">
-          <label for="degree_other">¿No encuentras tu carrera? <span class="optional">(opcional)</span></label>
-          <input type="text" id="degree_other" name="degree_other" autocomplete="off"
-                 placeholder="Escríbela como aparece en tu título" />
-          <span class="field-hint">Si tu carrera no aparece en las sugerencias, escríbela aquí.</span>
+        <div class="field" style="margin-top: 8px;">
+          <button type="button" id="toggle-degree-other" class="link-btn">Mi carrera no aparece en la lista</button>
+        </div>
+        <div id="degree-other-wrapper" hidden>
+          <div class="field degree-other-field">
+            <label for="degree_other">Escribe tu carrera <span class="optional">(opcional)</span></label>
+            <input type="text" id="degree_other" name="degree_other" autocomplete="off"
+                   placeholder="Escríbela como aparece en tu título" />
+            <span class="field-hint">Si tu carrera no aparece en las sugerencias, escríbela aquí.</span>
+          </div>
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-1">← Atrás</button>
@@ -87,18 +92,60 @@
           <h2>¿En qué etapa estás?</h2>
           <p class="muted">Esto nos ayuda a mostrarte roles adecuados para tu momento.</p>
         </div>
-        <div class="field">
-          <label for="academicStatus">Etapa académica</label>
-          <select id="academicStatus" name="academicStatus">
-            <option value="">Selecciona</option>
-            <option value="estudiante">Estoy estudiando</option>
-            <option value="egresado">Ya terminé la carrera (pero no tengo título aún)</option>
-            <option value="titulado">Ya tengo mi título</option>
-          </select>
+        <input type="hidden" id="academicStatus" name="academicStatus" />
+        <div class="intent-cards academic-status-cards">
+          <div class="intent-card card" data-status="estudiante">
+            <span class="intent-check" aria-hidden="true">✓</span>
+            <h3>Estoy estudiando</h3>
+            <p>Aún cursando la carrera.</p>
+          </div>
+          <div class="intent-card card" data-status="egresado">
+            <span class="intent-check" aria-hidden="true">✓</span>
+            <h3>Egresado</h3>
+            <p>Terminé la carrera pero aún no tengo título.</p>
+          </div>
+          <div class="intent-card card" data-status="titulado">
+            <span class="intent-check" aria-hidden="true">✓</span>
+            <h3>Titulado</h3>
+            <p>Ya tengo mi título profesional.</p>
+          </div>
         </div>
+        <!-- Pregunta condicional: ¿Último año? (solo para "Estoy estudiando") -->
+        <div id="last-year-question" hidden style="margin-top: 20px;">
+          <p class="muted" style="margin-bottom: 8px;">¿Estás en tu último año de carrera?</p>
+          <div class="intent-cards last-year-cards">
+            <div class="intent-card card" data-lastyear="true">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>Sí</h3>
+            </div>
+            <div class="intent-card card" data-lastyear="false">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>No</h3>
+            </div>
+          </div>
+          <p class="muted" id="last-year-info" hidden style="margin-top: 12px; font-size: 14px; line-height: 1.5;">
+            Labora está pensado para quienes están terminando o ya terminaron su carrera. Igual puedes usarlo para orientar tu camino con anticipación.
+          </p>
+        </div>
+        <input type="hidden" id="isLastYear" name="isLastYear" value="" />
+
+        <div id="postgrad-question" hidden style="margin-top: 20px;">
+          <p class="muted" style="margin-bottom: 8px;">¿Tienes algún postgrado? <span class="optional">(Magíster, MBA, Diplomado)</span></p>
+          <div class="intent-cards postgrad-cards">
+            <div class="intent-card card" data-postgrad="true">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>Sí</h3>
+            </div>
+            <div class="intent-card card" data-postgrad="false">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>No</h3>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="hasPostgrad" name="hasPostgrad" value="false" />
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-2">← Atrás</button>
-          <button type="button" class="button primary" id="next-2">Siguiente</button>
+          <button type="button" class="button primary" id="next-2" disabled>Siguiente</button>
         </div>
       </div>
 
@@ -106,17 +153,17 @@
       <div class="step" id="step-3" hidden>
         <div class="step-header">
           <h2 id="interest-step-title">¿En qué área te interesa trabajar?</h2>
-          <p class="muted">Elige hasta 2. El primero tendrá más peso en tu resultado.</p>
+          <p class="muted">Elige hasta 3. El primero tendrá más peso en tu resultado.</p>
           <p class="interest-step-note" id="interest-step-note"></p>
         </div>
         <div class="interests-header" style="margin-bottom: 8px;">
-          <span class="interests-counter" id="interests-counter">Elige en orden de prioridad (máx. 2)</span>
+          <span class="interests-counter" id="interests-counter">Elige en orden de prioridad (máx. 3)</span>
         </div>
         <p class="interests-suggestion-hint" id="interests-suggestion-hint" hidden></p>
         <div class="interests-grid">
           <!-- renderizado por JS -->
         </div>
-        <p class="interests-limit-msg" id="interests-limit-msg">Ya elegiste 2. Haz clic en una para deseleccionar.</p>
+        <p class="interests-limit-msg" id="interests-limit-msg">Ya elegiste 3. Haz clic en una para deseleccionar.</p>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-3">← Atrás</button>
           <button type="button" class="button primary" id="next-3">Siguiente</button>
@@ -134,7 +181,7 @@
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-1">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-1">Siguiente</button>
+          <button type="button" class="button primary" id="next-explore-1" disabled>Siguiente</button>
         </div>
       </div>
 
@@ -161,10 +208,6 @@
         </div>
         <div class="explore-grid" id="explore-motivation-grid">
           <!-- renderizado por JS -->
-        </div>
-        <div class="field" style="margin-top: 16px;">
-          <label for="extra-motivation">¿Algo más que te importe? <span class="optional">(opcional)</span></label>
-          <input type="text" id="extra-motivation" placeholder="Ej: Que tenga proyección internacional" />
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-3">← Atrás</button>
@@ -207,10 +250,12 @@
           </div>
         </div>
         <div id="cv-upload-area" hidden style="margin-top: 16px;">
-          <div class="field">
-            <label for="cv">Sube tu CV <span class="optional">(PDF o DOCX)</span></label>
-            <input type="file" id="cv" name="cv" accept=".pdf,.docx" />
-          </div>
+          <label for="cv" id="cv-drop-zone" class="cv-drop-zone">
+            <span class="cv-drop-icon">📄</span>
+            <span class="cv-drop-text">Arrastra tu CV aquí o <u>haz clic para seleccionar</u></span>
+            <span class="cv-file-name" id="cv-file-name">PDF o DOCX, máx. 10 MB</span>
+            <input type="file" id="cv" name="cv" accept=".pdf,.docx" class="cv-input-hidden" />
+          </label>
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-4">← Atrás</button>
@@ -222,7 +267,7 @@
       <div class="step" id="step-5" hidden>
         <div class="step-header">
           <h2>¿Dónde y cómo quieres trabajar?</h2>
-          <p class="muted">Puedes dejarlo vacío si aún no lo tienes claro.</p>
+          <p class="muted">Selecciona al menos una modalidad.</p>
         </div>
         <div class="field">
           <label for="city">Ciudad <span class="optional">(opcional)</span></label>
@@ -234,7 +279,7 @@
           <input type="hidden" id="cityRegion" name="cityRegion" />
         </div>
         <div class="field">
-          <label>Modalidad <span class="optional">(opcional)</span></label>
+          <label>Modalidad</label>
           <div class="modality-grid">
             <label class="modality-option">
               <input type="checkbox" name="desiredModality" value="presencial" />
@@ -249,11 +294,11 @@
               <span>Remoto</span>
             </label>
           </div>
-          <span class="field-hint">Sin preferencia si no marcas ninguna.</span>
+          <span class="field-hint">Selecciona al menos una opción para continuar.</span>
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-5">← Atrás</button>
-          <button type="button" class="button primary" id="next-5">Siguiente</button>
+          <button type="button" class="button primary" id="next-5" disabled>Siguiente</button>
         </div>
       </div>
 

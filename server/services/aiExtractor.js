@@ -9,14 +9,21 @@ const KNOWN_TOOLS = [
   "qgis", "arcgis", "autocad", "r", "sap",
   "word", "powerpoint", "spss", "stata", "matlab",
   "github", "git", "figma", "notion", "jira",
-  "google analytics", "looker", "dbt"
+  "google analytics", "looker", "dbt",
+  // Lenguajes web y programación
+  "javascript", "typescript", "java", "php", "html", "css",
+  // IA / ML
+  "tensorflow", "pytorch", "langchain", "openai api",
+  // Productividad / BI / CRM
+  "power query", "power automate", "hubspot", "salesforce",
+  "asana", "trello", "monday", "zapier"
 ];
 
 const KNOWN_SKILLS = [
   // análisis
   "analisis de datos", "analisis espacial", "visualizacion",
   "analisis financiero", "estados financieros", "flujo de caja",
-  "control de gestion", "presupuesto", "valorización",
+  "control de gestion", "presupuesto", "valorizacion",
   // comercial / marketing
   "crm", "marketing digital", "redes sociales", "campanas digitales",
   "analisis comercial", "pipeline de ventas",
@@ -27,7 +34,14 @@ const KNOWN_SKILLS = [
   "seleccion de personal", "reclutamiento", "gestion de personas",
   // transversales
   "trabajo en equipo", "comunicacion", "liderazgo",
-  "resolucion de problemas", "atencion al detalle"
+  "resolucion de problemas", "atencion al detalle",
+  // Excel avanzado
+  "tablas dinamicas", "funciones avanzadas", "vba", "macros",
+  // Finanzas avanzadas
+  "proyecciones financieras", "analisis de ratios", "gestion de portafolio",
+  "valoracion de empresas", "modelos financieros", "due diligence",
+  // Tech / desarrollo
+  "desarrollo web", "apis rest", "bases de datos", "testing", "devops"
 ];
 
 const KNOWN_LANGUAGES = [
