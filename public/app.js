@@ -187,24 +187,22 @@ function buildProfileHook(profile) {
     ? (typeof areas[0] === "object" ? areas[0].value : areas[0])
     : "";
 
-  // Mapeo de área a descriptor
+  // Mapeo de área a frase humana
   const areaDescriptors = {
-    finanzas:    "orientado al análisis financiero y la toma de decisiones con datos",
-    analitica:   "orientado a trabajar con datos, métricas y modelos",
-    comercial:   "orientado a negocios, ventas y desarrollo comercial",
-    operaciones: "orientado a optimizar procesos y gestionar operaciones",
-    personas:    "orientado a gestión de personas y cultura organizacional",
-    tecnologia:  "orientado a tecnología y soluciones digitales",
-    marketing:   "orientado a estrategia de marca y comunicación",
-    proyectos:   "orientado a planificación y gestión de proyectos"
+    finanzas:         "en lo que respondiste aparece una preferencia por analizar información, trabajar con criterio y moverte en entornos más estructurados",
+    analitica:        "en lo que respondiste aparece una preferencia por trabajar con datos, encontrar patrones y apoyar decisiones con información",
+    comercial:        "en lo que respondiste aparece una preferencia por relacionarte con clientes, generar negocio y trabajar orientado a resultados",
+    operaciones:      "en lo que respondiste aparece una preferencia por ordenar procesos, coordinar equipos y hacer que las cosas funcionen",
+    personas:         "en lo que respondiste aparece una preferencia por trabajar con personas, acompañar equipos y generar cultura",
+    tecnologia:       "en lo que respondiste aparece una preferencia por resolver problemas con lógica, construir soluciones y aprender herramientas técnicas",
+    marketing:        "en lo que respondiste aparece una preferencia por comunicar, posicionar marcas y trabajar en canales digitales",
+    proyectos:        "en lo que respondiste aparece una preferencia por planificar, coordinar iniciativas y hacer que las cosas avancen",
+    "control-gestion":"en lo que respondiste aparece una preferencia por el control, el seguimiento de metas y los reportes de gestión"
   };
 
-  const descriptor = areaDescriptors[primaryArea] || "con base para distintos caminos profesionales";
+  const descriptor = areaDescriptors[primaryArea] || "en lo que respondiste aparece una base para distintos caminos dentro de Ingeniería Comercial";
 
-  if (degree) {
-    return `Tienes un perfil con base en ${degree}, ${descriptor}.`;
-  }
-  return `Tienes un perfil ${descriptor}.`;
+  return `Por lo que nos contaste, ${descriptor}. Eso hace que ciertos caminos hoy se vean más naturales para ti que otros.`;
 }
 
 /**
@@ -308,11 +306,11 @@ function renderResults() {
   const areaDisplayLabel = INTEREST_REGISTRY[detectedArea?.label] || detectedArea?.label;
   const areaBlock = detectedArea ? `
     <section class="card area-insight">
-      <p class="area-insight-statement">Tienes una alta coherencia con el área de <strong>${areaDisplayLabel}</strong>.</p>
-      <p class="muted" style="margin-top:4px;">Estas son las opciones más naturales para comenzar.</p>
+      <p class="area-insight-statement">Por lo que elegiste, <strong>${areaDisplayLabel}</strong> aparece como uno de los caminos más naturales para ti hoy.</p>
+      <p class="muted" style="margin-top:4px;">De todas las opciones, estas son las que hoy se ven más cercanas a lo que nos contaste.</p>
       ${detectedArea.subareas.length > 0 ? `
         <div class="area-insight-subareas">
-          <span class="area-insight-sublabel">Subáreas probables</span>
+          <span class="area-insight-sublabel">Caminos dentro de esta opción</span>
           <div class="inline-tags">
             ${detectedArea.subareas.map((s) => `<span class="tag">${s}</span>`).join("")}
           </div>
@@ -325,28 +323,28 @@ function renderResults() {
     if (userType === "explore") {
       return `
         <div class="card no-results-card">
-          <p class="no-results-title">No encontramos roles con tus criterios actuales.</p>
-          <p class="muted">Prueba seleccionando otras áreas de interés o cambia la modalidad.</p>
+          <p class="no-results-title">No encontramos opciones claras con lo que elegiste.</p>
+          <p class="muted">Prueba seleccionando otros caminos o cambia la modalidad para ver más.</p>
         </div>`;
     }
     if (userType === "misaligned") {
       return `
         <div class="card no-results-card">
-          <p class="no-results-title">Tu carrera y tus intereses apuntan a áreas muy distintas.</p>
-          <p class="muted">Eso no es malo — significa que estás explorando. Prueba agregando tu CV para que el sistema encuentre más señales.</p>
+          <p class="no-results-title">Lo que estudiaste y lo que te interesa hoy apuntan a lugares distintos.</p>
+          <p class="muted">Eso no es un problema — significa que estás explorando fuera de lo evidente. Agregar tu CV puede ayudarnos a encontrar más señales concretas.</p>
         </div>`;
     }
     if (!currentHasCv) {
       return `
         <div class="card no-results-card">
-          <p class="no-results-title">Agregando tu CV podemos analizar tus habilidades reales</p>
-          <p class="muted">y encontrar roles que hoy no aparecen.</p>
+          <p class="no-results-title">Con tu CV podemos ver mucho más.</p>
+          <p class="muted">Sin él, las opciones se limitan a lo que declaraste. Súbelo para que la orientación sea más precisa.</p>
         </div>`;
     }
     return `
       <div class="card no-results-card">
-        <p class="no-results-title">No encontramos matches con estos criterios.</p>
-        <p class="muted">Ajusta tus intereses o prueba con otra modalidad.</p>
+        <p class="no-results-title">No encontramos opciones con estos criterios.</p>
+        <p class="muted">Prueba ajustando tus intereses o cambiando la modalidad.</p>
       </div>`;
   })();
 
@@ -367,7 +365,8 @@ function renderResults() {
       <section class="card">
         <h2 class="section-title">${currentIsStudentNotLastYear
           ? "Estos son los caminos hacia los que puedes orientar tu formación"
-          : "Estos son los caminos más coherentes para empezar según tu perfil"}</h2>
+          : "Estas son las opciones que hoy se ven más cercanas a ti"}</h2>
+        <p class="muted" style="margin-bottom:16px;">De todas las opciones, esta es la que hoy se ve más cercana a lo que nos contaste.</p>
         <div class="role-list">
           ${renderRoleCard(primaryRole)}
         </div>
@@ -375,8 +374,8 @@ function renderResults() {
 
       ${secondaryRoles.length > 0 ? `
       <section class="card">
-        <h2 class="section-title">Otras opciones a explorar</h2>
-        <p class="muted" style="margin-bottom:16px;">Caminos cercanos donde también tienes base.</p>
+        <h2 class="section-title">También aparecen caminos cercanos</h2>
+        <p class="muted" style="margin-bottom:16px;">Opciones que también podrías considerar, aunque hoy se ven un poco menos directas que la principal.</p>
         <div class="role-list">
           ${secondaryRoles.map(renderCompactRoleCard).join("")}
         </div>
@@ -410,7 +409,7 @@ function renderResults() {
   resultsRoot.innerHTML = `
     <section class="card">
       <h2 class="section-title">
-        ${profile.name ? `Hola, ${profile.name}` : "Tu perfil"}
+        ${profile.name ? `Hola, ${profile.name}` : "Lo que se alcanza a ver con lo que nos contaste"}
       </h2>
       <p class="profile-hook">${profileHook}</p>
       ${profileColumns}
@@ -465,15 +464,15 @@ function cvBuilderLabel(roleTitle, hasCv) {
 // ------------------------------------------------------------------ //
 
 function fitLevel(score) {
-  if (score >= 65) return { label: "Buen punto de partida",    css: "fit-high" };
-  if (score >= 40) return { label: "Vas bien encaminado",      css: "fit-mid" };
-  return              { label: "Necesitas fortalecer base",    css: "fit-low" };
+  if (score >= 65) return { label: "Hace mucho sentido",   css: "fit-high" };
+  if (score >= 40) return { label: "Hay base para esto",   css: "fit-mid" };
+  return              { label: "Más distante hoy",         css: "fit-low" };
 }
 
 function fitDescription(score, roleTitle) {
-  if (score >= 65) return `Tienes una buena base para ${roleTitle}. Estás en buen punto para dar el siguiente paso.`;
-  if (score >= 40) return `Tienes una base clara para este rol. Esto es lo que te puede acercar más.`;
-  return `Este camino es alcanzable, pero hay áreas concretas que te conviene reforzar primero.`;
+  if (score >= 65) return `Por lo que nos contaste, ${roleTitle} es uno de los caminos que hoy se ven más naturales para ti.`;
+  if (score >= 40) return `Hay base real para este camino. Hay cosas que reforzar, pero la dirección tiene sentido.`;
+  return `Este camino hoy se ve más distante. Es alcanzable, pero hay pasos previos que conviene trabajar primero.`;
 }
 
 // ------------------------------------------------------------------ //
@@ -539,14 +538,16 @@ const ROLE_AREA_PROFILE = {
 };
 
 const ROLE_AREA_EXPECTATIONS = {
-  "Finanzas":    "Las personas en este tipo de roles trabajan con modelos financieros y datos de gestión. Se espera orientación al detalle, capacidad analítica y habilidad para comunicar resultados a equipos no financieros. Las herramientas específicas varían según la empresa.",
-  "Analítica":   "Las personas en este tipo de roles trabajan con datos y herramientas de visualización. Se espera pensamiento analítico, curiosidad por los números y capacidad para comunicar hallazgos de forma simple. Las plataformas concretas dependen del stack de cada empresa.",
-  "Comercial":   "Las personas en este tipo de roles gestionan relaciones con clientes y oportunidades de negocio. Se espera comunicación efectiva, orientación a resultados y resiliencia ante el rechazo. El dominio de herramientas CRM y prospección se aprende en el puesto.",
-  "Marketing":   "Las personas en este tipo de roles crean contenido, gestionan canales y miden resultados. Se espera creatividad, mentalidad de prueba y error, y familiaridad con plataformas digitales. Las herramientas varían mucho según el foco del equipo.",
-  "Personas":    "Las personas en este tipo de roles gestionan procesos de talento, clima y administración. Se espera empatía, discreción y capacidad organizativa. El manejo de sistemas HRIS específicos se aprende en el rol.",
-  "Operaciones": "Las personas en este tipo de roles coordinan procesos, equipos y recursos. Se espera visión sistémica, orientación a la mejora continua y capacidad de comunicación entre áreas. Las metodologías específicas dependen del sector.",
-  "Logística":   "Las personas en este tipo de roles gestionan flujos físicos y de información. Se espera orientación al detalle, manejo de presión y capacidad para coordinar múltiples frentes al mismo tiempo.",
-  "Tecnología":  "Las personas en este tipo de roles desarrollan o mantienen sistemas. Se espera pensamiento lógico, capacidad de aprender rápido y orientación a la resolución de problemas. Los lenguajes y frameworks específicos se aprenden en el puesto.",
+  "Finanzas":         "En la práctica, suele implicar revisar datos financieros, apoyar presupuestos, armar reportes y ayudar a que una empresa entienda mejor dónde está parada y qué decisiones le convienen. Se trabaja con Excel casi siempre, y se reporta a personas que toman decisiones. Se espera orientación al detalle y capacidad para comunicar números de forma clara.",
+  "Analítica":        "En la práctica, suele implicar extraer datos, limpiarlos, analizarlos y traducirlos en algo que otros puedan usar para decidir. Se trabaja con SQL, Excel o herramientas de visualización, según el equipo. Se espera curiosidad real por los datos y capacidad de comunicar hallazgos sin perder a quien te escucha.",
+  "Comercial":        "En la práctica, suele implicar identificar oportunidades, mantener relaciones con clientes y apoyar el proceso de venta. Hay metas, hay rechazo, y hay satisfacción cuando algo se cierra. Se espera comunicación efectiva, energía y orientación a resultados — las herramientas de CRM se aprenden en el camino.",
+  "Marketing":        "En la práctica, suele implicar crear contenido, gestionar campañas en plataformas digitales, medir resultados y proponer mejoras. Se trabaja en ciclos rápidos. Se espera creatividad combinada con criterio analítico, y disposición a probar, medir y ajustar constantemente.",
+  "Personas":         "En la práctica, suele implicar apoyar procesos de selección, gestionar documentación, organizar iniciativas de clima y servir de punto de contacto entre las personas y la empresa. Se espera empatía, discreción y capacidad de hacer muchas cosas a la vez sin perder el foco.",
+  "Operaciones":      "En la práctica, suele implicar coordinar procesos entre áreas, identificar cuellos de botella y proponer mejoras concretas. Se trabaja con datos, reportes y personas al mismo tiempo. Se espera visión sistémica, proactividad y habilidad para comunicarse con equipos distintos.",
+  "Logística":        "En la práctica, suele implicar controlar inventarios, coordinar proveedores y hacer seguimiento de flujos físicos o de información. Se trabaja con presión, plazos y varios frentes abiertos. Se espera orientación al detalle, capacidad de coordinación y manejo de urgencias sin perder el orden.",
+  "Tecnología":       "En la práctica, suele implicar construir o mantener sistemas, resolver problemas técnicos y trabajar en equipo con otros desarrolladores o analistas. Se aprende constantemente. Se espera pensamiento lógico, capacidad de aprender rápido y disposición a iterar hasta que algo funciona bien.",
+  "Negocios":         "En la práctica, suele implicar acompañar a clientes o usuarios en su experiencia con el producto o servicio, identificar problemas y generar soluciones. Se trabaja con datos y personas a la vez. Se espera empatía, comunicación clara y orientación a resolver.",
+  "Proyectos":        "En la práctica, suele implicar planificar tareas, hacer seguimiento de avances, coordinar equipos y asegurarse de que los plazos se cumplan. Se trabaja con incertidumbre. Se espera capacidad organizativa, comunicación fluida y habilidad para mantener el ritmo del equipo sin perder el norte.",
 };
 
 /**
@@ -640,9 +641,8 @@ function buildRoleAlignment(role, profile) {
 
   if (degree) {
     if (directMatch) {
-      items.push(`Tu formación en ${degree} cubre la base que necesita este rol.`);
+      items.push(`Tu formación en ${degree} cubre la base que necesita este camino.`);
     } else {
-      // Frases puente específicas por tipo de carrera y área del rol
       items.push(_buildBridgeSentence(degreeNorm, area));
     }
   }
@@ -655,8 +655,8 @@ function buildRoleAlignment(role, profile) {
   if (matchedInterest) {
     const weight = typeof matchedInterest === "object" ? matchedInterest.weight : 1;
     const phrase = weight === 3
-      ? `${area} es tu área de interés principal — estás apuntando directo a este camino.`
-      : `Tienes interés declarado en ${area}, que es el campo de este rol.`;
+      ? `Elegiste ${area} como tu primera prioridad — eso ya es una señal de dirección clara.`
+      : `Tienes interés declarado en ${area}, que es justo el campo de este camino.`;
     items.push(phrase);
   }
 
@@ -681,14 +681,44 @@ function buildRoleExpectations(role) {
 }
 
 function buildNextStep(role, profile) {
-  const area      = role.area || role.category || "";
+  const area      = (role.area || role.category || "").toLowerCase();
   const breakdown = role.score_breakdown || {};
+  const missingSkills = role.missing_skills || [];
+  const hasExp    = breakdown.experiencia > 0;
 
-  if (breakdown.experiencia === 0) {
-    return `Si quieres fortalecer tu candidatura, busca una práctica, proyecto universitario o voluntariado en ${area.toLowerCase()} donde puedas aplicar lo que sabes y documentar el resultado en tu CV.`;
+  // Próximos pasos específicos por área
+  const NEXT_STEPS = {
+    finanzas: hasExp
+      ? "Busca posiciones donde aparezcan términos como 'estados financieros', 'flujo de caja' o 'presupuesto'. Traduce tu experiencia académica a lenguaje de negocio en tu CV: en vez de 'tesis de valorización', di 'modelo de valorización de empresa usando DCF'."
+      : `Refuerza Excel financiero con funciones como BUSCARV, tablas dinámicas y modelos de caja. Practica analizando estados financieros reales — muchas empresas los publican. Una buena siguiente señal sería armar un caso simple de análisis financiero y tenerlo listo para mostrar.${missingSkills.length > 0 ? ` También conviene acercarte a ${missingSkills[0]}.` : ""}`,
+    "control de gestión": hasExp
+      ? "Enfoca tu búsqueda en roles que mencionen 'KPIs', 'control presupuestario' o 'variaciones'. Asegúrate de que tu CV muestre casos concretos donde hayas medido o reportado resultados."
+      : `Aprende Power BI o Tableau a nivel básico — es lo que más piden en Control de Gestión junior. Practica construyendo un dashboard simple con datos reales (Excel o Google Sheets también sirve). Eso ya es algo concreto que puedes mostrar.${missingSkills.length > 0 ? ` También es valorado el manejo de ${missingSkills[0]}.` : ""}`,
+    analítica: hasExp
+      ? "Arma un portafolio con 1 o 2 análisis reales — pueden ser de datos públicos o proyectos académicos. GitHub o Notion funcionan bien para mostrarlo. En entrevistas, explica el problema que resolviste, no solo el código que escribiste."
+      : `Empieza con SQL básico — hay cursos gratuitos en línea y en un par de semanas ya puedes hacer consultas reales. Practica con datos abiertos del INE o similares. Un análisis simple bien documentado ya es mejor portafolio que nada.${missingSkills.length > 0 ? ` También conviene conocer ${missingSkills[0]}.` : ""}`,
+    comercial: hasExp
+      ? "Muestra en tu CV experiencias donde hayas influido en una decisión o resultado, aunque sea en contexto universitario. Los roles comerciales junior valoran la actitud tanto como la experiencia — prepárate para hablar de eso en entrevistas."
+      : "Busca una práctica o trabajo part-time donde tengas contacto con clientes, aunque sea en contexto distinto al rol ideal. La experiencia en ventas o atención se transfiere bien. También puedes buscar ayudantías en cursos de marketing o ventas para sumar señales.",
+    marketing: hasExp
+      ? "Arma un portafolio con 1 campaña real o simulada que hayas gestionado. Aunque sea pequeña, documenta el objetivo, lo que hiciste y el resultado. Eso diferencia candidatos en roles de marketing junior."
+      : `Crea o gestiona una cuenta o campaña real, aunque sea pequeña. Puedes hacerlo para algún proyecto, negocio conocido o voluntariado. El dominio práctico de Google Ads o Meta Ads es más valorado que el teórico.${missingSkills.length > 0 ? ` También conviene acercarte a ${missingSkills[0]}.` : ""}`,
+    operaciones: hasExp
+      ? "En tu CV, enfatiza situaciones donde hayas mejorado un proceso, coordinado un equipo o resuelto un problema operativo. Los roles de operaciones junior valoran mucho la proactividad y la capacidad de ver el sistema completo."
+      : `Busca una práctica donde puedas participar en procesos reales. Si no tienes acceso a eso todavía, documenta algún caso académico donde hayas propuesto una mejora de proceso. Aprender Excel a nivel avanzado es un buen punto de partida concreto.${missingSkills.length > 0 ? ` También se valora el manejo de ${missingSkills[0]}.` : ""}`,
+    personas: hasExp
+      ? "Destaca en tu CV procesos de selección, encuestas de clima u otras iniciativas de personas en las que hayas participado. En entrevistas, habla de cómo abordas relaciones y conflictos — eso es muy valorado en RRHH junior."
+      : "Busca una práctica en área de personas, aunque sea pequeña empresa. También puedes sumar señales a través de voluntariados o iniciativas estudiantiles donde hayas coordinado personas. Eso ya es experiencia relevante.",
+  };
+
+  const areaKey = Object.keys(NEXT_STEPS).find(k => area.includes(k));
+  if (areaKey) return NEXT_STEPS[areaKey];
+
+  // Fallback genérico mejorado
+  if (!hasExp) {
+    return `Una buena siguiente señal sería buscar una práctica, ayudantía o proyecto donde puedas aplicar algo de lo que sabes y documentar el resultado. No tiene que ser el rol perfecto — cualquier experiencia real que puedas describir con resultados concretos suma.`;
   }
-
-  return `Conecta con profesionales de ${area.toLowerCase()} en LinkedIn para ganar visibilidad. Los referidos son la principal fuente de entrevistas junior — una conversación puede abrirte una puerta antes que cualquier aplicación en frío.`;
+  return `Conecta con personas que ya trabajan en ${area} en LinkedIn — no para pedir trabajo directamente, sino para entender cómo es el día a día. Una conversación de 20 minutos puede orientarte más que una semana de búsqueda en portales.`;
 }
 
 // ------------------------------------------------------------------ //
@@ -723,31 +753,31 @@ function renderRoleCard(role) {
       ${currentHasCv ? `<p class="role-description">${description}</p>` : ""}
 
       <div class="role-section">
-        <h4>Por qué este rol encaja con tu perfil</h4>
+        <h4>Por qué este camino podría hacerte sentido</h4>
         <ul class="list">
           ${
             buildRoleAlignment(role, profile).map(r => `<li>${r}</li>`).join("") ||
-            "<li>Tu perfil tiene elementos que conectan con este rol.</li>"
+            "<li>Por lo que nos contaste, hay elementos en tu perfil que conectan con este camino.</li>"
           }
         </ul>
       </div>
 
       ${currentHasCv ? `
       <div class="role-section">
-        <h4>Qué se espera de alguien en este rol</h4>
+        <h4>Cómo se ve este trabajo en la práctica</h4>
         <ul class="list">
           ${buildRoleExpectations(role).map(e => `<li>${e}</li>`).join("")}
         </ul>
       </div>` : ""}
 
       <div class="role-next-step-highlight">
-        <h4>Próximo paso recomendado</h4>
+        <h4>Si quisieras acercarte a esto</h4>
         <p>${nextStep}</p>
       </div>
 
       <div class="role-cv-builder-action">
         <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary" style="text-align:center;">
-          Ver vacantes para este rol
+          Ver ofertas de este tipo
         </a>
         <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
            class="button primary">
@@ -777,14 +807,14 @@ function renderCompactRoleCard(role) {
 
       ${currentHasCv ? `
       <div class="role-section">
-        <h4>Qué se espera en este rol</h4>
+        <h4>Cómo se ve este trabajo en la práctica</h4>
         <ul class="list">
           ${buildRoleExpectations(role).slice(0, 1).map(e => `<li>${e}</li>`).join("")}
         </ul>
       </div>` : ""}
 
       <div class="role-compact-actions">
-        <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary">Ver vacantes</a>
+        <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary">Ver ofertas</a>
         <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
            class="button primary">
           ${cvBuilderLabel(role.title, currentHasCv)}
@@ -1114,10 +1144,10 @@ function updateInterestUI() {
 
   if (counter) {
     counter.textContent = atLimit
-      ? "Orden guardado (3 de 3)"
+      ? "Las 3 elegidas — haz clic en una para cambiarla"
       : count === 0
-        ? "Elige en orden de prioridad (máx. 3)"
-        : `${count} de 3 elegida${count > 1 ? "s" : ""}`;
+        ? "La primera nos ayuda a entender qué te importa más hoy (máx. 3)"
+        : `${count} de 3 elegida${count > 1 ? "s"  : ""}`;
     counter.classList.toggle("at-limit", atLimit);
   }
   if (limitMsg) limitMsg.classList.toggle("visible", atLimit);
@@ -1208,7 +1238,7 @@ function renderInterestsForCareer(rawDegree) {
 
   if (areas.length) {
     if (hint) {
-      hint.textContent = "Te sugerimos algunas áreas comunes para tu carrera, pero puedes elegir otras si quieres.";
+      hint.textContent = "Te mostramos opciones comunes para Ingeniería Comercial, pero puedes elegir otras si quieres.";
       hint.className   = "interests-suggestion-hint";
       hint.hidden      = false;
     }
@@ -1869,23 +1899,23 @@ function buildConfirmExplanation() {
 
   // No selections at all
   if (taskParts.length === 0 && avoidParts.length === 0) {
-    return "Según tus respuestas, estos son los caminos que más se alinean con tu perfil.";
+    return "Tomando en cuenta lo que respondiste, estos son los caminos que hoy se ven más cercanos a ti.";
   }
 
   // Build natural sentence
-  let sentence = "Por lo que elegiste, te calzan mejor áreas donde ";
+  let sentence = "Como te interesa ";
 
   if (taskParts.length) {
     sentence += taskParts.join(" y ");
   }
 
   if (avoidParts.length) {
-    if (taskParts.length) sentence += ", alejándote de ";
-    else sentence += "se evita ";
+    if (taskParts.length) sentence += ", y además prefieres alejarte de ";
+    else sentence += "evitar ";
     sentence += avoidParts.join(" y ");
   }
 
-  sentence += ".";
+  sentence += ", estas opciones aparecen como las más cercanas a ti hoy.";
   return sentence;
 }
 
@@ -2093,11 +2123,11 @@ function updateInterestStepCopy() {
   const title = document.getElementById("interest-step-title");
   const note  = document.getElementById("interest-step-note");
   if (userIntentMode === "guided") {
-    if (title) title.textContent = "¿Qué área tienes en mente hoy?";
-    if (note)  note.textContent  = "No te preocupes si no estás 100% seguro. Labora contrastará esta dirección con tu perfil.";
+    if (title) title.textContent = "¿Qué tipo de camino te interesa más hoy?";
+    if (note)  note.textContent  = "No necesitas tenerlo completamente claro. Esto solo nos ayuda a acercarnos a opciones que hoy podrían hacer más sentido para ti.";
   } else {
-    if (title) title.textContent = "¿Qué áreas te llaman más la atención?";
-    if (note)  note.textContent  = "Puedes dejar esto vacío si prefieres que Labora explore desde tu perfil.";
+    if (title) title.textContent = "¿Qué tipo de camino te interesa más hoy?";
+    if (note)  note.textContent  = "No necesitas tenerlo completamente claro. Esto solo nos ayuda a acercarnos a opciones que hoy podrían hacer más sentido para ti.";
   }
 }
 
@@ -2118,7 +2148,7 @@ function renderSummary() {
   const cvFile  = cvChoice === "yes" ? (document.getElementById("cv")?.files[0]?.name || null) : null;
 
   const interestValues = selectedInterests;
-  const interestLabel  = userIntentMode === "explore" ? "Áreas sugeridas" : "Intereses";
+  const interestLabel  = userIntentMode === "explore" ? "Caminos elegidos" : "Intereses";
   const interestTags   = interestValues.length > 0
     ? interestValues.map((v) => `<span class="summary-tag summary-tag--interest">${INTEREST_REGISTRY[v] || v}</span>`).join("")
     : `<span class="summary-tag summary-tag--empty">Sin selección</span>`;

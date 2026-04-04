@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Labora | Diagnóstico laboral</title>
+  <title>Labora</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
 
   <!-- Overlay de carga mientras se analiza el perfil -->
   <div class="loading-overlay" id="loading-overlay">
-    <p>Estamos analizando tu perfil...</p>
+    <p>Estamos buscando tus opciones...</p>
     <div class="progress-bar-track">
       <div class="progress-bar-fill"></div>
     </div>
@@ -21,26 +21,26 @@
     <!-- STEP 0: Intención (guided / explore) -->
     <section id="step-intent">
       <div class="page-header">
-        <h1>Elige cómo quieres usar Labora hoy</h1>
-        <p>Te mostraremos roles donde ya tienes base, caminos cercanos y qué necesitas reforzar para avanzar.</p>
-        <p class="hero-microcopy">Toma menos de 3 minutos. Puedes hacerlo con o sin CV.</p>
+        <h1>Descubre qué caminos laborales realmente pueden hacer sentido para ti</h1>
+        <p>Labora te ayuda a ordenar tus opciones y ver por dónde podrías partir, según lo que estudiaste, lo que te interesa y cómo te gustaría trabajar.</p>
+        <p class="hero-microcopy">Te tomará menos de 3 minutos. Puedes hacerlo con o sin CV.</p>
       </div>
       <div class="intent-cards">
         <div class="intent-card card" data-mode="guided">
           <span class="intent-check" aria-hidden="true">✓</span>
           <h3>Ya tengo una idea</h3>
-          <p>Quiero validar si voy bien encaminado y ver qué roles realmente calzan conmigo.</p>
+          <p>Quiero validar si el camino que tengo en mente realmente calza conmigo.</p>
         </div>
         <div class="intent-card card" data-mode="explore">
           <span class="intent-check" aria-hidden="true">✓</span>
           <h3>Quiero explorar</h3>
-          <p>No tengo claro mi camino y quiero descubrir las opciones donde hoy tengo mejor base.</p>
+          <p>No lo tengo tan claro todavía y quiero descubrir opciones que me hagan más sentido.</p>
         </div>
       </div>
       <div class="form-actions" style="margin-top: 24px;">
-        <button id="intent-continue" class="button primary" disabled>Comenzar diagnóstico</button>
+        <button id="intent-continue" class="button primary" disabled>Ver mis opciones</button>
       </div>
-      <p class="intent-footer-note">Después podrás contarnos tu perfil, con o sin CV, para obtener un diagnóstico más preciso.</p>
+      <p class="intent-footer-note">Más adelante podrás agregar tu CV si quieres una orientación más precisa.</p>
     </section>
 
     <!-- Barra de progreso multi-step -->
@@ -60,7 +60,7 @@
       <div class="step" id="step-1">
         <div class="step-header">
           <h2>¿Qué estudiaste?</h2>
-          <p class="muted">Esta versión está diseñada para egresados de Ingeniería Comercial.</p>
+          <p class="muted">Por ahora, esta versión de Labora está enfocada en estudiantes y egresados de Ingeniería Comercial.</p>
         </div>
         <div class="field">
           <label>Carrera</label>
@@ -77,7 +77,7 @@
       <div class="step" id="step-2" hidden>
         <div class="step-header">
           <h2>¿En qué etapa estás?</h2>
-          <p class="muted">Esto nos ayuda a mostrarte roles adecuados para tu momento.</p>
+          <p class="muted">Esto nos ayuda a darte una orientación más realista según tu momento.</p>
         </div>
         <input type="hidden" id="academicStatus" name="academicStatus" />
         <div class="intent-cards academic-status-cards">
@@ -111,13 +111,13 @@
             </div>
           </div>
           <p class="muted" id="last-year-info" hidden style="margin-top: 12px; font-size: 14px; line-height: 1.5;">
-            Labora está pensado para quienes están terminando o ya terminaron su carrera. Igual puedes usarlo para orientar tu camino con anticipación.
+            Labora está pensado para quienes están cerca de terminar o ya terminaron. Igual puedes usarlo para orientar tu formación con anticipación.
           </p>
         </div>
         <input type="hidden" id="isLastYear" name="isLastYear" value="" />
 
         <div id="postgrad-question" hidden style="margin-top: 20px;">
-          <p class="muted" style="margin-bottom: 8px;">¿Tienes algún postgrado? <span class="optional">(Magíster, MBA, Diplomado)</span></p>
+          <p class="muted" style="margin-bottom: 8px;">¿Tienes algún postgrado? <span class="optional">Por ejemplo: diplomado, magíster o MBA.</span></p>
           <div class="intent-cards postgrad-cards">
             <div class="intent-card card" data-postgrad="true">
               <span class="intent-check" aria-hidden="true">✓</span>
@@ -160,8 +160,8 @@
       <!-- Explore Step 1: Tareas que te atraen -->
       <div class="step" id="step-explore-1" hidden>
         <div class="step-header">
-          <h2>¿Qué tipo de tareas te atraen más?</h2>
-          <p class="muted">Elige hasta 2. No tiene que ser algo que ya hayas hecho.</p>
+          <h2>¿Qué tipo de trabajo te llama más la atención?</h2>
+          <p class="muted">Elige hasta 2 opciones. No importa si todavía no lo has hecho antes; piensa más bien en lo que te imaginas disfrutando.</p>
         </div>
         <div class="explore-grid" id="explore-tasks-grid">
           <!-- renderizado por JS -->
@@ -175,8 +175,8 @@
       <!-- Explore Step 2: Qué preferirías evitar -->
       <div class="step" id="step-explore-2" hidden>
         <div class="step-header">
-          <h2>¿Qué preferirías evitar?</h2>
-          <p class="muted">Marca lo que no va contigo. Sin límite.</p>
+          <h2>¿Qué cosas sientes que hoy no van tanto contigo?</h2>
+          <p class="muted">Marca todo lo que prefieras evitar por ahora.</p>
         </div>
         <div class="explore-grid" id="explore-avoid-grid">
           <!-- renderizado por JS -->
@@ -190,24 +190,24 @@
       <!-- Explore Step 3: Motivación -->
       <div class="step" id="step-explore-3" hidden>
         <div class="step-header">
-          <h2>¿Qué priorizarías en un trabajo, aunque implique ceder en otras cosas?</h2>
-          <p class="muted">Elige hasta 2.</p>
+          <h2>Si tuvieras que priorizar, ¿qué te importaría más en un trabajo?</h2>
+          <p class="muted">Elige hasta 2 cosas que hoy pesarían más en tu decisión.</p>
         </div>
         <div class="explore-grid" id="explore-motivation-grid">
           <!-- renderizado por JS -->
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-3">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-3">Ver mis áreas sugeridas</button>
+          <button type="button" class="button primary" id="next-explore-3">Ver por dónde podrías partir</button>
         </div>
       </div>
 
       <!-- Explore Step 4: Confirmación de áreas inferidas -->
       <div class="step" id="step-explore-confirm" hidden>
         <div class="step-header">
-          <h2>Estos caminos hacen más sentido para tu perfil hoy</h2>
-          <p class="muted" id="explore-confirm-explanation">Según tus respuestas, estos son los caminos que más se alinean con tu perfil.</p>
-          <p class="muted" style="margin-top: 4px;">Elige 1 o 2 para enfocar tu diagnóstico.</p>
+          <h2>Por lo que elegiste, estos caminos parecen hacer más sentido para ti hoy</h2>
+          <p class="muted" id="explore-confirm-explanation">Según tus respuestas, estos son los caminos que hoy se ven más cercanos a ti.</p>
+          <p class="muted" style="margin-top: 4px;">Elige 1 o 2 para enfocar mejor tus resultados.</p>
         </div>
         <div class="explore-confirm-grid" id="explore-confirm-grid">
           <!-- renderizado por JS -->
@@ -222,18 +222,18 @@
       <div class="step" id="step-4" hidden>
         <div class="step-header">
           <h2>¿Quieres subir tu CV?</h2>
-          <p class="muted">Mejora mucho la precisión del análisis, pero no es obligatorio.</p>
+          <p class="muted">Si lo subes, Labora puede darte una orientación más precisa según tu experiencia, herramientas y fortalezas. Si no, igual podrás ver opciones según lo que nos contaste.</p>
         </div>
         <div class="intent-cards">
           <div class="intent-card card" id="cv-yes-card">
             <span class="intent-check" aria-hidden="true">✓</span>
             <h3>Sí, subir CV</h3>
-            <p>Obtendrás un análisis más preciso de tus fortalezas y brechas.</p>
+            <p>Para que la orientación se apoye también en tu experiencia y habilidades.</p>
           </div>
           <div class="intent-card card" id="cv-no-card">
             <span class="intent-check" aria-hidden="true">✓</span>
             <h3>Continuar sin CV</h3>
-            <p>Igual recibirás resultados basados en tu carrera e intereses.</p>
+            <p>Veré resultados según mi carrera, intereses y preferencias.</p>
           </div>
         </div>
         <div id="cv-upload-area" hidden style="margin-top: 16px;">
@@ -253,8 +253,8 @@
       <!-- Step 5: Ciudad + Modalidad -->
       <div class="step" id="step-5" hidden>
         <div class="step-header">
-          <h2>¿Dónde y cómo quieres trabajar?</h2>
-          <p class="muted">Selecciona al menos una modalidad.</p>
+          <h2>¿Dónde y cómo te gustaría trabajar?</h2>
+          <p class="muted">Esto nos ayuda a mostrarte opciones más cercanas a lo que hoy podrías buscar.</p>
         </div>
         <div class="field">
           <label for="city">Ciudad <span class="optional">(opcional)</span></label>
@@ -292,15 +292,15 @@
       <!-- Step 6: Resumen antes de analizar -->
       <div class="step" id="step-6" hidden>
         <div class="step-header">
-          <h2>¿Todo listo?</h2>
-          <p class="muted">Revisa tu información antes de analizar.</p>
+          <h2>Antes de ver tus opciones</h2>
+          <p class="muted">Revisa si esto representa bien lo que nos quisiste decir.</p>
         </div>
         <div class="summary-card" id="summary-content">
           <!-- renderizado por JS -->
         </div>
         <div class="step-actions" style="margin-top: 20px;">
           <button type="button" class="button ghost" id="back-6">← Atrás</button>
-          <button type="submit" class="button primary">Analizar mi perfil →</button>
+          <button type="submit" class="button primary">Ver mis opciones →</button>
         </div>
         <p id="form-status" class="status error"></p>
       </div>
