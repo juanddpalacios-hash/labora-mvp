@@ -60,25 +60,12 @@
       <div class="step" id="step-1">
         <div class="step-header">
           <h2>¿Qué estudiaste?</h2>
-          <p class="muted">Escribe tu carrera o elige una de las sugerencias.</p>
+          <p class="muted">Esta versión está diseñada para egresados de Ingeniería Comercial.</p>
         </div>
         <div class="field">
-          <label for="degree">Carrera</label>
-          <div class="autocomplete-wrap">
-            <input type="text" id="degree" name="degree" autocomplete="off" placeholder="Ej: Ingeniería Comercial" />
-            <ul class="autocomplete-list" id="degree-suggestions"></ul>
-          </div>
-        </div>
-        <div class="field" style="margin-top: 8px;">
-          <button type="button" id="toggle-degree-other" class="link-btn">Mi carrera no aparece en la lista</button>
-        </div>
-        <div id="degree-other-wrapper" hidden>
-          <div class="field degree-other-field">
-            <label for="degree_other">Escribe tu carrera <span class="optional">(opcional)</span></label>
-            <input type="text" id="degree_other" name="degree_other" autocomplete="off"
-                   placeholder="Escríbela como aparece en tu título" />
-            <span class="field-hint">Si tu carrera no aparece en las sugerencias, escríbela aquí.</span>
-          </div>
+          <label>Carrera</label>
+          <p class="field-value-static">Ingeniería Comercial</p>
+          <input type="hidden" id="degree" name="degree" value="Ingeniería Comercial" />
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-1">← Atrás</button>

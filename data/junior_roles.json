@@ -6,10 +6,7 @@
     "area": "Analítica",
     "subarea": "Datos",
     "category": "analitica",
-    "related_degrees": [
-      "Ingeniería Comercial", "Ingeniería Civil Industrial",
-      "Estadística", "Ingeniería en Informática", "Economía"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["analitica"],
     "secondary_families": ["negocios", "ingenieria"],
     "skills": ["SQL", "Python", "Power BI", "análisis de datos", "visualización de datos", "Excel"],
@@ -24,10 +21,7 @@
     "area": "Analítica",
     "subarea": "Reporting",
     "category": "analitica",
-    "related_degrees": [
-      "Ingeniería Comercial", "Ingeniería Civil Industrial",
-      "Contador Auditor", "Estadística", "Economía"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["analitica", "finanzas"],
     "secondary_families": ["negocios"],
     "skills": ["Power BI", "dashboards", "SQL", "KPIs", "análisis de datos", "Excel"],
@@ -42,9 +36,7 @@
     "area": "Finanzas",
     "subarea": "Análisis Financiero",
     "category": "finanzas",
-    "related_degrees": [
-      "Ingeniería Comercial", "Contador Auditor", "Economía", "Ingeniería Civil Industrial"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["finanzas", "negocios"],
     "secondary_families": ["analitica"],
     "skills": ["análisis financiero", "estados financieros", "flujo de caja", "valorización", "Excel", "PowerPoint"],
@@ -59,10 +51,7 @@
     "area": "Finanzas",
     "subarea": "Control de Gestión",
     "category": "finanzas",
-    "related_degrees": [
-      "Ingeniería Comercial", "Ingeniería Civil Industrial",
-      "Contador Auditor", "Economía"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["finanzas", "operaciones"],
     "secondary_families": ["negocios", "analitica"],
     "skills": ["control de gestión", "presupuesto", "KPIs", "variaciones", "Power BI", "Excel"],
@@ -77,10 +66,7 @@
     "area": "Comercial",
     "subarea": "Análisis Comercial",
     "category": "comercial",
-    "related_degrees": [
-      "Ingeniería Comercial", "Administración de Empresas",
-      "Economía", "Logística"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["negocios"],
     "secondary_families": ["analitica", "operaciones"],
     "skills": ["análisis comercial", "CRM", "pipeline de ventas", "Power BI", "Excel", "PowerPoint"],
@@ -95,10 +81,7 @@
     "area": "Comercial",
     "subarea": "Marketing Digital",
     "category": "comercial",
-    "related_degrees": [
-      "Ingeniería Comercial", "Administración de Empresas",
-      "Comunicación Audiovisual", "Periodismo", "Relaciones Públicas"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["comunicacion", "negocios"],
     "secondary_families": ["ciencias-sociales"],
     "skills": ["Google Analytics", "marketing digital", "redes sociales", "campañas digitales", "CRM", "Excel"],
@@ -113,9 +96,7 @@
     "area": "Operaciones",
     "subarea": "Operaciones",
     "category": "operaciones",
-    "related_degrees": [
-      "Ingeniería Civil Industrial", "Ingeniería Comercial", "Logística"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["operaciones", "ingenieria"],
     "secondary_families": ["negocios"],
     "skills": ["gestión de procesos", "indicadores operacionales", "análisis de datos", "coordinación", "Excel"],
@@ -130,10 +111,7 @@
     "area": "Proyectos",
     "subarea": "Gestión de Proyectos",
     "category": "proyectos",
-    "related_degrees": [
-      "Ingeniería Civil Industrial", "Ingeniería Comercial",
-      "Administración de Empresas"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["operaciones", "negocios"],
     "secondary_families": ["ingenieria"],
     "skills": ["gestión de proyectos", "planificación", "coordinación", "PowerPoint", "Excel"],
@@ -148,10 +126,7 @@
     "area": "Personas",
     "subarea": "Recursos Humanos",
     "category": "personas",
-    "related_degrees": [
-      "Psicología", "Trabajo Social", "Ingeniería Comercial",
-      "Administración de Empresas", "Sociología"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["personas"],
     "secondary_families": ["negocios", "ciencias-sociales"],
     "skills": ["selección de personal", "reclutamiento", "gestión de personas", "entrevistas", "Excel"],
@@ -166,9 +141,7 @@
     "area": "Geociencias",
     "subarea": "Análisis Espacial",
     "category": "geociencias",
-    "related_degrees": [
-      "Geología", "Geografía", "Ingeniería en Recursos Naturales"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["geociencias"],
     "secondary_families": ["medioambiente", "ingenieria"],
     "skills": ["QGIS", "ArcGIS", "análisis espacial", "cartografía", "Python"],
@@ -183,10 +156,7 @@
     "area": "Medioambiente",
     "subarea": "Gestión Ambiental",
     "category": "medioambiente",
-    "related_degrees": [
-      "Geología", "Ingeniería Ambiental", "Biología",
-      "Ingeniería en Recursos Naturales"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["medioambiente", "geociencias"],
     "secondary_families": ["ingenieria", "ciencias"],
     "skills": ["gestión ambiental", "normativa ambiental", "levantamiento de datos", "reportes técnicos", "Excel"],
@@ -201,10 +171,7 @@
     "area": "Tecnología",
     "subarea": "Desarrollo Web",
     "category": "tecnologia",
-    "related_degrees": [
-      "Ingeniería en Informática", "Ingeniería en Computación", "Ingeniería en Sistemas",
-      "Ingeniería de Software", "Ingeniería en Desarrollo de Software", "Ciencias de la Computación"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["tecnologia"],
     "secondary_families": ["analitica"],
     "skills": ["HTML", "CSS", "JavaScript", "React", "Git", "APIs REST", "Node.js"],
@@ -219,10 +186,7 @@
     "area": "Tecnología",
     "subarea": "Calidad de Software",
     "category": "tecnologia",
-    "related_degrees": [
-      "Ingeniería en Informática", "Ingeniería en Computación",
-      "Ingeniería de Software", "Análisis de Sistemas"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["tecnologia"],
     "secondary_families": ["analitica"],
     "skills": ["testing", "Selenium", "casos de prueba", "SQL", "Jira", "automatización de pruebas"],
@@ -237,10 +201,7 @@
     "area": "Tecnología",
     "subarea": "Soporte TI",
     "category": "tecnologia",
-    "related_degrees": [
-      "Ingeniería en Informática", "Ingeniería en Redes",
-      "Ingeniería en Telecomunicaciones", "Análisis de Sistemas"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["tecnologia"],
     "secondary_families": ["operaciones"],
     "skills": ["soporte técnico", "Active Directory", "redes", "Windows Server", "tickets", "diagnóstico de fallas"],
@@ -255,10 +216,7 @@
     "area": "Diseño",
     "subarea": "UX/UI",
     "category": "diseno",
-    "related_degrees": [
-      "Diseño Gráfico", "Ingeniería en Informática",
-      "Comunicación Audiovisual", "Diseño Industrial"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["diseno"],
     "secondary_families": ["tecnologia"],
     "skills": ["Figma", "prototipado", "UX research", "usabilidad", "Adobe XD", "wireframes"],
@@ -273,9 +231,7 @@
     "area": "Comunicación",
     "subarea": "Social Media",
     "category": "comunicacion",
-    "related_degrees": [
-      "Periodismo", "Relaciones Públicas", "Comunicación Audiovisual", "Publicidad"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["comunicacion"],
     "secondary_families": ["negocios"],
     "skills": ["redes sociales", "Meta Ads", "contenido digital", "Canva", "analítica de redes", "copywriting"],
@@ -290,9 +246,7 @@
     "area": "Comunicación",
     "subarea": "Contenidos",
     "category": "comunicacion",
-    "related_degrees": [
-      "Periodismo", "Comunicación Audiovisual", "Publicidad"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["comunicacion"],
     "secondary_families": [],
     "skills": ["redacción", "SEO", "WordPress", "storytelling", "edición de contenidos", "Canva"],
@@ -307,9 +261,7 @@
     "area": "Comunicación",
     "subarea": "Relaciones Públicas",
     "category": "comunicacion",
-    "related_degrees": [
-      "Relaciones Públicas", "Periodismo", "Sociología", "Comunicación Audiovisual"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["comunicacion"],
     "secondary_families": ["ciencias-sociales"],
     "skills": ["comunicación corporativa", "relaciones con medios", "PR", "organización de eventos", "redacción"],
@@ -324,9 +276,7 @@
     "area": "Finanzas",
     "subarea": "Contabilidad",
     "category": "finanzas",
-    "related_degrees": [
-      "Contador Auditor", "Administración de Empresas", "Auditoría"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["finanzas"],
     "secondary_families": ["negocios"],
     "skills": ["contabilidad", "SAP", "ERP", "Excel", "facturación", "conciliación bancaria"],
@@ -341,10 +291,7 @@
     "area": "Operaciones",
     "subarea": "Logística",
     "category": "operaciones",
-    "related_degrees": [
-      "Logística", "Ingeniería Civil Industrial", "Ingeniería en Gestión Industrial",
-      "Administración de Empresas"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["operaciones"],
     "secondary_families": ["negocios"],
     "skills": ["supply chain", "logística", "WMS", "control de inventario", "Excel", "coordinación de fletes"],
@@ -359,9 +306,7 @@
     "area": "Derecho",
     "subarea": "Derecho Corporativo",
     "category": "derecho",
-    "related_degrees": [
-      "Derecho"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["derecho"],
     "secondary_families": ["negocios"],
     "skills": ["investigación jurídica", "redacción legal", "contratos", "normativa", "due diligence"],
@@ -376,9 +321,7 @@
     "area": "Derecho",
     "subarea": "Compliance",
     "category": "derecho",
-    "related_degrees": [
-      "Derecho", "Ingeniería Comercial", "Contador Auditor"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["derecho"],
     "secondary_families": ["negocios", "finanzas"],
     "skills": ["cumplimiento normativo", "riesgo legal", "regulatorio", "Excel", "reportes de compliance"],
@@ -393,10 +336,7 @@
     "area": "Educación",
     "subarea": "Gestión Académica",
     "category": "educacion",
-    "related_degrees": [
-      "Pedagogía en Educación Básica", "Pedagogía en Educación Media",
-      "Psicología", "Trabajo Social", "Educación Diferencial"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["educacion"],
     "secondary_families": ["personas"],
     "skills": ["coordinación académica", "gestión curricular", "Excel", "atención a estudiantes", "PowerPoint"],
@@ -411,10 +351,7 @@
     "area": "Negocios",
     "subarea": "Customer Success",
     "category": "negocios",
-    "related_degrees": [
-      "Ingeniería Comercial", "Psicología", "Administración de Empresas",
-      "Relaciones Públicas"
-    ],
+    "related_degrees": ["Ingeniería Comercial"],
     "primary_families":   ["negocios"],
     "secondary_families": ["personas"],
     "skills": ["atención al cliente", "CRM", "onboarding", "Net Promoter Score", "comunicación", "Excel"],
