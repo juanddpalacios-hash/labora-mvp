@@ -106,41 +106,53 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 
 ---
 
-## Estado actual (2026-04-01)
+## Estado actual (2026-04-04)
 
-### Completado en esta iteración
+### Completado en iteraciones anteriores (hasta 2026-04-01)
 - Catálogo expandido de 11 → 24 roles con required_skills calibrados
-- Revisión completa de formulario + resultados (21 cambios en total)
-- Pregunta condicional de postgrado (aparece al seleccionar "Titulado")
-- has_postgrad fusionado: formulario + detección de CV (OR)
-- Copy de tarjetas de rol rediseñado: qualitativo, sin listar déficits
-- Capitalización de herramientas: displayTool() con tabla de acrónimos
-- Filtro de "Otras opciones" por carrera (geociencias/medioambiente excluidos para negocios)
-- Etapa académica: tarjetas visuales (grid 3 columnas) en vez de select
-- CV drop zone estilizado
-- Límite de intereses: 2 → 3
-- **Batch estructural (2026-03-31):**
-  - CAREER_FAMILIES: psicología → primary ["personas","ciencias-sociales","educacion"]; kinesiología + terapia ocupacional → primary incluye "personas"
-  - AREA_LABELS: extendido con tecnologia, comunicacion, derecho, educacion, negocios, ingenieria, ciencias-sociales, diseno, salud
-  - Unknown career weight adjustment: carrera -15, intereses +15; sin doble penalización ×0.6
-  - STRETCH_THRESHOLD bajado a 25 para permitir carreras de salud y desconocidas
-  - getFilteredGeneralInterests: exclusiones por dominio (salud/cs: no fin/anal/tech; tech: no amb/geo/personas; comms: no fin/geo/amb)
-  - buildRoleAlignment: frases puente específicas por carrera (_buildBridgeSentence)
-- **Batch final pre-deploy (2026-03-31):**
-  - Flujo explore: confirmado intacto (4 pasos: tareas → evitar → motivación → confirmación)
-  - Badges sin CV: fit-badge y role-description ocultos cuando !currentHasCv (renderRoleCard y renderCompactRoleCard)
-  - "Qué se espera de alguien en este rol": oculto cuando !currentHasCv
-  - Banner area: `detectedArea.label` se traduce vía INTEREST_REGISTRY antes de renderizar ("clinica-psico" → "Psicología")
-  - INTEREST_REGISTRY: añadidas entradas de nivel área para claves raw del backend (clinica-psico, organizacional, desarrollo-sw, litigacion, etc.)
-  - Pantalla "¿Todo listo?": fila ciudad+CV rediseñada como tercera fila de pills (summary-tag--meta y summary-tag--cv), consistente con el resto de la tarjeta
-  - Cobertura CAREER_FAMILIES: verificada 85/85 carreras del autocomplete — 0 faltantes
-- **Batch estudiantes + correcciones (2026-04-01):**
-  - Etapa "Estoy estudiando": pregunta condicional "¿Estás en tu último año?" (tarjetas Sí/No)
-  - Sí → backend trata `academicStatus` como "egresado" para scoring
-  - No → mensaje informativo no bloqueante; copy de resultados cambia a "orientar tu formación"
-  - `isLastYear` viaja en formData y sessionStorage; leído en `analyze.js` (lines ~61-65)
-  - `next-2` deshabilitado hasta responder la pregunta de último año
-  - Pantalla "¿Todo listo?": pills ciudad+CV unificadas visualmente (mismo dark-gray que modalidades); eliminado border-top de summary-meta-row
+- Motor de scoring 6 dimensiones, umbrales Strong ≥65 / Stretch 25-64
+- Pregunta condicional postgrado + isLastYear
+- has_postgrad fusionado (formulario + CV)
+- Etapa académica: tarjetas visuales
+- Deploy en Render.com completado
+
+### Completado en esta iteración (2026-04-04)
+
+**Simplificación a Ingeniería Comercial:**
+- CAREER_FAMILIES: 85 carreras → solo "ingenieria comercial"
+- CAREER_CATEGORIES y CAREER_ALIASES: eliminadas todas las demás carreras
+- junior_roles.json: related_degrees → ["Ingeniería Comercial"] en los 24 roles
+- upload.html step-1: campo estático (no autocomplete), hidden input
+
+**Sprint UX — humanización de copy y tono:**
+- Pantalla inicial: título, subtítulo, cards y CTA reescritos
+- Flujo guided: subtítulos más humanos en todos los pasos
+- Flujo explore: copy nuevo en tareas, evitar, motivación y confirmación
+- Resumen: "Antes de ver tus opciones" + CTA "Ver mis opciones →"
+- Resultados: perfil → "Lo que se alcanza a ver...", área → lenguaje humano
+- Cards de rol: secciones renombradas, fitLevel más humano
+- buildNextStep: próximos pasos accionables y específicos por área (finanzas, analítica, comercial, operaciones, personas, marketing)
+- buildProfileHook: frases conectadas al área que eligió el usuario
+- buildRoleAlignment: interés principal con framing más directo
+- Jerarquía: rol principal con contexto + "También aparecen caminos cercanos"
+- ROLE_AREA_EXPECTATIONS: reescritas en lenguaje concreto y específico
+
+**Sprint UX — pantalla explore-confirm:**
+- Título: "Esto es lo que más hace sentido con lo que nos contaste"
+- buildConfirmExplanation: clasificación por perfil (analitico / relacional / operativo / estrategico / mixto)
+- Texto interpretativo: lenguaje natural, sin enumerar inputs
+- Contraste "más que…" opcional — solo cuando hay señal de avoid relevante
+- Header "Tienes más afinidad hoy con:" antes de las cards
+- Instrucción "Elige 1 o 2 caminos que sientas más cercanos a ti ahora."
+- CTA: "Quiero ver cómo seguir desde aquí →"
+- AREA_DESCRIPTIONS: en lenguaje claro y cotidiano
+
+### Reglas de copy (no violar)
+- No usar: "como elegiste", "según tus respuestas", enumeraciones de inputs
+- No usar: expresiones forzadas que no dirías en conversación real
+- Sí usar: "parece que te acomoda", "se ve que te motiva", "probablemente te sientas"
+- Contraste "más que..." solo cuando hay avoid claro (clientes, terreno, repetición, competencia)
+- Cada rol debe sonar distinto — no variaciones del mismo template
 
 ### Regla 9. isLastYear en analyze.js
 **Regla:** Leer `req.body.isLastYear` antes de construir el extractedProfile. Si `academicStatus === "estudiante" && isLastYear === "true"`, sobrescribir `metadata.academicStatus = "egresado"` antes de pasar al matcher.
@@ -151,9 +163,11 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 
 ### Prioridades
 
-1. ~~Deploy en Render.com~~ — completado. Env vars: solo `NODE_ENV=production` (PORT lo asigna Render).
-2. **Refactorizar public/app.js** — ~2300 líneas, deuda técnica real. Bloqueante para iterar en frontend.
-3. ~~Ampliar catálogo~~ — completado (24 roles).
+1. ~~Deploy en Render.com~~ — completado.
+2. ~~Ampliar catálogo~~ — completado (24 roles).
+3. ~~Simplificar a Ingeniería Comercial~~ — completado.
+4. ~~Sprint UX humanización~~ — completado.
+5. **Refactorizar public/app.js** — ~2300 líneas, deuda técnica real. Bloqueante para iterar en frontend.
 
 Repo en GitHub (público): https://github.com/juanddpalacios-hash/labora-mvp
 
