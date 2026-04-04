@@ -1897,49 +1897,65 @@ function buildConfirmExplanation() {
   const tasks  = exploreTaskPrefs;
   const avoids = exploreAvoid;
 
-  // Sin selecciones
-  if (tasks.length === 0 && avoids.length === 0) {
-    return "Tomando en cuenta lo que respondiste, hay ciertos caminos dentro de tu carrera que hoy se ven más cercanos a ti que otros.";
-  }
+  // Señales de perfil
+  const isAnalytic  = tasks.includes("analizar-datos")    || tasks.includes("resolver-problemas");
+  const isOrderly   = tasks.includes("organizar-procesos");
+  const isStrategic = tasks.includes("crear-estrategias");
+  const isPeople    = tasks.includes("trabajar-personas");
 
-  // Detectar perfil predominante para construir interpretación natural
-  const analytic  = tasks.includes("analizar-datos")    || tasks.includes("resolver-problemas");
-  const orderly   = tasks.includes("organizar-procesos");
-  const strategic = tasks.includes("crear-estrategias");
-  const people    = tasks.includes("trabajar-personas");
+  const avoidsClients = avoids.includes("atencion-clientes") || avoids.includes("ventas-metas");
+  const avoidsRepeat  = avoids.includes("trabajo-repetitivo");
+  const avoidsCompete = avoids.includes("ambientes-competitivos");
+  const avoidsTerrain = avoids.includes("trabajo-terreno");
 
-  const noClients = avoids.includes("atencion-clientes") || avoids.includes("ventas-metas");
-  const noTerrain = avoids.includes("trabajo-terreno");
-  const noRepeat  = avoids.includes("trabajo-repetitivo");
-  const noCompete = avoids.includes("ambientes-competitivos");
+  // Clasificar perfil predominante
+  let profile = "mixto";
+  if ((isAnalytic || isOrderly) && avoidsClients)      profile = "analitico";
+  else if (isAnalytic && isOrderly)                    profile = "analitico";
+  else if (isAnalytic)                                 profile = "analitico";
+  else if (isPeople && !avoidsClients)                 profile = "relacional";
+  else if (isOrderly && !isStrategic)                  profile = "operativo";
+  else if (isStrategic && !isPeople && avoidsClients)  profile = "estrategico";
+  else if (isStrategic)                                profile = "estrategico";
 
-  let p1 = "";
+  // Generar texto interpretativo (máx 2-3 líneas, sin enumerar inputs)
+  const texts = {
+    analitico() {
+      if (avoidsClients && avoidsTerrain)
+        return "Parece que te acomoda más un trabajo donde puedas analizar, ordenar y sacar conclusiones, más que estar en contacto constante con clientes o en movimiento.";
+      if (avoidsClients && avoidsRepeat)
+        return "Se ve que te motiva más resolver problemas con criterio y trabajar con información, más que seguir rutinas fijas o depender de resultados de venta.";
+      if (avoidsClients)
+        return "Parece que te acomoda más un trabajo donde puedas analizar e interpretar información, más que uno centrado en atención a clientes o metas comerciales directas.";
+      if (avoidsRepeat)
+        return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que repetir tareas definidas.";
+      return "Parece que te acomoda más un trabajo donde puedas analizar, encontrar patrones y tomar decisiones con datos.";
+    },
+    relacional() {
+      if (avoidsCompete)
+        return "Probablemente te sientas más cómodo en un ambiente colaborativo, donde puedas conectar con personas y construir relaciones, más que en uno muy competitivo o con presión constante.";
+      return "Se ve que te motiva más trabajar con personas, acompañar equipos y generar resultados de forma colaborativa, más que trabajar de forma muy individual o técnica.";
+    },
+    operativo() {
+      if (avoidsRepeat)
+        return "Parece que te acomoda más un trabajo donde puedas ordenar y mejorar procesos, con variedad suficiente para no caer en lo repetitivo.";
+      return "Parece que te acomoda más un trabajo donde las cosas pasen de verdad: coordinar, ordenar y asegurarte de que los procesos funcionen.";
+    },
+    estrategico() {
+      if (avoidsClients)
+        return "Se ve que te motiva más pensar el negocio y proponer iniciativas con criterio, más que ejecutar tareas definidas o estar en la línea comercial directa.";
+      return "Se ve que te motiva más crear estrategias y proponer ideas, más que ejecutar tareas muy definidas por otros.";
+    },
+    mixto() {
+      if (isAnalytic && isStrategic)
+        return "Probablemente te sientas más cómodo en roles que combinen análisis con visión: leer información y usarla para tomar decisiones que importen.";
+      if (isPeople && isAnalytic)
+        return "Hay señales de un perfil que combina lo relacional con lo analítico. Probablemente te sientas bien en roles que mezclen trabajo con personas y toma de decisiones con datos.";
+      return "Hay señales de un perfil versátil. Probablemente te sientas cómodo en roles que combinen análisis, gestión y algo de trato con personas.";
+    }
+  };
 
-  if (analytic && orderly && noClients) {
-    p1 = "Por lo que elegiste, parece que te acomoda más un trabajo donde puedas analizar información, ordenar cosas y tomar decisiones con criterio, más que estar en contacto constante con clientes o en terreno.";
-  } else if (analytic && noClients) {
-    p1 = "Por lo que elegiste, parece que te acomoda más un trabajo donde puedas analizar, interpretar datos y sacar conclusiones, más que uno centrado en atención a clientes o resultados comerciales directos.";
-  } else if (analytic && strategic) {
-    p1 = "Por lo que elegiste, parece que te interesa un trabajo donde puedas analizar información y usarla para pensar estrategias o decisiones importantes, más que ejecutar tareas operativas.";
-  } else if (orderly && noRepeat) {
-    p1 = "Por lo que elegiste, parece que te acomoda un trabajo donde puedas ordenar procesos y mejorar cómo funcionan las cosas, más que hacer tareas repetitivas sin variación.";
-  } else if (strategic && noClients) {
-    p1 = "Por lo que elegiste, parece que te llama más un trabajo donde puedas pensar el negocio, crear planes y proponer iniciativas, más que uno orientado a la venta directa o la atención constante de clientes.";
-  } else if (people && noCompete) {
-    p1 = "Por lo que elegiste, parece que te llama más un trabajo donde puedas acompañar personas y equipos, en un ambiente colaborativo y menos competitivo.";
-  } else if (people) {
-    p1 = "Por lo que elegiste, parece que te llama más un trabajo donde puedas trabajar cerca de las personas, acompañar equipos y generar resultados de forma colaborativa.";
-  } else if (strategic) {
-    p1 = "Por lo que elegiste, parece que te interesa un trabajo donde puedas pensar el negocio, crear estrategias y trabajar con visión de largo plazo.";
-  } else if (analytic) {
-    p1 = "Por lo que elegiste, parece que te acomoda más un trabajo donde puedas analizar información y transformarla en algo concreto y útil para otros.";
-  } else {
-    p1 = "Por lo que elegiste, hay ciertas preferencias claras que apuntan a caminos más específicos dentro de Ingeniería Comercial.";
-  }
-
-  const p2 = "Por eso, hay ciertos caminos dentro de tu carrera que hoy se ven más cercanos a ti que otros.";
-
-  return `${p1}\n\n${p2}`;
+  return (texts[profile] || texts.mixto)();
 }
 
 function renderExploreConfirm() {
@@ -1951,8 +1967,7 @@ function renderExploreConfirm() {
   // Update explanation text (supports \n\n for two paragraphs)
   const explainEl = document.getElementById("explore-confirm-explanation");
   if (explainEl) {
-    const parts = buildConfirmExplanation().split("\n\n");
-    explainEl.innerHTML = parts.map(p => `<p class="muted" style="margin-bottom:8px;">${p}</p>`).join("")
+    explainEl.innerHTML = `<p class="muted">${buildConfirmExplanation()}</p>`;
   }
 
   const inferred = inferAreas();
