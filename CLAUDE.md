@@ -150,16 +150,82 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 ### Reglas de copy (no violar)
 - No usar: "como elegiste", "según tus respuestas", enumeraciones de inputs
 - No usar: expresiones forzadas que no dirías en conversación real
+- No usar: señales que el usuario NO dio (ej: mencionar "terreno" si no lo seleccionó)
 - Sí usar: "parece que te acomoda", "se ve que te motiva", "probablemente te sientas"
-- Contraste "más que..." solo cuando hay avoid claro (clientes, terreno, repetición, competencia)
+- Contraste "más que..." solo cuando hay avoid claro Y real (señal explícitamente seleccionada)
 - Cada rol debe sonar distinto — no variaciones del mismo template
 
 ### Regla 9. isLastYear en analyze.js
 **Regla:** Leer `req.body.isLastYear` antes de construir el extractedProfile. Si `academicStatus === "estudiante" && isLastYear === "true"`, sobrescribir `metadata.academicStatus = "egresado"` antes de pasar al matcher.
 
+### Regla 10. No fabricar señales de avoid en copy
+**Error:** `buildExploreResultsHook()` incluye "terreno" en el texto aunque el usuario no haya seleccionado "trabajo-terreno". El contraste "más que X" solo puede usar valores que están en el array de avoid del usuario. Verificar antes de escribir texto hardcodeado que asuma selecciones.
+
 ### Dead data conocido
 - `extra_motivation_text` ignorado en scoring.
-- `exploreAvoid` solo afecta 4/6 opciones (trabajo-repetitivo e industrias-no-van requieren LLM).
+
+---
+
+## Estado actual (2026-04-04) — post sprint flujo explorar
+
+### Completado en iteraciones anteriores (hasta 2026-04-03)
+- Catálogo expandido de 11 → 24 roles con required_skills calibrados
+- Motor de scoring 6 dimensiones, umbrales Strong ≥65 / Stretch 25-64
+- Pregunta condicional postgrado + isLastYear
+- has_postgrad fusionado (formulario + CV)
+- Etapa académica: tarjetas visuales
+- Deploy en Render.com completado
+- Simplificación a Ingeniería Comercial (step-1 estático, 24 roles con related_degrees)
+- Sprint UX humanización: copy guided + explore-confirm
+
+### Completado — Sprint flujo explorar (2026-04-04, commit 4288449)
+
+**Nueva pantalla step-explore-areas:**
+- Dos grids: "Me interesa explorar" / "Prefiero evitar por ahora (opcional)"
+- 8 áreas: Finanzas, Analítica y datos, Control de Gestión, Comercial y ventas, Marketing, Operaciones, Personas/RRHH, Proyectos
+- Previene contradicciones (misma área no puede estar en ambos grids)
+- Señal integrada en `inferAreas()`: +4 por interés, -3 por descarte
+
+**Validaciones obligatorias:**
+- step-explore-areas: mín 1 interés
+- step-explore-1 (tareas): mín 1
+- step-explore-2 (evitar): mín 1 (nuevo — antes permitía avanzar vacío)
+- step-explore-3 (motivación): mín 1 (nuevo)
+- step-explore-confirm: mín 1 (reforzado con hint visible)
+
+**Cambios de flujo:**
+- `EXPLORE_STEP_IDS = ["step-explore-areas", "step-explore-1", "step-explore-2", "step-explore-3", "step-explore-confirm"]`
+- Step-6 (resumen) eliminado del flujo explore: `next-5` hace `form.requestSubmit()` directo
+- `updateProgress()` exploreMap actualizado: `{ 1:1, 2:2, 4:8, 5:9 }` (9 pasos totales)
+- EXPLORE_AVOID aplanado a 5 opciones flat (eliminado "industrias-no-van")
+
+**Mejoras de copy:**
+- Todos los títulos/subtítulos de pantallas explore reescritos
+- Step 4 CV: más persuasivo ("Si tienes tu CV a mano...")
+- Step 5 Ciudad: modalidades con descripción ("Presencial (en oficina)")
+- `buildConfirmExplanation()`: incorpora motivaciones + áreas explícitas
+
+**Resultados diferenciados:**
+- `renderResults()` bifurcado por `sessionStorage.getItem("laboraUserIntentMode")`
+- Explore: `buildExploreResultsHook()` lee señales del sessionStorage
+- `renderRoleCard(role, isExplore)` y `renderCompactRoleCard(role, isExplore)` con flag
+- Explore: "Qué hace este rol en la práctica" + "Cómo suele verse este rol" (sin herramientas prescriptivas)
+- `ROLE_PRACTICE_CONTENT`: 5 roles con contenido específico (Analista Financiero, Analista de Datos, Control de Gestión, Reporting, Asistente Proyectos)
+- `getPracticeContent(role)`: busca por título exacto, fallback por área con `ROLE_AREA_EXPECTATIONS`
+
+### Problemas identificados en validación de producto (2026-04-04)
+
+**🔴 Alta prioridad:**
+1. Bug `buildExploreResultsHook()`: hardcodea "terreno" en el texto aunque no esté en el array de avoid. El condicional `(isAnalytic) && avoidsClients` produce "clientes o terreno" sin verificar `avoidsTerrain`.
+2. Fallback `reality` en `getPracticeContent()` es genérico para los 19 roles sin contenido específico. No aporta valor real.
+
+**🟡 Media prioridad:**
+3. Segunda frase de motivación pegada sin hilo al texto principal en `buildExploreResultsHook()`
+4. Label "Control de Gestión" en step-explore-areas no es auto-explicativo para egresados recientes
+5. step-explore-areas visualmente pesada: 16 items (8×2), sin diferenciación visual entre grids
+
+**🟠 Baja prioridad (preexistente):**
+6. `buildRoleAlignment` tautológico en flujo guided para IC: siempre devuelve "Tu base en negocios y gestión es aplicable en la mayoría de áreas funcionales de una organización."
 
 ### Prioridades
 
@@ -167,7 +233,10 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 2. ~~Ampliar catálogo~~ — completado (24 roles).
 3. ~~Simplificar a Ingeniería Comercial~~ — completado.
 4. ~~Sprint UX humanización~~ — completado.
-5. **Refactorizar public/app.js** — ~2300 líneas, deuda técnica real. Bloqueante para iterar en frontend.
+5. ~~Sprint flujo explorar — UX, copy, validaciones, pantalla áreas~~ — completado.
+6. **Fix bug "terreno" + ampliar ROLE_PRACTICE_CONTENT** — pendiente (contenido, no lógica).
+7. **Mejorar UX step-explore-areas** — pendiente (carga cognitiva + diferenciación visual).
+8. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real. Bloqueante para iterar en frontend.
 
 Repo en GitHub (público): https://github.com/juanddpalacios-hash/labora-mvp
 

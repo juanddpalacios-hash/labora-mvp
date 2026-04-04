@@ -285,8 +285,12 @@ function buildExploreResultsHook() {
   const wantsImpact    = motivs.includes("impacto");
 
   let primary = "";
-  if ((isAnalytic) && avoidsClients) {
-    primary = "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de contacto constante con clientes o terreno.";
+  if (isAnalytic && avoidsClients && avoidsTerrain) {
+    primary = "Se ve una afinidad por roles analíticos y de oficina, más que en trabajos con contacto constante con clientes o con mucho movimiento en terreno.";
+  } else if (isAnalytic && avoidsClients) {
+    primary = "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de contacto constante con clientes.";
+  } else if (isAnalytic && avoidsTerrain) {
+    primary = "Se ve una preferencia por roles de análisis y trabajo estructurado, más que por roles con mucho movimiento o trabajo fuera de oficina.";
   } else if (isAnalytic && isStrategic) {
     primary = "Hay señales de un perfil que mezcla análisis con visión: leer información, encontrar sentido y usarla para decidir mejor, más que ejecutar desde un guión fijo.";
   } else if (isAnalytic) {
@@ -324,8 +328,8 @@ function getPracticeContent(role) {
   const area = role.area || role.category || "";
   const areaText = ROLE_AREA_EXPECTATIONS[area] || "";
   return {
-    practice: areaText || `En este rol el trabajo está orientado a ${(area || "esta área").toLowerCase()} y combina análisis, coordinación y comunicación con distintos equipos.`,
-    reality:  "Los requisitos y dinámicas varían bastante entre empresas y sectores. Lo que se repite es la necesidad de criterio, capacidad de comunicar y orientación a resultados. Vale la pena preguntar en entrevistas cómo se ve específicamente este rol en cada empresa."
+    practice:    areaText || `En este rol el trabajo está orientado a ${(area || "esta área").toLowerCase()} y combina análisis, coordinación y comunicación con distintos equipos.`,
+    howItLooks:  "Las dinámicas varían bastante entre empresas. Vale la pena preguntar en entrevistas cómo se ve este rol en la práctica — el título puede ser el mismo pero el día a día cambia mucho según el tamaño y sector de la empresa."
   };
 }
 
@@ -831,7 +835,7 @@ function renderRoleCard(role, isExplore = false) {
 
   if (isExplore) {
     // ── Estructura explore: Qué hace + Cómo se ve ─────────────────────
-    const { practice, reality } = getPracticeContent(role);
+    const { practice, howItLooks } = getPracticeContent(role);
     return `
       <article class="role-card role-card--pilot${extraClass}">
         <div class="role-header">
@@ -848,7 +852,7 @@ function renderRoleCard(role, isExplore = false) {
 
         <div class="role-section">
           <h4>Cómo suele verse este rol</h4>
-          <p>${reality}</p>
+          <p>${howItLooks}</p>
         </div>
 
         <div class="role-cv-builder-action">
@@ -1889,27 +1893,133 @@ const EXPLORE_AREAS = [
   { value: "proyectos",       label: "Proyectos" }
 ];
 
-// Contenido de roles para el flujo explore (MVP: qué hace + cómo se ve)
+// Contenido específico por rol para el flujo explore.
+// Claves: título exacto del catálogo (data/junior_roles.json).
+// Campos: practice (qué hace) + howItLooks (cómo se vive en el día a día).
 const ROLE_PRACTICE_CONTENT = {
-  "Analista Financiero Junior": {
-    practice: "En este rol, gran parte del trabajo consiste en analizar información financiera, armar reportes y ayudar a que quienes toman decisiones entiendan bien cómo está la empresa. No es solo trabajar con números: es interpretarlos y traducirlos en algo que tenga sentido para el negocio.",
-    reality:  "Dependiendo de la empresa, puede estar más orientado a presupuestos y control de gastos, a proyecciones o a reportes periódicos. Las tareas tienen un ritmo definido por cierres y plazos. Se espera precisión y capacidad de comunicar hallazgos con claridad. Los requisitos específicos varían bastante según el equipo y el sector."
-  },
+
+  // ── ANALÍTICA ──────────────────────────────────────────────────────────
   "Analista de Datos Junior": {
-    practice: "En este rol no se trata solo de mirar números. Gran parte del trabajo consiste en ordenar información, detectar patrones y convertirlos en algo útil para que otros puedan tomar decisiones. La materia prima es el dato; el producto final es claridad.",
-    reality:  "Dependiendo de la empresa, puede estar más orientado a reportería, análisis de negocio o trabajo técnico con datos. El patrón es el mismo: trabajar con información, encontrarle sentido y comunicarla de forma que sirva. Los requisitos específicos varían bastante según el equipo y la industria."
-  },
-  "Analista de Control de Gestión Junior": {
-    practice: "Este rol está en el cruce entre los números y el negocio: monitorea cómo va la empresa, compara lo planificado con lo real, y ayuda a entender por qué hay diferencias.",
-    reality:  "En la práctica, implica construir reportes de seguimiento, apoyar el proceso de presupuesto y trabajar cerca de distintas áreas para entender el contexto detrás de los números. Se espera orientación al detalle y capacidad para comunicar hallazgos sin perder de vista el cuadro completo. Las herramientas y el nivel de análisis varían según la empresa."
+    practice:   "Trabaja con datos para responder preguntas concretas del negocio: por qué cayeron las ventas en un período, qué clientes tienen señales de riesgo o dónde hay oportunidades sin explotar. El producto de este rol es siempre una conclusión que alguien puede usar para decidir.",
+    howItLooks: "Cada encargo parte de una pregunta diferente, lo que hace el trabajo más exploratorio que rutinario. Se pasa tiempo limpiando información, buscando patrones y armando una explicación clara de lo que los datos dicen. El área de datos suele atender preguntas de múltiples equipos al mismo tiempo."
   },
   "Analista de Reporting Junior": {
-    practice: "El foco de este rol es convertir datos en reportes útiles: que la información llegue bien presentada, a tiempo y con el nivel de detalle correcto para quien la necesita.",
-    reality:  "Puede estar más orientado a reportería financiera, operacional o comercial según la empresa. El trabajo tiene un ritmo definido por fechas de cierre y entrega. Se espera consistencia, orden y precisión. Es una buena entrada para desarrollar criterio analítico con mucho aprendizaje práctico."
+    practice:   "Construye y mantiene los reportes y tableros que distintas áreas de la empresa usan para ver cómo está funcionando el negocio. Su trabajo garantiza que la información correcta llegue a las personas correctas de forma consistente y oportuna.",
+    howItLooks: "El trabajo sigue un ritmo fijo: reportes semanales, cierres mensuales, dashboards que se actualizan con regularidad. El desafío no está en explorar datos nuevos, sino en asegurar que la información sea siempre confiable y llegue a tiempo. Se trabaja con múltiples áreas y se aprende rápido cómo se mueve el negocio desde adentro."
   },
+
+  // ── FINANZAS ───────────────────────────────────────────────────────────
+  "Analista Financiero Junior": {
+    practice:   "Analiza cómo está parada la empresa financieramente: revisa ingresos, costos, rentabilidad y flujo de caja para convertir esos datos en conclusiones que la gerencia pueda usar para tomar decisiones.",
+    howItLooks: "El trabajo sigue ciclos definidos: cierres mensuales, presupuesto anual, reportes trimestrales. Gran parte del tiempo se trabaja con modelos y estados financieros, interpretando qué hay detrás de los números. El perfil que encaja combina precisión numérica con capacidad de explicar qué significa un resultado para el negocio."
+  },
+  "Analista Control de Gestión Junior": {
+    practice:   "Monitorea si la empresa está cumpliendo sus metas: compara lo planificado con lo que realmente ocurrió, identifica dónde hay desviaciones y ayuda a entender por qué. La gerencia usa este análisis para saber si el negocio va por buen camino.",
+    howItLooks: "El trabajo es muy cercano al presupuesto y los indicadores de gestión. Se construyen reportes de seguimiento periódicos, se trabaja con distintas áreas para entender el contexto de cada variación, y se comunica directamente con quienes toman decisiones. La relación con la gerencia es frecuente."
+  },
+  "Asistente Contable Junior": {
+    practice:   "Registra y ordena las transacciones financieras de la empresa: facturas, pagos, compras, conciliaciones. Su trabajo garantiza que cada movimiento quede correctamente capturado en los libros y que las cuentas cuadren al cierre.",
+    howItLooks: "El trabajo es detallado y regular: los mismos tipos de registros, los mismos controles, los mismos plazos de cierre. Lo que importa es la precisión — un error se propaga. El ritmo lo marcan las fechas de cierre mensual y las obligaciones tributarias. Es un rol que da visibilidad concreta a cómo funciona la contabilidad de un negocio real."
+  },
+
+  // ── COMERCIAL ──────────────────────────────────────────────────────────
+  "Analista Comercial Junior": {
+    practice:   "Apoya al equipo de ventas con análisis que les ayudan a tomar mejores decisiones: mide el desempeño de canales y clientes, detecta oportunidades, identifica tendencias y alerta sobre riesgos comerciales. La diferencia entre un equipo comercial que actúa con criterio y uno que solo actúa está en este tipo de análisis.",
+    howItLooks: "El trabajo combina análisis de datos comerciales con mucho contacto con el equipo de ventas. Se entienden los números desde adentro — por qué subió un canal, qué cliente está en riesgo, qué producto tiene más tracción. Es un rol analítico, pero orientado a lo que el área comercial necesita para operar mejor."
+  },
+  "Analista de Marketing Junior": {
+    practice:   "Ejecuta y mide el desempeño de las acciones de marketing: campañas, contenido, activaciones. Trabaja para que las iniciativas de comunicación lleguen al público correcto y para que haya información que permita mejorar lo que no está funcionando.",
+    howItLooks: "El trabajo tiene ciclos cortos: una campaña se lanza, se mide, se ajusta. Hay una parte más creativa — qué decir y cómo decirlo — y una parte más analítica — qué está funcionando y por qué. Se trabaja con agencias, diseñadores y equipos internos. El ritmo es más dinámico que en roles de finanzas o control."
+  },
+
+  // ── OPERACIONES ────────────────────────────────────────────────────────
+  "Coordinador de Operaciones Junior": {
+    practice:   "Coordina los procesos operativos del día a día: hace seguimiento de indicadores, gestiona incidencias y actúa como punto de contacto entre áreas para que los procesos no se detengan. Cuando algo falla o se traba, este rol participa en resolverlo.",
+    howItLooks: "Las prioridades cambian con lo que la operación necesita, lo que hace el trabajo dinámico. Se trabaja con datos y con personas al mismo tiempo: hay que entender los números para saber qué está fallando, y hay que coordinar con equipos para corregirlo. El perfil que encaja combina capacidad analítica con orientación práctica."
+  },
+  "Analista de Logística Junior": {
+    practice:   "Controla el flujo de productos e insumos a través de la cadena de abastecimiento: gestiona inventarios, coordina pedidos y hace seguimiento para que los productos lleguen a tiempo y en las condiciones correctas. Cualquier error en este flujo tiene un costo concreto e inmediato.",
+    howItLooks: "El trabajo tiene mucha presión de plazos — los retrasos se notan de inmediato. Se trabaja con proveedores, bodegas y equipos internos al mismo tiempo. El detalle importa: una diferencia en el inventario o un pedido mal registrado se convierte rápidamente en un problema operacional."
+  },
+
+  // ── PROYECTOS ──────────────────────────────────────────────────────────
   "Asistente de Proyectos Junior": {
-    practice: "Este rol existe para que los proyectos avancen. Se encarga de hacer seguimiento de tareas, coordinar entre equipos, mantener actualizada la información y asegurarse de que nada se pierda en el camino.",
-    reality:  "El trabajo varía bastante según el tipo de proyecto y la industria. Lo que se repite es la necesidad de organización, comunicación fluida y capacidad de moverse entre lo operativo y lo estratégico sin perder el hilo. Las herramientas específicas se aprenden en el camino; lo que importa más es el criterio y la coordinación."
+    practice:   "Mantiene los proyectos en movimiento: hace seguimiento de tareas, actualiza el estado de avance, coordina compromisos entre los equipos involucrados y asegura que nada quede sin dueño. Sin este rol, los proyectos tienden a perder ritmo.",
+    howItLooks: "El trabajo es más de coordinación que de análisis. Se gestiona información de múltiples frentes al mismo tiempo, se mantiene a todos alineados sobre qué está pasando y qué falta, y se trabaja de cerca con personas que tienen distintos roles y prioridades. El desafío es mantener el hilo sin tener autoridad directa sobre nadie."
+  },
+
+  // ── PERSONAS ───────────────────────────────────────────────────────────
+  "Asistente de RRHH Junior": {
+    practice:   "Apoya los procesos que hacen que las personas puedan trabajar bien dentro de una organización: reclutamiento, incorporación de nuevos empleados, documentación, bienestar y clima laboral. Es uno de los primeros puntos de contacto de los trabajadores con el área de personas.",
+    howItLooks: "El trabajo combina tareas concretas — publicar ofertas, coordinar entrevistas, actualizar contratos — con momentos de mayor contacto humano, como organizar iniciativas de clima o comunicación interna. La discreción es fundamental: se maneja información sensible de personas de forma constante."
+  },
+
+  // ── DERECHO ────────────────────────────────────────────────────────────
+  "Asistente Legal Junior": {
+    practice:   "Apoya al área legal en la revisión de contratos, preparación de documentación y seguimiento de procesos jurídicos. Su trabajo garantiza que los compromisos legales de la empresa estén correctamente registrados y que nada quede sin gestionar.",
+    howItLooks: "El trabajo es principalmente documental y de revisión: contratos, minutas, poderes, notificaciones. Requiere atención extrema al detalle y manejo de lenguaje formal. Hay plazos que no se pueden mover y consecuencias directas si algo se pierde. Es un rol de soporte que hace que el área legal funcione con orden."
+  },
+  "Analista de Compliance Junior": {
+    practice:   "Verifica que la empresa cumpla con las regulaciones que le aplican: leyes sectoriales, políticas internas, estándares de la industria. Cuando hay un riesgo de incumplimiento, este rol lo identifica y trabaja para resolverlo antes de que se convierta en un problema.",
+    howItLooks: "El trabajo combina revisión de normativas, análisis de procesos internos y reporte a la gerencia. Se trabaja con distintas áreas para verificar que sus prácticas estén alineadas con lo que exige la regulación. Requiere criterio, capacidad de comunicar con claridad y comodidad trabajando con ambigüedad normativa."
+  },
+
+  // ── NEGOCIOS ───────────────────────────────────────────────────────────
+  "Analista de Customer Success Junior": {
+    practice:   "Acompaña a los clientes después de que contratan un servicio o producto: se asegura de que lo estén usando bien, resuelve dudas y problemas, y trabaja para que cada cliente sienta que está obteniendo el valor que esperaba. El objetivo es que se queden y crezcan.",
+    howItLooks: "Mucho contacto con clientes vía correo, videollamada o reuniones. El trabajo combina escucha activa, resolución de problemas y capacidad de explicar cosas con claridad. El foco está en la relación y el éxito del cliente, no solo en resolver incidencias. Se aprende rápido cómo un producto genera valor en la práctica."
+  },
+
+  // ── TECNOLOGÍA ─────────────────────────────────────────────────────────
+  "Desarrollador Web Junior": {
+    practice:   "Construye y mantiene aplicaciones o sitios web: escribe el código que hace que algo funcione para quien lo usa. El trabajo consiste en traducir requisitos de negocio o de diseño en experiencias funcionales.",
+    howItLooks: "El proceso es iterativo: se construye algo, se prueba, se corrige, se mejora. Hay colaboración constante con diseñadores, analistas y otros desarrolladores. Lo que distingue a alguien que crece rápido en este rol es entender el propósito de lo que está construyendo, no solo el código."
+  },
+  "QA Tester Junior": {
+    practice:   "Verifica que el software funcione correctamente antes de llegar a los usuarios: busca errores, casos borde y comportamientos inesperados. Su trabajo protege la calidad de lo que desarrolla el equipo.",
+    howItLooks: "Parte del tiempo se diseñan casos de prueba — qué escenarios podrían romper algo — y parte se ejecutan. El desafío intelectual está en pensar como un usuario que hace todo lo que no debería, y hacerlo de forma sistemática. Encontrar el error es solo la mitad del trabajo; comunicarlo con precisión es la otra."
+  },
+  "Analista de Soporte TI Junior": {
+    practice:   "Es el primer punto de contacto cuando algo tecnológico falla dentro de la empresa: computadores, sistemas, conectividad, accesos. Diagnostica el problema y lo resuelve — o lo escala — para que las personas puedan seguir trabajando.",
+    howItLooks: "Trabajo con personas todo el tiempo — el usuario que llega está frustrado y necesita una solución rápida. Requiere paciencia, diagnóstico bajo presión y la habilidad de explicar soluciones técnicas a personas no técnicas. El ritmo lo define la demanda: hay días tranquilos y días donde todo falla al mismo tiempo."
+  },
+
+  // ── DISEÑO ─────────────────────────────────────────────────────────────
+  "Diseñador UX/UI Junior": {
+    practice:   "Diseña la experiencia que tienen los usuarios al interactuar con aplicaciones o sitios web: cómo se ve, cómo se navega y qué tan fácil es lograr lo que se quiere. El objetivo es que algo funcione bien para quien lo usa, no solo que se vea bien.",
+    howItLooks: "El proceso parte entendiendo al usuario y termina en diseños concretos que el equipo de desarrollo puede implementar. Hay mucha iteración: los primeros diseños casi nunca son los finales. Se trabaja en estrecha colaboración con producto, desarrollo y negocio, y se aprende a defender decisiones de diseño con argumentos de usabilidad."
+  },
+
+  // ── COMUNICACIÓN ───────────────────────────────────────────────────────
+  "Community Manager Junior": {
+    practice:   "Gestiona la presencia de una marca en redes sociales: crea contenido, programa publicaciones, responde a la comunidad y mide cómo está funcionando cada canal. Es la voz pública de la marca en el mundo digital.",
+    howItLooks: "El trabajo tiene mucho componente creativo — qué decir, cómo decirlo, con qué formato — y también analítico — qué está funcionando y por qué. Los canales digitales exigen presencia regular y respuesta oportuna. El ritmo es constante y hay que adaptarse al tono de cada plataforma."
+  },
+  "Redactor de Contenidos Junior": {
+    practice:   "Produce textos para distintos canales y propósitos: artículos, correos, fichas de producto, guiones. El trabajo consiste en comunicar ideas de forma clara, atractiva y adaptada a quien va a leer, en el formato correcto para cada canal.",
+    howItLooks: "Cada encargo tiene un contexto diferente: un artículo de blog no es lo mismo que un correo de ventas o un post para redes. Se trabaja con brief — instrucciones sobre qué comunicar y a quién — y se pasa por varias rondas de edición antes de publicar. La relación con marketing, comunicaciones o producto es constante."
+  },
+  "Relacionador Público Junior": {
+    practice:   "Construye y cuida las relaciones que permiten que una organización sea percibida de la manera que necesita: trabaja con medios de comunicación, autoridades y públicos estratégicos para gestionar la imagen y reputación institucional.",
+    howItLooks: "Mucho contacto con periodistas, instituciones y stakeholders. Hay trabajo de redacción — comunicados, notas de prensa — pero también de coordinación y seguimiento de relaciones. El criterio importa más que los procesos, especialmente en situaciones de crisis donde el margen de error es pequeño."
+  },
+
+  // ── GEOCIENCIAS ────────────────────────────────────────────────────────
+  "Analista GIS Junior": {
+    practice:   "Trabaja con información geográfica y espacial para analizar territorios e identificar patrones en el espacio. Se usa para apoyar decisiones que dependen de dónde ocurren las cosas: planificación territorial, recursos naturales, infraestructura.",
+    howItLooks: "El trabajo combina análisis de datos con visualización cartográfica. Se trabaja con capas de información georreferenciada y se producen mapas o reportes que ayudan a equipos técnicos y directivos a tomar decisiones sobre el territorio. Requiere pensamiento espacial y capacidad de traducir análisis complejos en algo visual y comunicable."
+  },
+
+  // ── MEDIOAMBIENTE ──────────────────────────────────────────────────────
+  "Analista Ambiental Junior": {
+    practice:   "Apoya proyectos relacionados con el cumplimiento ambiental, la evaluación de impactos y la gestión de recursos. El trabajo consiste en asegurar que los procesos o proyectos de una organización cumplan con la normativa ambiental y minimicen su impacto.",
+    howItLooks: "Combina trabajo de escritorio — informes técnicos, revisión de normativas, análisis de datos ambientales — con trabajo en terreno, como monitoreo o visitas a sitios. Se trabaja con equipos multidisciplinarios y se navegan procesos regulatorios que son lentos y exigen precisión documental."
+  },
+
+  // ── EDUCACIÓN ──────────────────────────────────────────────────────────
+  "Coordinador Académico Junior": {
+    practice:   "Apoya la gestión de procesos educativos dentro de una institución: coordina cursos, programas o actividades académicas, y sirve de punto de contacto entre estudiantes, docentes y administración para que todo funcione.",
+    howItLooks: "El trabajo combina coordinación operativa — inscripciones, calendarios, materiales — con trato directo con personas que tienen distintas necesidades y expectativas. Se trabaja bajo plazos rígidos y la capacidad de gestionar múltiples frentes simultáneamente es fundamental. Los períodos de inicio de semestre son los más intensos."
   }
 };
 
