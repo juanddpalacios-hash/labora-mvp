@@ -1919,39 +1919,42 @@ function buildConfirmExplanation() {
   else if (isStrategic)                                profile = "estrategico";
 
   // Generar texto interpretativo (máx 2-3 líneas, sin enumerar inputs)
+  // El contraste "más que…" solo aparece cuando hay señales de avoid claras
   const texts = {
     analitico() {
       if (avoidsClients && avoidsTerrain)
         return "Parece que te acomoda más un trabajo donde puedas analizar, ordenar y sacar conclusiones, más que estar en contacto constante con clientes o en movimiento.";
-      if (avoidsClients && avoidsRepeat)
-        return "Se ve que te motiva más resolver problemas con criterio y trabajar con información, más que seguir rutinas fijas o depender de resultados de venta.";
       if (avoidsClients)
-        return "Parece que te acomoda más un trabajo donde puedas analizar e interpretar información, más que uno centrado en atención a clientes o metas comerciales directas.";
+        return "Se ve que te atrae un trabajo donde puedas analizar información y tomar decisiones con criterio, más que uno centrado en atención a clientes o metas comerciales.";
       if (avoidsRepeat)
-        return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que repetir tareas definidas.";
-      return "Parece que te acomoda más un trabajo donde puedas analizar, encontrar patrones y tomar decisiones con datos.";
+        return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que repetir tareas muy definidas.";
+      // Sin avoid relevante: solo positivo
+      return "Se ve que te atrae un trabajo donde puedas analizar información, encontrar patrones y tomar decisiones con criterio.";
     },
     relacional() {
       if (avoidsCompete)
-        return "Probablemente te sientas más cómodo en un ambiente colaborativo, donde puedas conectar con personas y construir relaciones, más que en uno muy competitivo o con presión constante.";
-      return "Se ve que te motiva más trabajar con personas, acompañar equipos y generar resultados de forma colaborativa, más que trabajar de forma muy individual o técnica.";
+        return "Probablemente te sientas más cómodo en un ambiente colaborativo donde puedas conectar con personas y construir relaciones, más que en uno muy competitivo o con presión constante.";
+      // Sin avoid relevante: solo positivo
+      return "Se ve que te motiva un trabajo donde puedas trabajar con personas, acompañar equipos y generar resultados de forma colaborativa.";
     },
     operativo() {
       if (avoidsRepeat)
-        return "Parece que te acomoda más un trabajo donde puedas ordenar y mejorar procesos, con variedad suficiente para no caer en lo repetitivo.";
-      return "Parece que te acomoda más un trabajo donde las cosas pasen de verdad: coordinar, ordenar y asegurarte de que los procesos funcionen.";
+        return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo esté demasiado definido de antemano.";
+      // Sin avoid relevante: solo positivo
+      return "Parece que te acomoda un trabajo donde las cosas pasen de verdad: coordinar, ordenar y asegurarte de que los procesos funcionen.";
     },
     estrategico() {
       if (avoidsClients)
-        return "Se ve que te motiva más pensar el negocio y proponer iniciativas con criterio, más que ejecutar tareas definidas o estar en la línea comercial directa.";
-      return "Se ve que te motiva más crear estrategias y proponer ideas, más que ejecutar tareas muy definidas por otros.";
+        return "Se ve que te motiva más pensar el negocio y proponer iniciativas con criterio, más que estar en la línea comercial directa.";
+      // Sin avoid relevante: solo positivo
+      return "Se ve que te motiva un trabajo donde puedas crear estrategias, proponer iniciativas y pensar con visión de negocio.";
     },
     mixto() {
       if (isAnalytic && isStrategic)
-        return "Probablemente te sientas más cómodo en roles que combinen análisis con visión: leer información y usarla para tomar decisiones que importen.";
+        return "Probablemente te sientas cómodo en roles que combinen análisis con visión: leer información y usarla para tomar decisiones que importen.";
       if (isPeople && isAnalytic)
-        return "Hay señales de un perfil que combina lo relacional con lo analítico. Probablemente te sientas bien en roles que mezclen trabajo con personas y toma de decisiones con datos.";
-      return "Hay señales de un perfil versátil. Probablemente te sientas cómodo en roles que combinen análisis, gestión y algo de trato con personas.";
+        return "Hay señales de un perfil que mezcla lo relacional con lo analítico. Probablemente disfrutes roles donde trabajar con personas y trabajar con datos no sean cosas separadas.";
+      return "Hay señales de un perfil versátil. Probablemente te sientas cómodo en roles que combinen análisis, gestión y trato con personas.";
     }
   };
 
