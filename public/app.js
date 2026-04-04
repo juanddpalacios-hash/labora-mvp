@@ -138,9 +138,11 @@ async function handleFormSubmit(event) {
     // Explore flow data
     if (userIntentMode === "explore") {
       formData.append("discovery_mode", "true");
-      formData.append("task_preferences", JSON.stringify(exploreTaskPrefs));
-      formData.append("avoid_preferences", JSON.stringify(exploreAvoid));
+      formData.append("task_preferences",   JSON.stringify(exploreTaskPrefs));
+      formData.append("avoid_preferences",  JSON.stringify(exploreAvoid));
       formData.append("motivation_preferences", JSON.stringify(exploreMotivations));
+      formData.append("areas_interest",     JSON.stringify(exploreAreasInterest));
+      formData.append("areas_avoid",        JSON.stringify(exploreAreasAvoid));
       formData.append("extra_motivation_text", document.getElementById("extra-motivation")?.value || "");
     }
 
@@ -155,8 +157,16 @@ async function handleFormSubmit(event) {
     if (!response.ok) throw new Error(data.error || "No se pudo analizar el CV.");
 
     sessionStorage.setItem("laboraResults", JSON.stringify(data));
-    // Guardar texto crudo por separado (puede ser grande; evitar inflar laboraResults)
     sessionStorage.setItem("laboraCvRawText", data.cvRawText || "");
+    // Persistir modo y señales explore para la página de resultados
+    sessionStorage.setItem("laboraUserIntentMode", userIntentMode);
+    if (userIntentMode === "explore") {
+      sessionStorage.setItem("laboraExploreTaskPrefs",    JSON.stringify(exploreTaskPrefs));
+      sessionStorage.setItem("laboraExploreAvoid",        JSON.stringify(exploreAvoid));
+      sessionStorage.setItem("laboraExploreMotivations",  JSON.stringify(exploreMotivations));
+      sessionStorage.setItem("laboraExploreAreasInterest",JSON.stringify(exploreAreasInterest));
+      sessionStorage.setItem("laboraExploreAreasAvoid",   JSON.stringify(exploreAreasAvoid));
+    }
     // Guardar si es estudiante en año no final (para ajustar copy de resultados)
     const academicStatusVal = document.getElementById("academicStatus")?.value || "";
     const isLastYearVal     = document.getElementById("isLastYear")?.value || "";
@@ -251,6 +261,74 @@ function displayTool(t) {
   }).join(" ");
 }
 
+/**
+ * Genera texto interpretativo para la página de resultados del flujo explore.
+ * Lee señales del sessionStorage (guardadas en submit).
+ */
+function buildExploreResultsHook() {
+  const tasks    = JSON.parse(sessionStorage.getItem("laboraExploreTaskPrefs")     || "[]");
+  const avoid    = JSON.parse(sessionStorage.getItem("laboraExploreAvoid")         || "[]");
+  const motivs   = JSON.parse(sessionStorage.getItem("laboraExploreMotivations")   || "[]");
+
+  const isAnalytic  = tasks.includes("analizar-datos") || tasks.includes("resolver-problemas");
+  const isOrderly   = tasks.includes("organizar-procesos");
+  const isStrategic = tasks.includes("crear-estrategias");
+  const isPeople    = tasks.includes("trabajar-personas");
+
+  const avoidsClients = avoid.includes("atencion-clientes") || avoid.includes("ventas-metas");
+  const avoidsTerrain = avoid.includes("trabajo-terreno");
+  const avoidsCompete = avoid.includes("ambientes-competitivos");
+
+  const wantsLearning  = motivs.includes("aprender");
+  const wantsGrowth    = motivs.includes("crecer-rapido");
+  const wantsStability = motivs.includes("estabilidad");
+  const wantsImpact    = motivs.includes("impacto");
+
+  let primary = "";
+  if ((isAnalytic) && avoidsClients) {
+    primary = "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de contacto constante con clientes o terreno.";
+  } else if (isAnalytic && isStrategic) {
+    primary = "Hay señales de un perfil que mezcla análisis con visión: leer información, encontrar sentido y usarla para decidir mejor, más que ejecutar desde un guión fijo.";
+  } else if (isAnalytic) {
+    primary = "Se ve una preferencia por roles donde puedas trabajar con información, resolver problemas concretos y comunicar hallazgos que sirvan.";
+  } else if (isPeople && !avoidsClients) {
+    primary = "Se ve una preferencia por roles donde las personas estén en el centro: trabajar en equipo, acompañar procesos y construir desde las relaciones.";
+  } else if (isOrderly && !isStrategic) {
+    primary = "Hay señales de una preferencia por roles operativos: coordinar, ordenar procesos y asegurarse de que las cosas funcionen bien.";
+  } else if (isStrategic) {
+    primary = "Hay señales de una preferencia por roles donde puedas pensar el negocio, proponer iniciativas y tomar decisiones con más visión.";
+  } else {
+    primary = "Con lo que nos contaste, se ven señales de un perfil que puede moverse bien en roles analíticos, de coordinación o de trabajo en equipo.";
+  }
+
+  let extra = "";
+  if (wantsLearning) {
+    extra = " La búsqueda de aprendizaje continuo orienta a roles con curva activa y entornos donde se aprende haciendo.";
+  } else if (wantsGrowth) {
+    extra = " El interés en crecer rápido orienta a entornos con más responsabilidad desde temprano.";
+  } else if (wantsStability) {
+    extra = " La búsqueda de estabilidad orienta más a empresas con procesos definidos y culturas establecidas.";
+  } else if (wantsImpact) {
+    extra = " El interés en impacto orienta a organizaciones donde el trabajo tiene un efecto visible más allá de los resultados comerciales.";
+  }
+
+  return primary + extra;
+}
+
+/**
+ * Obtiene el contenido de práctica para un rol (ROLE_PRACTICE_CONTENT o fallback por área).
+ */
+function getPracticeContent(role) {
+  const content = ROLE_PRACTICE_CONTENT[role.title];
+  if (content) return content;
+  const area = role.area || role.category || "";
+  const areaText = ROLE_AREA_EXPECTATIONS[area] || "";
+  return {
+    practice: areaText || `En este rol el trabajo está orientado a ${(area || "esta área").toLowerCase()} y combina análisis, coordinación y comunicación con distintos equipos.`,
+    reality:  "Los requisitos y dinámicas varían bastante entre empresas y sectores. Lo que se repite es la necesidad de criterio, capacidad de comunicar y orientación a resultados. Vale la pena preguntar en entrevistas cómo se ve específicamente este rol en cada empresa."
+  };
+}
+
 function renderResults() {
   if (!resultsRoot) return;
 
@@ -317,107 +395,124 @@ function renderResults() {
         </div>` : ""}
     </section>` : "";
 
-  // 5) Roles: 1 principal completo + resto compactos
+  // 5) Detectar modo y renderizar según flujo
+  const isExploreMode = sessionStorage.getItem("laboraUserIntentMode") === "explore";
   const userType = matches.user_type || "aligned";
-  const noResultsMsg = (() => {
-    if (userType === "explore") {
-      return `
-        <div class="card no-results-card">
-          <p class="no-results-title">No encontramos opciones claras con lo que elegiste.</p>
-          <p class="muted">Prueba seleccionando otros caminos o cambia la modalidad para ver más.</p>
-        </div>`;
-    }
-    if (userType === "misaligned") {
-      return `
-        <div class="card no-results-card">
-          <p class="no-results-title">Lo que estudiaste y lo que te interesa hoy apuntan a lugares distintos.</p>
-          <p class="muted">Eso no es un problema — significa que estás explorando fuera de lo evidente. Agregar tu CV puede ayudarnos a encontrar más señales concretas.</p>
-        </div>`;
-    }
-    if (!currentHasCv) {
-      return `
-        <div class="card no-results-card">
-          <p class="no-results-title">Con tu CV podemos ver mucho más.</p>
-          <p class="muted">Sin él, las opciones se limitan a lo que declaraste. Súbelo para que la orientación sea más precisa.</p>
-        </div>`;
-    }
-    return `
-      <div class="card no-results-card">
-        <p class="no-results-title">No encontramos opciones con estos criterios.</p>
-        <p class="muted">Prueba ajustando tus intereses o cambiando la modalidad.</p>
-      </div>`;
-  })();
 
-  // Banner contextual
+  const noResultsMsg = `
+    <div class="card no-results-card">
+      <p class="no-results-title">No encontramos opciones claras con lo que elegiste.</p>
+      <p class="muted">Prueba seleccionando otros caminos o cambia la modalidad para ver más.</p>
+    </div>`;
+
   const contextBanner = contextMsg ? `
     <section class="card context-banner">
       <p class="context-headline">${contextMsg.headline}</p>
       <p class="muted">${contextMsg.subtext}</p>
     </section>` : "";
 
-  let rolesSection = "";
-  if (totalMatches > 0) {
-    // Primer rol = completo
-    const primaryRole = allRoles[0];
-    const secondaryRoles = allRoles.slice(1, 4); // máx 3 adicionales
+  if (isExploreMode) {
+    // ── FLUJO EXPLORE ─────────────────────────────────────────────────
+    const exploreHook = buildExploreResultsHook();
 
-    rolesSection = `
+    let rolesSection = "";
+    if (totalMatches > 0) {
+      const primaryRole    = allRoles[0];
+      const secondaryRoles = allRoles.slice(1, 4);
+
+      rolesSection = `
+        <section class="card">
+          <h2 class="section-title">Tu mejor punto de partida hoy</h2>
+          <p class="muted" style="margin-bottom:16px;">De todo lo que vemos, esta es la opción que hoy se ve más alineada con lo que nos contaste.</p>
+          <div class="role-list">
+            ${renderRoleCard(primaryRole, true)}
+          </div>
+        </section>
+
+        ${secondaryRoles.length > 0 ? `
+        <section class="card">
+          <h2 class="section-title">Otros caminos que también podrían calzar contigo</h2>
+          <p class="muted" style="margin-bottom:16px;">Opciones cercanas que también podrías explorar, aunque hoy se ven un poco menos directas que la principal.</p>
+          <div class="role-list">
+            ${secondaryRoles.map(r => renderCompactRoleCard(r, true)).join("")}
+          </div>
+        </section>` : ""}`;
+    }
+
+    resultsRoot.innerHTML = `
       <section class="card">
-        <h2 class="section-title">${currentIsStudentNotLastYear
-          ? "Estos son los caminos hacia los que puedes orientar tu formación"
-          : "Estas son las opciones que hoy se ven más cercanas a ti"}</h2>
-        <p class="muted" style="margin-bottom:16px;">De todas las opciones, esta es la que hoy se ve más cercana a lo que nos contaste.</p>
-        <div class="role-list">
-          ${renderRoleCard(primaryRole)}
-        </div>
+        <h2 class="section-title">Esto es lo que vemos en ti</h2>
+        <p class="profile-hook">${exploreHook}</p>
+        ${currentHasCv && strengths.length > 0 ? `
+        <div style="margin-top:16px;">
+          <ul class="list">${strengths.map(s => `<li>${s}</li>`).join("")}</ul>
+        </div>` : ""}
       </section>
 
-      ${secondaryRoles.length > 0 ? `
-      <section class="card">
-        <h2 class="section-title">También aparecen caminos cercanos</h2>
-        <p class="muted" style="margin-bottom:16px;">Opciones que también podrías considerar, aunque hoy se ven un poco menos directas que la principal.</p>
-        <div class="role-list">
-          ${secondaryRoles.map(renderCompactRoleCard).join("")}
-        </div>
-      </section>` : ""}`;
-  }
+      ${contextBanner}
+      ${totalMatches === 0 ? noResultsMsg : rolesSection}`;
 
-  const profileColumns = currentHasCv ? `
-      <div class="grid three" style="margin-top:16px;">
-        <div>
-          <h3>Herramientas</h3>
-          <div class="inline-tags">${toolsTags}</div>
-        </div>
-        <div>
-          <h3>Idiomas</h3>
-          <div class="inline-tags">${langTags}</div>
-        </div>
-        <div>
+  } else {
+    // ── FLUJO GUIDED ──────────────────────────────────────────────────
+    let rolesSection = "";
+    if (totalMatches > 0) {
+      const primaryRole    = allRoles[0];
+      const secondaryRoles = allRoles.slice(1, 4);
+
+      rolesSection = `
+        <section class="card">
+          <h2 class="section-title">${currentIsStudentNotLastYear
+            ? "Estos son los caminos hacia los que puedes orientar tu formación"
+            : "Estas son las opciones que hoy se ven más cercanas a ti"}</h2>
+          <p class="muted" style="margin-bottom:16px;">De todas las opciones, esta es la que hoy se ve más cercana a lo que nos contaste.</p>
+          <div class="role-list">
+            ${renderRoleCard(primaryRole, false)}
+          </div>
+        </section>
+
+        ${secondaryRoles.length > 0 ? `
+        <section class="card">
+          <h2 class="section-title">También aparecen caminos cercanos</h2>
+          <p class="muted" style="margin-bottom:16px;">Opciones que también podrías considerar, aunque hoy se ven un poco menos directas que la principal.</p>
+          <div class="role-list">
+            ${secondaryRoles.map(r => renderCompactRoleCard(r, false)).join("")}
+          </div>
+        </section>` : ""}`;
+    }
+
+    const profileColumns = currentHasCv ? `
+        <div class="grid three" style="margin-top:16px;">
+          <div>
+            <h3>Herramientas</h3>
+            <div class="inline-tags">${toolsTags}</div>
+          </div>
+          <div>
+            <h3>Idiomas</h3>
+            <div class="inline-tags">${langTags}</div>
+          </div>
+          <div>
+            <h3>Fortalezas</h3>
+            <ul class="list">${strengths.map(s => `<li>${s}</li>`).join("")}</ul>
+          </div>
+        </div>` : (strengths.length > 0 ? `
+        <div style="margin-top:16px;">
           <h3>Fortalezas</h3>
-          <ul class="list">
-            ${strengths.map(s => `<li>${s}</li>`).join("")}
-          </ul>
-        </div>
-      </div>` : (strengths.length > 0 ? `
-      <div style="margin-top:16px;">
-        <h3>Fortalezas</h3>
-        <ul class="list">
-          ${strengths.map(s => `<li>${s}</li>`).join("")}
-        </ul>
-      </div>` : "");
+          <ul class="list">${strengths.map(s => `<li>${s}</li>`).join("")}</ul>
+        </div>` : "");
 
-  resultsRoot.innerHTML = `
-    <section class="card">
-      <h2 class="section-title">
-        ${profile.name ? `Hola, ${profile.name}` : "Lo que se alcanza a ver con lo que nos contaste"}
-      </h2>
-      <p class="profile-hook">${profileHook}</p>
-      ${profileColumns}
-    </section>
+    resultsRoot.innerHTML = `
+      <section class="card">
+        <h2 class="section-title">
+          ${profile.name ? `Hola, ${profile.name}` : "Lo que se alcanza a ver con lo que nos contaste"}
+        </h2>
+        <p class="profile-hook">${profileHook}</p>
+        ${profileColumns}
+      </section>
 
-    ${areaBlock}
-
-    ${totalMatches === 0 ? noResultsMsg : rolesSection}`;
+      ${areaBlock}
+      ${contextBanner}
+      ${totalMatches === 0 ? noResultsMsg : rolesSection}`;
+  }
 }
 
 /** Renderiza el desglose de puntaje como chips */
@@ -725,8 +820,8 @@ function buildNextStep(role, profile) {
 // Render de tarjeta de rol (unificada, sin score numérico)
 // ------------------------------------------------------------------ //
 
-/** Tarjeta completa — rol principal */
-function renderRoleCard(role) {
+/** Tarjeta completa — rol principal. isExplore=true usa estructura nueva. */
+function renderRoleCard(role, isExplore = false) {
   const fit         = fitLevel(role.score);
   const description = fitDescription(role.score, role.title);
   const extraClass  = role.is_recommended ? " role-card--recommended" : "";
@@ -734,10 +829,42 @@ function renderRoleCard(role) {
   const storedData = sessionStorage.getItem("laboraResults");
   const profile    = storedData ? JSON.parse(storedData).profile : null;
 
-  const nextStep   = buildNextStep(role, profile);
+  if (isExplore) {
+    // ── Estructura explore: Qué hace + Cómo se ve ─────────────────────
+    const { practice, reality } = getPracticeContent(role);
+    return `
+      <article class="role-card role-card--pilot${extraClass}">
+        <div class="role-header">
+          <div>
+            <h3>${role.title}</h3>
+            <p class="muted" style="margin:2px 0 0;">${role.area || role.category || ""}${role.subarea ? ` · ${role.subarea}` : ""}</p>
+          </div>
+        </div>
 
-  // Limitar match_reasons a 3, sin repeticiones obvias
-  const reasons = (role.match_reasons || []).slice(0, 3);
+        <div class="role-section">
+          <h4>Qué hace este rol en la práctica</h4>
+          <p>${practice}</p>
+        </div>
+
+        <div class="role-section">
+          <h4>Cómo suele verse este rol</h4>
+          <p>${reality}</p>
+        </div>
+
+        <div class="role-cv-builder-action">
+          <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary" style="text-align:center;">
+            Ver ofertas de este tipo
+          </a>
+          <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
+             class="button primary">
+            ${cvBuilderLabel(role.title, currentHasCv)}
+          </a>
+        </div>
+      </article>`;
+  }
+
+  // ── Estructura guided (original) ──────────────────────────────────────
+  const nextStep = buildNextStep(role, profile);
 
   return `
     <article class="role-card role-card--pilot${extraClass}">
@@ -787,10 +914,33 @@ function renderRoleCard(role) {
     </article>`;
 }
 
-/** Tarjeta compacta — roles secundarios */
-function renderCompactRoleCard(role) {
+/** Tarjeta compacta — roles secundarios. isExplore=true usa estructura simplificada. */
+function renderCompactRoleCard(role, isExplore = false) {
   const fit        = fitLevel(role.score);
   const extraClass = role.is_recommended ? " role-card--recommended" : "";
+  const area       = role.area || role.category || "";
+
+  if (isExplore) {
+    const { practice } = getPracticeContent(role);
+    const shortPractice = practice.split(".")[0] + "."; // Solo la primera oración
+    return `
+      <article class="role-card role-card--compact${extraClass}">
+        <div class="role-header">
+          <div>
+            <h3>${role.title}</h3>
+            <p class="muted" style="margin:2px 0 0;">${area}${role.subarea ? ` · ${role.subarea}` : ""}</p>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:8px; font-size:14px;">${shortPractice}</p>
+        <div class="role-compact-actions">
+          <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary">Ver ofertas</a>
+          <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
+             class="button primary">
+            ${cvBuilderLabel(role.title, currentHasCv)}
+          </a>
+        </div>
+      </article>`;
+  }
 
   const storedData = sessionStorage.getItem("laboraResults");
   const profile    = storedData ? JSON.parse(storedData).profile : null;
@@ -800,7 +950,7 @@ function renderCompactRoleCard(role) {
       <div class="role-header">
         <div>
           <h3>${role.title}</h3>
-          <p class="muted" style="margin:2px 0 0;">${role.area || role.category || ""}${role.subarea ? ` · ${role.subarea}` : ""}</p>
+          <p class="muted" style="margin:2px 0 0;">${area}${role.subarea ? ` · ${role.subarea}` : ""}</p>
         </div>
         ${currentHasCv ? `<span class="fit-badge ${fit.css}">${fit.label}</span>` : ""}
       </div>
@@ -1695,45 +1845,73 @@ function initPreferences() {
 // ------------------------------------------------------------------ //
 
 // Estado del flujo explore
-let exploreTaskPrefs     = [];  // máx 2
-let exploreAvoid         = [];  // sin límite
-let exploreMotivations   = [];  // máx 2
-let selectedInferredAreas = []; // áreas confirmadas por el usuario (máx 2)
+let exploreTaskPrefs      = [];  // máx 2
+let exploreAvoid          = [];  // min 1, sin límite superior
+let exploreMotivations    = [];  // min 1, máx 2
+let selectedInferredAreas = [];  // áreas confirmadas (máx 2)
+let exploreAreasInterest  = [];  // áreas explícitas de interés (min 1)
+let exploreAreasAvoid     = [];  // áreas explícitas a evitar (opcional)
 
 const EXPLORE_TASKS = [
-  { value: "analizar-datos",       label: "Analizar datos y sacar conclusiones" },
-  { value: "trabajar-personas",    label: "Trabajar con personas y equipos" },
-  { value: "resolver-problemas",   label: "Resolver problemas concretos" },
-  { value: "organizar-procesos",   label: "Organizar procesos o sistemas" },
-  { value: "crear-estrategias",    label: "Crear estrategias o planes de acción" }
+  { value: "analizar-datos",    label: "Mirar información, encontrar patrones y llegar a conclusiones claras" },
+  { value: "resolver-problemas",label: "Resolver problemas específicos con soluciones concretas" },
+  { value: "trabajar-personas", label: "Coordinar con personas y trabajar en equipo para que las cosas avancen" },
+  { value: "organizar-procesos",label: "Ordenar procesos y hacer que las cosas funcionen mejor" },
+  { value: "crear-estrategias", label: "Pensar estrategias, priorizar y tomar decisiones con más visión" }
 ];
 
-const EXPLORE_AVOID_GROUPS = [
-  { group: "Tipo de trabajo", items: [
-    { value: "ventas-metas",       label: "Ventas o metas comerciales" },
-    { value: "atencion-clientes",  label: "Atención constante a clientes" }
-  ]},
-  { group: "Forma de trabajo", items: [
-    { value: "trabajo-repetitivo", label: "Trabajo repetitivo" },
-    { value: "trabajo-terreno",    label: "Trabajo en terreno" }
-  ]},
-  { group: "Ambiente", items: [
-    { value: "ambientes-competitivos", label: "Ambientes muy competitivos" },
-    { value: "industrias-no-van",      label: "Industrias o empresas que no van conmigo" }
-  ]}
+// Flat list — sin grupos, sin "industrias-no-van"
+const EXPLORE_AVOID = [
+  { value: "ventas-metas",          label: "Tener que cumplir metas comerciales o vender constantemente" },
+  { value: "atencion-clientes",     label: "Estar en contacto constante con clientes o resolviendo sus requerimientos" },
+  { value: "trabajo-repetitivo",    label: "Hacer tareas muy repetitivas, con poca variación" },
+  { value: "trabajo-terreno",       label: "Trabajar moviéndome constantemente o fuera de oficina" },
+  { value: "ambientes-competitivos",label: "Estar en ambientes muy competitivos o de presión permanente" }
 ];
-
-// Flat list for scoring compatibility
-const EXPLORE_AVOID = EXPLORE_AVOID_GROUPS.flatMap(g => g.items);
 
 const EXPLORE_MOTIVATIONS = [
+  { value: "aprender",       label: "Aprender constantemente, aunque implique salir de mi zona de confort" },
   { value: "crecer-rapido",  label: "Crecer rápido profesionalmente, aunque sea exigente" },
   { value: "estabilidad",    label: "Tener estabilidad, aunque el crecimiento sea más lento" },
   { value: "buen-sueldo",    label: "Ganar buen sueldo, aunque haya más presión" },
   { value: "buen-ambiente",  label: "Tener buen ambiente laboral, aunque el sueldo no sea el más alto" },
-  { value: "aprender",       label: "Aprender constantemente, aunque implique salir de tu zona de confort" },
   { value: "impacto",        label: "Trabajar en algo con impacto o propósito, aunque no sea lo más rentable" }
 ];
+
+const EXPLORE_AREAS = [
+  { value: "finanzas",        label: "Finanzas" },
+  { value: "analitica",       label: "Analítica y datos" },
+  { value: "control-gestion", label: "Control de Gestión" },
+  { value: "comercial",       label: "Comercial y ventas" },
+  { value: "marketing",       label: "Marketing" },
+  { value: "operaciones",     label: "Operaciones" },
+  { value: "personas",        label: "Personas / RRHH" },
+  { value: "proyectos",       label: "Proyectos" }
+];
+
+// Contenido de roles para el flujo explore (MVP: qué hace + cómo se ve)
+const ROLE_PRACTICE_CONTENT = {
+  "Analista Financiero Junior": {
+    practice: "En este rol, gran parte del trabajo consiste en analizar información financiera, armar reportes y ayudar a que quienes toman decisiones entiendan bien cómo está la empresa. No es solo trabajar con números: es interpretarlos y traducirlos en algo que tenga sentido para el negocio.",
+    reality:  "Dependiendo de la empresa, puede estar más orientado a presupuestos y control de gastos, a proyecciones o a reportes periódicos. Las tareas tienen un ritmo definido por cierres y plazos. Se espera precisión y capacidad de comunicar hallazgos con claridad. Los requisitos específicos varían bastante según el equipo y el sector."
+  },
+  "Analista de Datos Junior": {
+    practice: "En este rol no se trata solo de mirar números. Gran parte del trabajo consiste en ordenar información, detectar patrones y convertirlos en algo útil para que otros puedan tomar decisiones. La materia prima es el dato; el producto final es claridad.",
+    reality:  "Dependiendo de la empresa, puede estar más orientado a reportería, análisis de negocio o trabajo técnico con datos. El patrón es el mismo: trabajar con información, encontrarle sentido y comunicarla de forma que sirva. Los requisitos específicos varían bastante según el equipo y la industria."
+  },
+  "Analista de Control de Gestión Junior": {
+    practice: "Este rol está en el cruce entre los números y el negocio: monitorea cómo va la empresa, compara lo planificado con lo real, y ayuda a entender por qué hay diferencias.",
+    reality:  "En la práctica, implica construir reportes de seguimiento, apoyar el proceso de presupuesto y trabajar cerca de distintas áreas para entender el contexto detrás de los números. Se espera orientación al detalle y capacidad para comunicar hallazgos sin perder de vista el cuadro completo. Las herramientas y el nivel de análisis varían según la empresa."
+  },
+  "Analista de Reporting Junior": {
+    practice: "El foco de este rol es convertir datos en reportes útiles: que la información llegue bien presentada, a tiempo y con el nivel de detalle correcto para quien la necesita.",
+    reality:  "Puede estar más orientado a reportería financiera, operacional o comercial según la empresa. El trabajo tiene un ritmo definido por fechas de cierre y entrega. Se espera consistencia, orden y precisión. Es una buena entrada para desarrollar criterio analítico con mucho aprendizaje práctico."
+  },
+  "Asistente de Proyectos Junior": {
+    practice: "Este rol existe para que los proyectos avancen. Se encarga de hacer seguimiento de tareas, coordinar entre equipos, mantener actualizada la información y asegurarse de que nada se pierda en el camino.",
+    reality:  "El trabajo varía bastante según el tipo de proyecto y la industria. Lo que se repite es la necesidad de organización, comunicación fluida y capacidad de moverse entre lo operativo y lo estratégico sin perder el hilo. Las herramientas específicas se aprenden en el camino; lo que importa más es el criterio y la coordinación."
+  }
+};
 
 /**
  * Heurística de inferencia de áreas.
@@ -1784,6 +1962,14 @@ function inferAreas() {
     }
   }
 
+  // Señal explícita de áreas: +4 por interés declarado, -3 por descarte declarado
+  for (const area of exploreAreasInterest) {
+    scores[area] = (scores[area] || 0) + 4;
+  }
+  for (const area of exploreAreasAvoid) {
+    scores[area] = (scores[area] || 0) - 3;
+  }
+
   // Ordenar por score descendente, filtrar los que tienen score > 0
   const ranked = Object.entries(scores)
     .filter(([, s]) => s > 0)
@@ -1796,9 +1982,12 @@ function inferAreas() {
       score
     }));
 
-  // Si no hay resultados, devolver las 3 áreas más neutras
+  // Si no hay resultados, usar áreas explícitas de interés o fallback neutro
   if (ranked.length === 0) {
-    return ["analitica", "operaciones", "proyectos"].map(a => ({
+    const fallback = exploreAreasInterest.length > 0
+      ? exploreAreasInterest.slice(0, 3)
+      : ["analitica", "operaciones", "proyectos"];
+    return fallback.map(a => ({
       value: a,
       label: INTEREST_REGISTRY[a] || a,
       description: AREA_DESCRIPTIONS[a] || "",
@@ -1809,7 +1998,11 @@ function inferAreas() {
   return ranked;
 }
 
-function renderExploreGrid(containerId, options, selectedArr, maxSelections) {
+/**
+ * Renderiza un grid de opciones explore.
+ * onChangeCallback(selectedArr) se llama cada vez que cambia la selección.
+ */
+function renderExploreGrid(containerId, options, selectedArr, maxSelections, onChangeCallback) {
   const grid = document.getElementById(containerId);
   if (!grid) return;
   grid.innerHTML = "";
@@ -1826,52 +2019,48 @@ function renderExploreGrid(containerId, options, selectedArr, maxSelections) {
 
     card.addEventListener("click", () => {
       if (isSelected) {
-        const idx = selectedArr.indexOf(value);
-        selectedArr.splice(idx, 1);
+        selectedArr.splice(selectedArr.indexOf(value), 1);
       } else if (!maxSelections || selectedArr.length < maxSelections) {
         selectedArr.push(value);
       }
-      renderExploreGrid(containerId, options, selectedArr, maxSelections);
-      // Habilitar siguiente en el step de tareas cuando hay al menos 1 selección
-      if (containerId === "explore-tasks-grid") {
-        const nextBtn = document.getElementById("next-explore-1");
-        if (nextBtn) nextBtn.disabled = selectedArr.length === 0;
-      }
+      renderExploreGrid(containerId, options, selectedArr, maxSelections, onChangeCallback);
+      if (onChangeCallback) onChangeCallback(selectedArr);
     });
 
     grid.appendChild(card);
   });
 }
 
-function renderExploreAvoidGrid(containerId, groups, selectedArr) {
+/**
+ * Renderiza el grid de áreas explícitas (interés / evitar).
+ * Evita contradicciones: si un área está en el otro array, no se puede seleccionar aquí.
+ */
+function renderExploreAreasGrid(containerId, options, selectedArr, oppositeArr, onChangeCallback) {
   const grid = document.getElementById(containerId);
   if (!grid) return;
   grid.innerHTML = "";
 
-  groups.forEach(({ group, items }) => {
-    const groupLabel = document.createElement("p");
-    groupLabel.className = "explore-group-label";
-    groupLabel.textContent = group;
-    grid.appendChild(groupLabel);
+  options.forEach(({ value, label }) => {
+    const isSelected = selectedArr.includes(value);
+    const isBlocked  = oppositeArr.includes(value);
+    const card = document.createElement("div");
+    card.className = "explore-option" +
+      (isSelected ? " selected" : "") +
+      (isBlocked ? " disabled" : "");
+    card.innerHTML = `<span class="explore-option-check">✓</span><span>${label}</span>`;
 
-    items.forEach(({ value, label }) => {
-      const isSelected = selectedArr.includes(value);
-      const card = document.createElement("div");
-      card.className = "explore-option" + (isSelected ? " selected" : "");
-      card.innerHTML = `<span class="explore-option-check">✓</span><span>${label}</span>`;
-
-      card.addEventListener("click", () => {
-        if (isSelected) {
-          const idx = selectedArr.indexOf(value);
-          selectedArr.splice(idx, 1);
-        } else {
-          selectedArr.push(value);
-        }
-        renderExploreAvoidGrid(containerId, groups, selectedArr);
-      });
-
-      grid.appendChild(card);
+    card.addEventListener("click", () => {
+      if (isBlocked) return;
+      if (isSelected) {
+        selectedArr.splice(selectedArr.indexOf(value), 1);
+      } else {
+        selectedArr.push(value);
+      }
+      renderExploreAreasGrid(containerId, options, selectedArr, oppositeArr, onChangeCallback);
+      if (onChangeCallback) onChangeCallback();
     });
+
+    grid.appendChild(card);
   });
 }
 
@@ -1896,31 +2085,44 @@ const AVOID_NATURAL = {
 function buildConfirmExplanation() {
   const tasks  = exploreTaskPrefs;
   const avoids = exploreAvoid;
+  const motivs = exploreMotivations;
+  const areasI = exploreAreasInterest;
 
-  // Señales de perfil
-  const isAnalytic  = tasks.includes("analizar-datos")    || tasks.includes("resolver-problemas");
+  // Señales de perfil — tareas
+  const isAnalytic  = tasks.includes("analizar-datos") || tasks.includes("resolver-problemas");
   const isOrderly   = tasks.includes("organizar-procesos");
   const isStrategic = tasks.includes("crear-estrategias");
   const isPeople    = tasks.includes("trabajar-personas");
 
+  // Señales de evitar
   const avoidsClients = avoids.includes("atencion-clientes") || avoids.includes("ventas-metas");
   const avoidsRepeat  = avoids.includes("trabajo-repetitivo");
   const avoidsCompete = avoids.includes("ambientes-competitivos");
   const avoidsTerrain = avoids.includes("trabajo-terreno");
 
+  // Señales de motivación
+  const wantsLearning  = motivs.includes("aprender");
+  const wantsGrowth    = motivs.includes("crecer-rapido");
+  const wantsStability = motivs.includes("estabilidad");
+  const wantsImpact    = motivs.includes("impacto");
+
+  // Señal de áreas explícitas (refuerzo)
+  const hasAnalyticArea  = areasI.some(a => ["analitica","finanzas","control-gestion"].includes(a));
+  const hasPeopleArea    = areasI.includes("personas");
+  const hasOpsArea       = areasI.includes("operaciones") || areasI.includes("proyectos");
+
   // Clasificar perfil predominante
   let profile = "mixto";
   if ((isAnalytic || isOrderly) && avoidsClients)      profile = "analitico";
   else if (isAnalytic && isOrderly)                    profile = "analitico";
-  else if (isAnalytic)                                 profile = "analitico";
+  else if (isAnalytic || hasAnalyticArea)              profile = "analitico";
   else if (isPeople && !avoidsClients)                 profile = "relacional";
   else if (isOrderly && !isStrategic)                  profile = "operativo";
   else if (isStrategic && !isPeople && avoidsClients)  profile = "estrategico";
   else if (isStrategic)                                profile = "estrategico";
 
-  // Generar texto interpretativo (máx 2-3 líneas, sin enumerar inputs)
-  // El contraste "más que…" solo aparece cuando hay señales de avoid claras
-  const texts = {
+  // Frase base (perfil)
+  const baseTexts = {
     analitico() {
       if (avoidsClients && avoidsTerrain)
         return "Parece que te acomoda más un trabajo donde puedas analizar, ordenar y sacar conclusiones, más que estar en contacto constante con clientes o en movimiento.";
@@ -1928,25 +2130,21 @@ function buildConfirmExplanation() {
         return "Se ve que te atrae un trabajo donde puedas analizar información y tomar decisiones con criterio, más que uno centrado en atención a clientes o metas comerciales.";
       if (avoidsRepeat)
         return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que repetir tareas muy definidas.";
-      // Sin avoid relevante: solo positivo
       return "Se ve que te atrae un trabajo donde puedas analizar información, encontrar patrones y tomar decisiones con criterio.";
     },
     relacional() {
       if (avoidsCompete)
-        return "Probablemente te sientas más cómodo en un ambiente colaborativo donde puedas conectar con personas y construir relaciones, más que en uno muy competitivo o con presión constante.";
-      // Sin avoid relevante: solo positivo
+        return "Probablemente te sientas más cómodo en un ambiente colaborativo donde puedas conectar con personas y construir relaciones, más que en uno muy competitivo o de presión constante.";
       return "Se ve que te motiva un trabajo donde puedas trabajar con personas, acompañar equipos y generar resultados de forma colaborativa.";
     },
     operativo() {
       if (avoidsRepeat)
-        return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo ya esté definido y no haya mucho espacio para cambiar cómo se hacen las cosas.";
-      // Sin avoid relevante: solo positivo
+        return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo ya esté definido y no haya margen para cambiar cómo se hacen las cosas.";
       return "Parece que te acomoda un trabajo donde puedas coordinar, ordenar y asegurarte de que los procesos funcionen bien.";
     },
     estrategico() {
       if (avoidsClients)
         return "Se ve que te motiva más pensar el negocio y proponer iniciativas con criterio, más que estar en la línea comercial directa.";
-      // Sin avoid relevante: solo positivo
       return "Se ve que te motiva un trabajo donde puedas crear estrategias, proponer iniciativas y pensar con visión de negocio.";
     },
     mixto() {
@@ -1954,20 +2152,34 @@ function buildConfirmExplanation() {
         return "Probablemente te sientas cómodo en roles que combinen análisis con visión: leer información y usarla para tomar decisiones que importen.";
       if (isPeople && isAnalytic)
         return "Hay señales de un perfil que mezcla lo relacional con lo analítico. Probablemente disfrutes roles donde trabajar con personas y trabajar con datos no sean cosas separadas.";
-      return "Hay señales de un perfil versátil. Probablemente te sientas cómodo en roles que combinen análisis, gestión y trato con personas.";
+      return "Hay señales de un perfil versátil. Probablemente te sientas cómodo en roles que combinen análisis, coordinación y trato con personas.";
     }
   };
 
-  return (texts[profile] || texts.mixto)();
+  let text = (baseTexts[profile] || baseTexts.mixto)();
+
+  // Segunda frase: motivación o señal de áreas explícitas
+  let extra = "";
+  if (wantsLearning) {
+    extra = " El interés en seguir aprendiendo orienta a roles con curva activa y entornos donde se aprende haciendo.";
+  } else if (wantsGrowth && !wantsStability) {
+    extra = " El interés en crecer rápido orienta a entornos más exigentes donde hay más responsabilidad desde temprano.";
+  } else if (wantsStability) {
+    extra = " La búsqueda de estabilidad orienta más a empresas con procesos definidos y culturas establecidas.";
+  } else if (wantsImpact) {
+    extra = " El interés en impacto orienta a organizaciones donde el trabajo tiene un efecto visible más allá de los resultados comerciales.";
+  }
+
+  return text + extra;
 }
 
 function renderExploreConfirm() {
-  const grid = document.getElementById("explore-confirm-grid");
+  const grid    = document.getElementById("explore-confirm-grid");
   const nextBtn = document.getElementById("next-explore-confirm");
+  const hintEl  = document.getElementById("explore-confirm-hint");
   if (!grid) return;
   grid.innerHTML = "";
 
-  // Update explanation text (supports \n\n for two paragraphs)
   const explainEl = document.getElementById("explore-confirm-explanation");
   if (explainEl) {
     explainEl.innerHTML = `<p class="muted">${buildConfirmExplanation()}</p>`;
@@ -1976,12 +2188,11 @@ function renderExploreConfirm() {
   const inferred = inferAreas();
   selectedInferredAreas = [];
   if (nextBtn) nextBtn.disabled = true;
+  if (hintEl)  hintEl.hidden = true;
 
-  // Header y instrucción
   const headerEl = document.createElement("div");
   headerEl.className = "explore-confirm-header";
-  headerEl.innerHTML = `
-    <p class="explore-confirm-section-label">Tienes más afinidad hoy con:</p>`;
+  headerEl.innerHTML = `<p class="explore-confirm-section-label">Con todo lo que nos contaste, estas áreas se ven más cercanas a ti:</p>`;
   grid.appendChild(headerEl);
 
   inferred.forEach(({ value, label, description }) => {
@@ -2001,13 +2212,14 @@ function renderExploreConfirm() {
         selectedInferredAreas.push(value);
         card.classList.add("selected");
       }
-      if (nextBtn) nextBtn.disabled = selectedInferredAreas.length === 0;
+      const hasSelection = selectedInferredAreas.length > 0;
+      if (nextBtn) nextBtn.disabled = !hasSelection;
+      if (hintEl)  hintEl.hidden = hasSelection;
     });
 
     grid.appendChild(card);
   });
 
-  // Instrucción al pie de las cards
   const instrEl = document.createElement("p");
   instrEl.className = "muted explore-confirm-instruction";
   instrEl.style.marginTop = "12px";
@@ -2015,18 +2227,17 @@ function renderExploreConfirm() {
   grid.appendChild(instrEl);
 }
 
-// Explore step sequence: explore-1 → explore-2 → explore-3 → explore-confirm
-const EXPLORE_STEP_IDS = ["step-explore-1", "step-explore-2", "step-explore-3", "step-explore-confirm"];
+// Explore step sequence: explore-areas → explore-1 → explore-2 → explore-3 → explore-confirm
+const EXPLORE_STEP_IDS = ["step-explore-areas", "step-explore-1", "step-explore-2", "step-explore-3", "step-explore-confirm"];
 let currentExploreStep = 0;
 
 function showExploreStep(idx) {
-  // Hide all explore steps and regular steps
   document.querySelectorAll(".step").forEach(s => { s.hidden = true; });
   const target = document.getElementById(EXPLORE_STEP_IDS[idx]);
   if (target) target.hidden = false;
   currentExploreStep = idx;
 
-  // Progress: steps 1-2 already done, then explore 1-5 maps to steps 3-7
+  // idx 0→3, 1→4, 2→5, 3→6, 4→7 (de 9 pasos totales)
   const progressStep = 3 + idx;
   updateExploreProgress(progressStep);
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2042,32 +2253,105 @@ function updateExploreProgress(step) {
 }
 
 function initExploreFlow() {
-  // Render grids
-  renderExploreGrid("explore-tasks-grid", EXPLORE_TASKS, exploreTaskPrefs, 2);
-  // Asegurar estado inicial del botón siguiente (tareas)
+  // ── Render grids ──────────────────────────────────────────────────────
+
+  // explore-areas: dos grids que se sincronizan (interés / evitar)
+  function refreshAreasGrids() {
+    renderExploreAreasGrid("explore-areas-interest-grid", EXPLORE_AREAS, exploreAreasInterest, exploreAreasAvoid, refreshAreasGrids);
+    renderExploreAreasGrid("explore-areas-avoid-grid",    EXPLORE_AREAS, exploreAreasAvoid,    exploreAreasInterest, refreshAreasGrids);
+    const nextBtn = document.getElementById("next-explore-areas");
+    const hintEl  = document.getElementById("explore-areas-hint");
+    const hasMin  = exploreAreasInterest.length > 0;
+    if (nextBtn) nextBtn.disabled = !hasMin;
+    if (hintEl)  hintEl.hidden = hasMin;
+  }
+  refreshAreasGrids();
+
+  // explore-1 (tareas)
+  renderExploreGrid("explore-tasks-grid", EXPLORE_TASKS, exploreTaskPrefs, 2, (arr) => {
+    const nextBtn = document.getElementById("next-explore-1");
+    const hintEl  = document.getElementById("explore-tasks-hint");
+    if (nextBtn) nextBtn.disabled = arr.length === 0;
+    if (hintEl)  hintEl.hidden = arr.length > 0;
+  });
   const nextExplore1Btn = document.getElementById("next-explore-1");
   if (nextExplore1Btn) nextExplore1Btn.disabled = exploreTaskPrefs.length === 0;
-  renderExploreAvoidGrid("explore-avoid-grid", EXPLORE_AVOID_GROUPS, exploreAvoid);
-  renderExploreGrid("explore-motivation-grid", EXPLORE_MOTIVATIONS, exploreMotivations, 2);
 
-  // Navigation: explore-1 (tareas)
-  document.getElementById("back-explore-1")?.addEventListener("click", () => showStep(2));
-  document.getElementById("next-explore-1")?.addEventListener("click", () => showExploreStep(1));
+  // explore-2 (evitar) — ahora flat, validación mínimo 1
+  renderExploreGrid("explore-avoid-grid", EXPLORE_AVOID, exploreAvoid, null, (arr) => {
+    const nextBtn = document.getElementById("next-explore-2");
+    const hintEl  = document.getElementById("explore-avoid-hint");
+    if (nextBtn) nextBtn.disabled = arr.length === 0;
+    if (hintEl)  hintEl.hidden = arr.length > 0;
+  });
+  const nextExplore2Btn = document.getElementById("next-explore-2");
+  if (nextExplore2Btn) nextExplore2Btn.disabled = exploreAvoid.length === 0;
 
-  // explore-2 (evitar)
-  document.getElementById("back-explore-2")?.addEventListener("click", () => showExploreStep(0));
-  document.getElementById("next-explore-2")?.addEventListener("click", () => showExploreStep(2));
+  // explore-3 (motivación) — validación mínimo 1
+  renderExploreGrid("explore-motivation-grid", EXPLORE_MOTIVATIONS, exploreMotivations, 2, (arr) => {
+    const nextBtn = document.getElementById("next-explore-3");
+    const hintEl  = document.getElementById("explore-motivation-hint");
+    if (nextBtn) nextBtn.disabled = arr.length === 0;
+    if (hintEl)  hintEl.hidden = arr.length > 0;
+  });
+  const nextExplore3Btn = document.getElementById("next-explore-3");
+  if (nextExplore3Btn) nextExplore3Btn.disabled = exploreMotivations.length === 0;
 
-  // explore-3 (motivación)
-  document.getElementById("back-explore-3")?.addEventListener("click", () => showExploreStep(1));
-  document.getElementById("next-explore-3")?.addEventListener("click", () => {
-    renderExploreConfirm();
+  // ── Navegación ────────────────────────────────────────────────────────
+
+  // explore-areas (idx 0)
+  document.getElementById("back-explore-areas")?.addEventListener("click", () => showStep(2));
+  document.getElementById("next-explore-areas")?.addEventListener("click", () => {
+    if (exploreAreasInterest.length === 0) {
+      const hintEl = document.getElementById("explore-areas-hint");
+      if (hintEl) hintEl.hidden = false;
+      return;
+    }
+    showExploreStep(1);
+  });
+
+  // explore-1 (idx 1)
+  document.getElementById("back-explore-1")?.addEventListener("click", () => showExploreStep(0));
+  document.getElementById("next-explore-1")?.addEventListener("click", () => {
+    if (exploreTaskPrefs.length === 0) {
+      const hintEl = document.getElementById("explore-tasks-hint");
+      if (hintEl) hintEl.hidden = false;
+      return;
+    }
+    showExploreStep(2);
+  });
+
+  // explore-2 (idx 2)
+  document.getElementById("back-explore-2")?.addEventListener("click", () => showExploreStep(1));
+  document.getElementById("next-explore-2")?.addEventListener("click", () => {
+    if (exploreAvoid.length === 0) {
+      const hintEl = document.getElementById("explore-avoid-hint");
+      if (hintEl) hintEl.hidden = false;
+      return;
+    }
     showExploreStep(3);
   });
 
-  // explore-confirm
-  document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(2));
+  // explore-3 (idx 3)
+  document.getElementById("back-explore-3")?.addEventListener("click", () => showExploreStep(2));
+  document.getElementById("next-explore-3")?.addEventListener("click", () => {
+    if (exploreMotivations.length === 0) {
+      const hintEl = document.getElementById("explore-motivation-hint");
+      if (hintEl) hintEl.hidden = false;
+      return;
+    }
+    renderExploreConfirm();
+    showExploreStep(4);
+  });
+
+  // explore-confirm (idx 4)
+  document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(3));
   document.getElementById("next-explore-confirm")?.addEventListener("click", () => {
+    if (selectedInferredAreas.length === 0) {
+      const hintEl = document.getElementById("explore-confirm-hint");
+      if (hintEl) hintEl.hidden = false;
+      return;
+    }
     selectedInterests = [...selectedInferredAreas];
     showStep(4); // CV step
   });
@@ -2128,13 +2412,13 @@ function updateProgress(n) {
   const label = document.getElementById("step-progress-label");
 
   if (userIntentMode === "explore") {
-    // Explore: 1:carrera, 2:etapa, 3-6:explore, 7:CV, 8:ciudad, 9:resumen
-    const exploreMap = { 1: 1, 2: 2, 4: 7, 5: 8, 6: 9 };
+    // 1:carrera, 2:etapa, 3-7:explore screens, 8:CV, 9:ciudad (resumen eliminado)
+    const exploreMap = { 1: 1, 2: 2, 4: 8, 5: 9 };
     const total = 9;
     const mapped = exploreMap[n] || n;
     const pct = Math.round((mapped / total) * 100);
     if (fill)  fill.style.width = pct + "%";
-    if (label) label.textContent = n === 6 ? "Revisión final" : `Paso ${mapped} de ${total}`;
+    if (label) label.textContent = `Paso ${mapped} de ${total}`;
   } else {
     const displayStep = Math.min(n, TOTAL_STEPS);
     const pct = Math.round((displayStep / TOTAL_STEPS) * 100);
@@ -2346,7 +2630,7 @@ function initMultiStep() {
   document.getElementById("next-4")?.addEventListener("click", () => showStep(5));
   document.getElementById("back-4")?.addEventListener("click", () => {
     if (userIntentMode === "explore") {
-      // Back from CV → last explore confirm step
+      // Back from CV → explore-confirm (índice 4 en EXPLORE_STEP_IDS)
       showExploreStep(4);
     } else {
       showStep(3);
@@ -2355,8 +2639,13 @@ function initMultiStep() {
 
   // Step 5 (city/modality) next/back
   document.getElementById("next-5")?.addEventListener("click", () => {
-    showStep(6);
-    renderSummary();
+    if (userIntentMode === "explore") {
+      // Flujo explore: saltar step-6 y enviar directamente
+      form.requestSubmit();
+    } else {
+      showStep(6);
+      renderSummary();
+    }
   });
   document.getElementById("back-5")?.addEventListener("click", () => showStep(4));
 
