@@ -1757,16 +1757,16 @@ const AREA_SCORE_MAP = {
 };
 
 const AREA_DESCRIPTIONS = {
-  "analitica":       "Trabajar con datos, modelos y métricas para tomar decisiones informadas.",
-  "finanzas":        "Análisis financiero, presupuestos, inversiones y control de recursos.",
-  "comercial":       "Ventas, negociación y desarrollo de negocios.",
-  "operaciones":     "Optimizar procesos, logística y cadenas de producción.",
-  "proyectos":       "Planificar, coordinar y ejecutar iniciativas con equipos.",
-  "personas":        "Gestión de talento, cultura organizacional y desarrollo de equipos.",
-  "tecnologia":      "Desarrollo de software, sistemas y soluciones digitales.",
-  "marketing":       "Estrategias de marca, comunicación y posicionamiento.",
-  "emprendimiento":  "Crear negocios, innovar y gestionar startups.",
-  "control-gestion": "Planificación, control presupuestario y reportes de gestión.",
+  "analitica":       "Analizar información, encontrar patrones y ayudar a tomar decisiones basadas en datos.",
+  "finanzas":        "Trabajar con números, entender cómo se mueve la plata en una empresa y apoyar decisiones importantes.",
+  "comercial":       "Relacionarte con clientes, generar negocio y trabajar orientado a resultados concretos.",
+  "operaciones":     "Ordenar procesos, coordinar equipos y hacer que las cosas funcionen bien.",
+  "proyectos":       "Planificar, hacer seguimiento y asegurarte de que los equipos avancen hacia el objetivo.",
+  "personas":        "Acompañar equipos, gestionar talento y trabajar en todo lo que tiene que ver con las personas en una organización.",
+  "tecnologia":      "Construir soluciones, resolver problemas con lógica y aprender herramientas técnicas constantemente.",
+  "marketing":       "Comunicar marcas, gestionar campañas digitales y medir el impacto de cada acción.",
+  "emprendimiento":  "Crear o hacer crecer negocios, tomar decisiones con incertidumbre y moverse rápido.",
+  "control-gestion": "Seguir cómo va una empresa, detectar desviaciones y ayudar a que las cosas funcionen mejor.",
   "medioambiente":   "Gestión ambiental, sustentabilidad y evaluación de impacto.",
   "geociencias":     "Exploración, geotecnia, minería e hidrogeología."
 };
@@ -1894,29 +1894,52 @@ const AVOID_NATURAL = {
 };
 
 function buildConfirmExplanation() {
-  const taskParts = exploreTaskPrefs.map(v => TASK_NATURAL[v]).filter(Boolean);
-  const avoidParts = exploreAvoid.slice(0, 2).map(v => AVOID_NATURAL[v]).filter(Boolean);
+  const tasks  = exploreTaskPrefs;
+  const avoids = exploreAvoid;
 
-  // No selections at all
-  if (taskParts.length === 0 && avoidParts.length === 0) {
-    return "Tomando en cuenta lo que respondiste, estos son los caminos que hoy se ven más cercanos a ti.";
+  // Sin selecciones
+  if (tasks.length === 0 && avoids.length === 0) {
+    return "Tomando en cuenta lo que respondiste, hay ciertos caminos dentro de tu carrera que hoy se ven más cercanos a ti que otros.";
   }
 
-  // Build natural sentence
-  let sentence = "Como te interesa ";
+  // Detectar perfil predominante para construir interpretación natural
+  const analytic  = tasks.includes("analizar-datos")    || tasks.includes("resolver-problemas");
+  const orderly   = tasks.includes("organizar-procesos");
+  const strategic = tasks.includes("crear-estrategias");
+  const people    = tasks.includes("trabajar-personas");
 
-  if (taskParts.length) {
-    sentence += taskParts.join(" y ");
+  const noClients = avoids.includes("atencion-clientes") || avoids.includes("ventas-metas");
+  const noTerrain = avoids.includes("trabajo-terreno");
+  const noRepeat  = avoids.includes("trabajo-repetitivo");
+  const noCompete = avoids.includes("ambientes-competitivos");
+
+  let p1 = "";
+
+  if (analytic && orderly && noClients) {
+    p1 = "Por lo que elegiste, parece que te acomoda más un trabajo donde puedas analizar información, ordenar cosas y tomar decisiones con criterio, más que estar en contacto constante con clientes o en terreno.";
+  } else if (analytic && noClients) {
+    p1 = "Por lo que elegiste, parece que te acomoda más un trabajo donde puedas analizar, interpretar datos y sacar conclusiones, más que uno centrado en atención a clientes o resultados comerciales directos.";
+  } else if (analytic && strategic) {
+    p1 = "Por lo que elegiste, parece que te interesa un trabajo donde puedas analizar información y usarla para pensar estrategias o decisiones importantes, más que ejecutar tareas operativas.";
+  } else if (orderly && noRepeat) {
+    p1 = "Por lo que elegiste, parece que te acomoda un trabajo donde puedas ordenar procesos y mejorar cómo funcionan las cosas, más que hacer tareas repetitivas sin variación.";
+  } else if (strategic && noClients) {
+    p1 = "Por lo que elegiste, parece que te llama más un trabajo donde puedas pensar el negocio, crear planes y proponer iniciativas, más que uno orientado a la venta directa o la atención constante de clientes.";
+  } else if (people && noCompete) {
+    p1 = "Por lo que elegiste, parece que te llama más un trabajo donde puedas acompañar personas y equipos, en un ambiente colaborativo y menos competitivo.";
+  } else if (people) {
+    p1 = "Por lo que elegiste, parece que te llama más un trabajo donde puedas trabajar cerca de las personas, acompañar equipos y generar resultados de forma colaborativa.";
+  } else if (strategic) {
+    p1 = "Por lo que elegiste, parece que te interesa un trabajo donde puedas pensar el negocio, crear estrategias y trabajar con visión de largo plazo.";
+  } else if (analytic) {
+    p1 = "Por lo que elegiste, parece que te acomoda más un trabajo donde puedas analizar información y transformarla en algo concreto y útil para otros.";
+  } else {
+    p1 = "Por lo que elegiste, hay ciertas preferencias claras que apuntan a caminos más específicos dentro de Ingeniería Comercial.";
   }
 
-  if (avoidParts.length) {
-    if (taskParts.length) sentence += ", y además prefieres alejarte de ";
-    else sentence += "evitar ";
-    sentence += avoidParts.join(" y ");
-  }
+  const p2 = "Por eso, hay ciertos caminos dentro de tu carrera que hoy se ven más cercanos a ti que otros.";
 
-  sentence += ", estas opciones aparecen como las más cercanas a ti hoy.";
-  return sentence;
+  return `${p1}\n\n${p2}`;
 }
 
 function renderExploreConfirm() {
@@ -1925,13 +1948,23 @@ function renderExploreConfirm() {
   if (!grid) return;
   grid.innerHTML = "";
 
-  // Update explanation text
+  // Update explanation text (supports \n\n for two paragraphs)
   const explainEl = document.getElementById("explore-confirm-explanation");
-  if (explainEl) explainEl.textContent = buildConfirmExplanation();
+  if (explainEl) {
+    const parts = buildConfirmExplanation().split("\n\n");
+    explainEl.innerHTML = parts.map(p => `<p class="muted" style="margin-bottom:8px;">${p}</p>`).join("")
+  }
 
   const inferred = inferAreas();
   selectedInferredAreas = [];
   if (nextBtn) nextBtn.disabled = true;
+
+  // Header y instrucción
+  const headerEl = document.createElement("div");
+  headerEl.className = "explore-confirm-header";
+  headerEl.innerHTML = `
+    <p class="explore-confirm-section-label">Tienes más afinidad hoy con:</p>`;
+  grid.appendChild(headerEl);
 
   inferred.forEach(({ value, label, description }) => {
     const card = document.createElement("div");
@@ -1955,6 +1988,13 @@ function renderExploreConfirm() {
 
     grid.appendChild(card);
   });
+
+  // Instrucción al pie de las cards
+  const instrEl = document.createElement("p");
+  instrEl.className = "muted explore-confirm-instruction";
+  instrEl.style.marginTop = "12px";
+  instrEl.textContent = "Elige 1 o 2 caminos que sientas más cercanos a ti ahora.";
+  grid.appendChild(instrEl);
 }
 
 // Explore step sequence: explore-1 → explore-2 → explore-3 → explore-confirm
