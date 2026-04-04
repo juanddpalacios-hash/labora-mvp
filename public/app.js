@@ -1939,9 +1939,9 @@ function buildConfirmExplanation() {
     },
     operativo() {
       if (avoidsRepeat)
-        return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo esté demasiado definido de antemano.";
+        return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo ya esté definido y no haya mucho espacio para cambiar cómo se hacen las cosas.";
       // Sin avoid relevante: solo positivo
-      return "Parece que te acomoda un trabajo donde las cosas pasen de verdad: coordinar, ordenar y asegurarte de que los procesos funcionen.";
+      return "Parece que te acomoda un trabajo donde puedas coordinar, ordenar y asegurarte de que los procesos funcionen bien.";
     },
     estrategico() {
       if (avoidsClients)
