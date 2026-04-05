@@ -46,53 +46,66 @@ const ACTIONABLE_SKILLS = new Set([
 // Usado para filtrar el catálogo en modo "explore" antes del scoring.
 // -------------------------------------------------------------------
 const AREA_TO_ROLES = {
-  "finanzas": [
-    "Analista Financiero Junior",
-    "Analista Control de Gestión Junior",
-    "Asistente Contable Junior",
-    "Analista de Reporting Junior"
-  ],
+  // Roles de análisis de datos y reporting. Analista Comercial Junior incluido
+  // por su componente analítico fuerte (ventas, mercado).
   "analitica": [
     "Analista de Datos Junior",
     "Analista de Reporting Junior",
     "Analista Comercial Junior",
     "Analista GIS Junior"
   ],
+  // Roles de análisis financiero y contable. Reporting incluido porque la
+  // mayoría de sus vacantes exigen manejo financiero.
+  "finanzas": [
+    "Analista Financiero Junior",
+    "Asistente Contable Junior",
+    "Analista de Reporting Junior"
+  ],
+  // Control de gestión es la disciplina que cruza finanzas + reporting.
+  // Los tres roles son los que más aparecen en ofertas de CdG junior en Chile.
   "control-gestion": [
     "Analista Control de Gestión Junior",
     "Analista de Reporting Junior",
-    "Analista Financiero Junior",
-    "Asistente Contable Junior"
+    "Analista Financiero Junior"
   ],
+  // Comercial puro: análisis de ventas + relación con clientes + desarrollo de negocios.
+  // Relacionador Público incluido por su foco en clientes y relaciones externas.
   "comercial": [
     "Analista Comercial Junior",
-    "Analista de Marketing Junior",
     "Analista de Customer Success Junior",
     "Relacionador Público Junior"
   ],
+  // Marketing digital y comunicaciones. Relacionador Público incluido porque
+  // muchas agencias contratan para PR+marketing simultáneamente.
   "marketing": [
     "Analista de Marketing Junior",
     "Community Manager Junior",
     "Redactor de Contenidos Junior",
     "Relacionador Público Junior"
   ],
+  // Operaciones, logística y gestión ambiental (que en empresas mineras/industriales
+  // cae bajo operaciones). Asistente Legal excluido — es derecho, no operaciones.
   "operaciones": [
     "Coordinador de Operaciones Junior",
     "Analista de Logística Junior",
-    "Analista Ambiental Junior",
-    "Asistente Legal Junior"
+    "Analista Ambiental Junior"
   ],
+  // RRHH y gestión de personas. Solo 2 roles con cobertura real en el catálogo actual.
+  // Coordinador Académico incluido por su naturaleza organizacional y de gestión de personas.
   "personas": [
     "Asistente de RRHH Junior",
-    "Coordinador Académico Junior",
-    "Analista de Customer Success Junior"
+    "Coordinador Académico Junior"
   ],
+  // Proyectos y coordinación transversal. Compliance incluido porque la mayoría
+  // de sus vacantes junior son roles de proyecto con metodología PMO.
   "proyectos": [
     "Asistente de Proyectos Junior",
     "Coordinador de Operaciones Junior",
-    "Diseñador UX/UI Junior",
     "Analista de Compliance Junior"
   ]
+  // "tecnologia" y "emprendimiento" no están mapeados: los roles propuestos
+  // (Business Analyst, Product Manager, Venture Analyst, etc.) no existen en el
+  // catálogo actual. Pendientes para sprint de expansión de catálogo.
 };
 
 // -------------------------------------------------------------------
