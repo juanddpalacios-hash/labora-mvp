@@ -39,6 +39,63 @@ const ACTIONABLE_SKILLS = new Set([
 ]);
 
 // -------------------------------------------------------------------
+// AREA_TO_ROLES
+// Mapa canónico: área (valor del step-explore-areas) → títulos exactos
+// del catálogo de roles que pertenecen a esa área.
+// Un rol puede aparecer en más de un área si es genuinamente transversal.
+// Usado para filtrar el catálogo en modo "explore" antes del scoring.
+// -------------------------------------------------------------------
+const AREA_TO_ROLES = {
+  "finanzas": [
+    "Analista Financiero Junior",
+    "Analista Control de Gestión Junior",
+    "Asistente Contable Junior",
+    "Analista de Reporting Junior"
+  ],
+  "analitica": [
+    "Analista de Datos Junior",
+    "Analista de Reporting Junior",
+    "Analista Comercial Junior",
+    "Analista GIS Junior"
+  ],
+  "control-gestion": [
+    "Analista Control de Gestión Junior",
+    "Analista de Reporting Junior",
+    "Analista Financiero Junior",
+    "Asistente Contable Junior"
+  ],
+  "comercial": [
+    "Analista Comercial Junior",
+    "Analista de Marketing Junior",
+    "Analista de Customer Success Junior",
+    "Relacionador Público Junior"
+  ],
+  "marketing": [
+    "Analista de Marketing Junior",
+    "Community Manager Junior",
+    "Redactor de Contenidos Junior",
+    "Relacionador Público Junior"
+  ],
+  "operaciones": [
+    "Coordinador de Operaciones Junior",
+    "Analista de Logística Junior",
+    "Analista Ambiental Junior",
+    "Asistente Legal Junior"
+  ],
+  "personas": [
+    "Asistente de RRHH Junior",
+    "Coordinador Académico Junior",
+    "Analista de Customer Success Junior"
+  ],
+  "proyectos": [
+    "Asistente de Proyectos Junior",
+    "Coordinador de Operaciones Junior",
+    "Diseñador UX/UI Junior",
+    "Analista de Compliance Junior"
+  ]
+};
+
+// -------------------------------------------------------------------
 // Scoring weights — DINÁMICOS según calidad del perfil
 // Carrera: 30 | Skills: 25 | Especialización: 15 | Experiencia: 15
 // Intereses: 10 | Modalidad: 5  → máximo teórico: 100 (perfil medio)
@@ -681,6 +738,22 @@ function computeAvoidPenalty(avoidPreferences, role) {
 }
 
 function matchRoles(profile, roleCatalog, metadata = {}) {
+  // Filtrar catálogo por áreas elegidas (solo en modo explore).
+  // Si no hay áreas declaradas (modo guided), se usan todos los roles.
+  const areasInterest = Array.isArray(metadata.areas_interest)
+    ? metadata.areas_interest
+    : (metadata.areas_interest ? JSON.parse(metadata.areas_interest) : []);
+
+  let activeCatalog = roleCatalog;
+  if (areasInterest.length > 0) {
+    const allowedTitles = new Set(
+      areasInterest.flatMap(a => AREA_TO_ROLES[a] || [])
+    );
+    const filtered = roleCatalog.filter(r => allowedTitles.has(r.title));
+    // Safety fallback: si el filtro deja catálogo vacío (área no mapeada), usar todo
+    activeCatalog = filtered.length > 0 ? filtered : roleCatalog;
+  }
+
   const enrichedProfile = {
     ...profile,
     areas_of_interest: metadata.areasOfInterest || profile.areas_of_interest || [],
@@ -702,7 +775,7 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
 
   const totalWeightSum  = Object.values(weights).reduce((a, b) => a + b, 0);
 
-  const allScored = roleCatalog
+  const allScored = activeCatalog
     .map((role) => {
       const degreeScore         = scoreDegree(enrichedProfile, role);
       const skillScore          = scoreSkills(enrichedProfile, role);
