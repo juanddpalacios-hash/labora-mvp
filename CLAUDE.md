@@ -239,8 +239,9 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 8. ~~Sprint expansión catálogo: 24 → 44 roles, 10 áreas, badges entry_type, comisiones~~ — completado.
 9. ~~Sprint UX step-explore-areas: grupos guiados, cards con descripción, eliminar "evitar"~~ — completado.
 10. ~~Sprint motor de matching: behavioral-first, areaBoost soft, avoidPenalty aditiva, diversityTop5~~ — completado.
-11. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — pendiente (solo 5 tienen contenido específico).
-12. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real.
+11. ~~Sprint diversidad y descubrimiento: ROLE_CLUSTERS granulares, diversifyResults con discovery bonus, Compliance reclasificado~~ — completado (2026-04-06).
+12. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — pendiente (solo 5 tienen contenido específico).
+13. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real.
 
 Repo en GitHub (público): https://github.com/juanddpalacios-hash/labora-mvp
 
@@ -262,7 +263,8 @@ finalScore = cvScore(0-35) + behavioralScore(0-40) + areaBoost(0-10) - avoidPena
 - **behavioralScore (0-40):** `buildUserTraitVector(taskPrefs, motivPrefs)` → vector 8 dims; formula: `min(role,user)*2 - max(gap,0)` por dimensión; rango [-24,+48] → normalizado [0,40]
 - **areaBoost (0-10):** +8 área directa seleccionada, +3 área adyacente (mapa `AREA_ADJACENCY`). NO filtra — roles sin área seleccionada reciben 0, no se excluyen
 - **avoidPenalty (aditiva):** `AVOID_PENALTY_RULES`: -15 a -40 por condición de traits; acumulable. Ej: Ejecutivo Comercial con ventas+clientes+presión avoids → -100 pts, score cae a 0
-- **diversifyResults():** top3 (máx 2/cluster) → #4 cluster diferente → #5 rol stretch (aprendizaje≥2)
+- **diversifyResults():** top3 (máx 2/cluster, score-greedy) → #4 (non-top3 cluster, +5 discovery bonus para WIDE_CLUSTERS) → #5 (sort aprendizaje DESC, no score puro)
+- **WIDE_CLUSTERS:** control_gestion, operations, projects, people, entrepreneurship, marketing, commercial — reciben +5 en slot #4 para competir con roles analíticos de mayor score
 - **Filtro cv_gate:** roles con `requires_cv_gate:true` excluidos del catálogo explore
 
 **8 dimensiones conductuales en cada rol (junior_roles.json):**
@@ -284,7 +286,9 @@ analisis, ejecucion, coordinacion, contacto_cliente, social, presion, aprendizaj
 - impacto → aprendizaje+1, coordinacion+1
 
 **Clusters para diversidad:**
-data (analitica, tecnologia) | finance (finanzas, control-gestion) | commercial | marketing | operations | projects | people | entrepreneurship
+data (analitica, tecnologia) | finance (finanzas) | control_gestion (control-gestion, operaciones) | commercial (comercial, negocios) | marketing (marketing, comunicacion) | operations | projects | people | entrepreneurship
+
+> Nota: "control-gestion" y "operaciones" comparten cluster `control_gestion`. Compliance (`category: operaciones`) vive en este cluster — su clasificación es funcional (proceso/gestión), no académica.
 
 **Umbrales explore:** strong ≥48, stretch 15-47, excluido <15 (max teórico: 85)
 
@@ -318,6 +322,64 @@ data (analitica, tecnologia) | finance (finanzas, control-gestion) | commercial 
 **Frontend:**
 - Badges: "Accesible de entrada" (verde), "Requiere preparación" (amarillo), "Competitivo" (naranja) — no se muestran si `requires_cv_gate: true`
 - Aviso de comisión en card: "Rol con componente variable: incluye cuota o comisión"
+
+---
+
+## Estado actual (2026-04-06) — post sprint diversidad y descubrimiento
+
+### Completado — Sprint diversidad y descubrimiento (2026-04-06)
+
+**Problema resuelto:**
+Los resultados eran coherentes pero conservadores — variantes del mismo cluster (data/finanzas/reporting). Sin efecto de descubrimiento.
+
+**Cambios en `server/services/roleMatcher.js`:**
+
+1. **`ROLE_CLUSTERS` refactorizado** — clusters granulares funcionales (no académicos):
+   ```
+   data         → analitica, tecnologia
+   finance      → finanzas  (solo finanzas puras)
+   control_gestion → control-gestion, operaciones  (procesos + gestión)
+   commercial   → comercial, negocios
+   marketing    → marketing, comunicacion
+   operations   → operaciones (roles operacionales puros)
+   projects     → proyectos
+   people       → personas
+   entrepreneurship → emprendimiento
+   ```
+   - Analista CdG: `category` cambiado a `"control-gestion"` en junior_roles.json → cluster propio
+   - "derecho" eliminado de ROLE_CLUSTERS (Asistente Legal es cv-gated, nunca aparece en explore)
+
+2. **`diversifyResults()` reescrita** (3 cambios):
+   - **top3:** igual que antes (score-greedy, máx 2/cluster)
+   - **#4:** +5 discovery bonus para `WIDE_CLUSTERS` (control_gestion, operations, projects, people, entrepreneurship, marketing, commercial) → roles de áreas "anchas" pueden competir con roles analíticos de mayor score
+   - **#5:** sort por `aprendizaje DESC, score DESC` — no puro por score. Un rol con learn=3 y score=20 gana sobre learn=1 y score=35.
+
+3. **`AREA_ADJACENCY` limpiado:**
+   - Eliminadas todas las referencias a "derecho" (dead code)
+   - Agregado: `"control-gestion" → ["operaciones"]` y `"operaciones" → ["control-gestion"]`
+
+**Cambios en `data/junior_roles.json`:**
+
+- **Analista Control de Gestión Junior:** `category: "finanzas"` → `"control-gestion"` (cluster propio)
+- **Analista de Compliance Junior:**
+  - `category: "derecho"` → `"operaciones"` (clasificación funcional, no académica)
+  - `area: "Derecho"` → `"Operaciones"`
+  - `traits.coordinacion: 1` → `2` (coordinación cross-funcional es clave en compliance)
+  - `traits.aprendizaje: 2` → `3` (aprendizaje regulatorio constante)
+  - `primary_families`: actualizado a `["negocios","finanzas"]`
+
+**Principio de diseño aplicado:**
+> Compliance no es un rol legal puro — lo hacen ICs, auditores, ingenieros civiles. Su clasificación es funcional (proceso/gestión), no académica. No crear clusters artificiales para dar visibilidad: ajustar scoring y traits para que el rol compita por mérito.
+
+**Resultado observable:**
+- Perfil analítico (analitica+finanzas): CdG aparece en #4, Performance en #5 (learn=3)
+- Perfil procesos (control-gestion+proyectos): Compliance aparece en #4 con areaBoost +3 natural
+- Perfil operacional (operaciones+proyectos): Compliance aparece en #3 con areaBoost +8 directo
+
+### Regla 11. Clasificación de roles: funcional, no académica
+**Regla:** El `category` de un rol debe reflejar cómo se trabaja, no qué carrera lo estudia.
+Compliance = `"operaciones"` porque coordina procesos y cumplimiento normativo.
+No usar `"derecho"` aunque el dominio sea legal — los ICs hacen compliance, no abogacía.
 
 ---
 

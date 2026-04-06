@@ -115,11 +115,11 @@ const AREA_TO_ROLES = {
 // -------------------------------------------------------------------
 const AREA_ADJACENCY = {
   "finanzas":         ["control-gestion", "analitica"],
-  "control-gestion":  ["finanzas", "analitica", "proyectos"],
+  "control-gestion":  ["finanzas", "analitica", "proyectos", "operaciones"],
   "analitica":        ["finanzas", "control-gestion", "tecnologia"],
   "comercial":        ["marketing", "personas"],
   "marketing":        ["comercial"],
-  "operaciones":      ["proyectos"],
+  "operaciones":      ["proyectos", "control-gestion"],
   "proyectos":        ["operaciones", "control-gestion"],
   "personas":         ["comercial"],
   "tecnologia":       ["analitica"],
@@ -160,14 +160,16 @@ const AVOID_PENALTY_RULES = [
 ];
 
 // Role clusters for diversity logic in explore mode.
-// Kept granular so that selecting finanzas + analitica doesn't block both from top3.
+// One cluster per conceptual area — kept granular so adjacent areas don't block each other.
 const ROLE_CLUSTERS = {
   "analitica":       "data",
   "tecnologia":      "data",
   "finanzas":        "finance",
-  "control-gestion": "finance",
+  "control-gestion": "control_gestion", // own cluster: CdG can appear alongside finanzas roles
   "comercial":       "commercial",
+  "negocios":        "commercial",      // customer success → commercial bucket
   "marketing":       "marketing",
+  "comunicacion":    "marketing",       // community mgr, redactor → marketing bucket
   "operaciones":     "operations",
   "proyectos":       "projects",
   "personas":        "people",
@@ -285,42 +287,74 @@ function scoreCv(profile, role) {
 /**
  * Structured diversity for explore-mode top-5:
  *   top3: best by score, max 2 from same cluster
- *   #4:   best from a cluster not in top3
- *   #5:   stretch role (aprendizaje ≥ 2) from a cluster not yet used, or next best
+ *   #4:   best from a cluster not in top3, with +5 discovery bonus for "wide" clusters
+ *         so that operations/projects/people/etc. can surface over a marginally higher-score
+ *         analytical role
+ *   #5:   stretch — sorted by aprendizaje DESC (not pure score) from an unused cluster,
+ *         so high-learning roles surface even if their overall score is lower
  */
 function diversifyResults(allScored) {
   if (allScored.length === 0) return [];
 
   const clusterOf = (r) => ROLE_CLUSTERS[r.category] || "other";
-
-  // top3 with cluster cap
-  const top3 = [];
+  const usedSet = new Set();
   const clusterCount = {};
+
+  // top3: best by score, max 2 from same cluster
+  const top3 = [];
   for (const r of allScored) {
     if (top3.length >= 3) break;
     const cl = clusterOf(r);
     if ((clusterCount[cl] || 0) < 2) {
       top3.push(r);
+      usedSet.add(r);
       clusterCount[cl] = (clusterCount[cl] || 0) + 1;
     }
   }
 
-  const usedSet = new Set(top3);
   const top3Clusters = new Set(top3.map(clusterOf));
 
-  // #4: different cluster from top3
-  const fourth = allScored.find(r => !usedSet.has(r) && !top3Clusters.has(clusterOf(r)));
-  if (fourth) usedSet.add(fourth);
-  const usedClusters = new Set([...top3.map(clusterOf), fourth ? clusterOf(fourth) : null].filter(Boolean));
+  // Dominant cluster = the one with 2 slots in top3 (last-resort anchor for #5 fallback)
+  const dominantCluster = Object.entries(clusterCount).find(([, v]) => v >= 2)?.[0] || null;
 
-  // #5: stretch from unused cluster
+  // "Wide" clusters are non-data/finance areas — areas a highly analytical profile
+  // wouldn't naturally surface. Give them +5 at #4 so discovery roles compete fairly.
+  const WIDE_CLUSTERS = new Set([
+    "control_gestion", "operations", "projects",
+    "people", "entrepreneurship", "marketing", "commercial"
+  ]);
+
+  // #4: best from non-top3 cluster, wide clusters get +5 discovery bonus
+  const fourth = allScored
+    .filter(r => !usedSet.has(r) && !top3Clusters.has(clusterOf(r)))
+    .sort((a, b) => {
+      const aAdj = a.score + (WIDE_CLUSTERS.has(clusterOf(a)) ? 5 : 0);
+      const bAdj = b.score + (WIDE_CLUSTERS.has(clusterOf(b)) ? 5 : 0);
+      return bAdj - aAdj;
+    })[0] || null;
+
+  if (fourth) usedSet.add(fourth);
+
+  const usedClusters = new Set([
+    ...top3.map(clusterOf),
+    fourth ? clusterOf(fourth) : null
+  ].filter(Boolean));
+
+  // #5: stretch — discovery-oriented, NOT pure score
+  // Sort unused-cluster candidates by aprendizaje DESC, then score DESC.
+  // A role with aprendizaje=3 and score=20 beats one with aprendizaje=1 and score=35.
   const fifth =
-    allScored.find(r =>
-      !usedSet.has(r) &&
-      !usedClusters.has(clusterOf(r)) &&
-      (r.role_traits?.aprendizaje ?? 0) >= 2
-    ) ||
-    allScored.find(r => !usedSet.has(r) && !usedClusters.has(clusterOf(r))) ||
+    allScored
+      .filter(r => !usedSet.has(r) && !usedClusters.has(clusterOf(r)))
+      .sort((a, b) => {
+        const learnDiff = (b.role_traits?.aprendizaje ?? 0) - (a.role_traits?.aprendizaje ?? 0);
+        return learnDiff !== 0 ? learnDiff : b.score - a.score;
+      })[0] ||
+    // Fallback: at least avoid dominant cluster, still aprendizaje-first
+    allScored
+      .filter(r => !usedSet.has(r) && clusterOf(r) !== dominantCluster)
+      .sort((a, b) => (b.role_traits?.aprendizaje ?? 0) - (a.role_traits?.aprendizaje ?? 0))[0] ||
+    // Last resort
     allScored.find(r => !usedSet.has(r));
 
   return [top3[0], top3[1], top3[2], fourth, fifth].filter(Boolean);

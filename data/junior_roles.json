@@ -45,7 +45,7 @@
     "id": "analista-control-gestion-junior",
     "title": "Analista Control de Gestión Junior",
     "pitch": "Controla presupuestos, mide desviaciones y reporta KPIs a la gerencia.",
-    "area": "Finanzas", "subarea": "Control de Gestión", "category": "finanzas",
+    "area": "Finanzas", "subarea": "Control de Gestión", "category": "control-gestion",
     "entry_type": "real",
     "related_degrees": ["Ingeniería Comercial"],
     "primary_families": ["finanzas", "operaciones"], "secondary_families": ["negocios", "analitica"],
@@ -297,15 +297,15 @@
     "id": "analista-compliance-junior",
     "title": "Analista de Compliance Junior",
     "pitch": "Vela por el cumplimiento de la normativa regulatoria y apoya la gestión de riesgos legales.",
-    "area": "Derecho", "subarea": "Compliance", "category": "derecho",
+    "area": "Operaciones", "subarea": "Compliance", "category": "operaciones",
     "entry_type": "conditional",
     "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["derecho"], "secondary_families": ["negocios", "finanzas"],
+    "primary_families": ["negocios", "finanzas"], "secondary_families": ["operaciones"],
     "skills": ["cumplimiento normativo", "riesgo legal", "regulatorio", "Excel", "reportes de compliance"],
     "required_skills": ["Excel", "cumplimiento normativo"],
     "experience_signals": ["compliance", "normativa", "riesgo", "auditoria", "practica"],
     "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
   },
   {
     "id": "coordinador-academico-junior",
