@@ -533,6 +533,54 @@ emprendimiento:  Analista de Innovación Junior, Analista de Nuevos Negocios Jun
 
 ---
 
+## Análisis arquitectural del motor — areaBoost como clasificación temprana (2026-04-06)
+
+### Problema identificado (pendiente de implementación)
+
+El `scoreAreaBoost()` usa `areas_interest` (inferidas de BEHAVIORAL_INTERESTS en el frontend) como **input de scoring**, contribuyendo hasta +10 pts antes del ranking. Esto genera double-counting:
+
+1. Las selecciones conductuales del usuario entran a `INTEREST_TO_TRAITS` → modifican `behavioralScore`
+2. Las mismas selecciones infieren `areas_interest` → entran a `scoreAreaBoost()` → modifican `finalScore` otra vez
+
+La misma señal amplifica los mismos roles por dos rutas distintas, consolidando el resultado en lugar de descubrirlo.
+
+### Flujo actual (problema)
+```
+Selecciones conductuales
+  ↓
+inferAreas()  →  areas_interest  →  scoreAreaBoost(+8/+3)  ← clasifica ANTES de rankear
+  ↓
+buildUserTraitVector()  →  scoreBehavioral(0-40)
+  ↓
+finalScore = cv + behavioral + areaBoost - avoidPenalty
+```
+
+### Flujo propuesto (latent profile first)
+```
+Selecciones conductuales
+  ↓
+buildUserTraitVector()  →  scoreBehavioral(0-40)
+  ↓
+finalScore = cv + behavioral - avoidPenalty   ← areaBoost eliminado del score
+  ↓
+diversifyResults()  →  Top 5
+  ↓
+Observar clusters dominantes del top 5  →  copy: "aparecen caminos de X e Y"
+```
+
+### Decisiones pendientes antes de implementar
+1. **Umbrales:** areaBoost vale ~12% del max (10/85). Al eliminarlo, recalibrar `strong ≥48` y `stretch 15-47`.
+2. **step-explore-confirm:** con áreas eliminadas del score, confirmar áreas no aporta información al motor. ¿Eliminar el paso o convertirlo en otra cosa?
+3. **areas_interest:** pasa a ser solo señal de display/copy, no input de scoring.
+
+### Prioridades actuales (2026-04-06)
+1. ~~Sprints 1-12~~ — completados
+13. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+14. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
+15. **Sprint latent profile:** eliminar areaBoost del score → derivar áreas desde el ranking (pendiente decisiones de producto arriba)
+
+---
+
 ## Comandos frecuentes
 
 ```bash
