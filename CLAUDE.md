@@ -11,10 +11,10 @@ Motor de matching laboral para egresados chilenos. Stack: Node.js + Express + mu
 Servidor activo en PM2, puerto 3000. Comando: `pm2 restart labora-mvp`.
 
 Archivos clave:
-- `server/services/roleMatcher.js` — motor de scoring (6 dimensiones, pesos dinámicos)
-- `server/routes/analyze.js` — POST /api/analyze, recibe CV + metadatos del formulario
+- `server/services/roleMatcher.js` — motor de scoring; modo explore: behavioral-first (cv+behavioral+area-boost-avoid); modo guided: 6 dimensiones + pesos dinámicos
+- `server/routes/analyze.js` — POST /api/analyze, recibe CV + metadatos del formulario (incluyendo task_preferences y motivation_preferences)
 - `server/services/aiExtractor.js` — extrae perfil estructurado del texto del CV
-- `data/junior_roles.json` — catálogo de 24 roles junior con required_skills, families, etc.
+- `data/junior_roles.json` — catálogo de 44 roles junior con required_skills, families, traits (8 dimensiones conductuales), entry_type, has_commission, requires_cv_gate
 - `public/app.js` — lógica frontend + renderizado de resultados
 - `public/upload.html` — formulario de onboarding
 - `server/utils/text.js` — `normalizeText`, `arrayIncludesNormalized`, `overlapCount`
@@ -234,11 +234,192 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 3. ~~Simplificar a Ingeniería Comercial~~ — completado.
 4. ~~Sprint UX humanización~~ — completado.
 5. ~~Sprint flujo explorar — UX, copy, validaciones, pantalla áreas~~ — completado.
-6. **Fix bug "terreno" + ampliar ROLE_PRACTICE_CONTENT** — pendiente (contenido, no lógica).
-7. **Mejorar UX step-explore-areas** — pendiente (carga cognitiva + diferenciación visual).
-8. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real. Bloqueante para iterar en frontend.
+6. ~~Fix bug "terreno" + ampliar ROLE_PRACTICE_CONTENT (24 roles) + key howItLooks~~ — completado.
+7. ~~AREA_TO_ROLES + filtro de catálogo por área en modo explore~~ — completado.
+8. ~~Sprint expansión catálogo: 24 → 44 roles, 10 áreas, badges entry_type, comisiones~~ — completado.
+9. ~~Sprint UX step-explore-areas: grupos guiados, cards con descripción, eliminar "evitar"~~ — completado.
+10. ~~Sprint motor de matching: behavioral-first, areaBoost soft, avoidPenalty aditiva, diversityTop5~~ — completado.
+11. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — pendiente (solo 5 tienen contenido específico).
+12. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real.
 
 Repo en GitHub (público): https://github.com/juanddpalacios-hash/labora-mvp
+
+---
+
+## Estado actual (2026-04-05) — post sprint motor de matching
+
+### Completado — Sprint motor de matching (2026-04-05, commit 835fccd)
+
+**Problema resuelto:**
+`AREA_TO_ROLES` actuaba como filtro hard en explore mode → resultados tautológicos (si elegías finanzas, solo veías roles de finanzas independiente del perfil conductual).
+
+**Nueva arquitectura de scoring (solo explore mode):**
+```
+finalScore = cvScore(0-35) + behavioralScore(0-40) + areaBoost(0-10) - avoidPenalty
+```
+
+- **cvScore (0-35):** grado IC→14 pts, skills max 12, experiencia max 5, especialización max 4
+- **behavioralScore (0-40):** `buildUserTraitVector(taskPrefs, motivPrefs)` → vector 8 dims; formula: `min(role,user)*2 - max(gap,0)` por dimensión; rango [-24,+48] → normalizado [0,40]
+- **areaBoost (0-10):** +8 área directa seleccionada, +3 área adyacente (mapa `AREA_ADJACENCY`). NO filtra — roles sin área seleccionada reciben 0, no se excluyen
+- **avoidPenalty (aditiva):** `AVOID_PENALTY_RULES`: -15 a -40 por condición de traits; acumulable. Ej: Ejecutivo Comercial con ventas+clientes+presión avoids → -100 pts, score cae a 0
+- **diversifyResults():** top3 (máx 2/cluster) → #4 cluster diferente → #5 rol stretch (aprendizaje≥2)
+- **Filtro cv_gate:** roles con `requires_cv_gate:true` excluidos del catálogo explore
+
+**8 dimensiones conductuales en cada rol (junior_roles.json):**
+analisis, ejecucion, coordinacion, contacto_cliente, social, presion, aprendizaje, movilidad — escala 0-3
+
+**TASK_TO_TRAITS (5 tareas → deltas):**
+- analizar-datos → analisis+2, aprendizaje+1
+- resolver-problemas → analisis+1, ejecucion+1
+- trabajar-personas → social+2, coordinacion+1, contacto_cliente+1
+- organizar-procesos → ejecucion+2, coordinacion+1
+- crear-estrategias → analisis+1, coordinacion+1, aprendizaje+1
+
+**MOTIVATION_TO_TRAITS (6 motivaciones → deltas, pueden ser negativos):**
+- aprender → aprendizaje+2
+- crecer-rapido → presion+1, ejecucion+1
+- estabilidad → presion-1, movilidad-1
+- buen-sueldo → presion+1, contacto_cliente+1
+- buen-ambiente → social+1
+- impacto → aprendizaje+1, coordinacion+1
+
+**Clusters para diversidad:**
+data (analitica, tecnologia) | finance (finanzas, control-gestion) | commercial | marketing | operations | projects | people | entrepreneurship
+
+**Umbrales explore:** strong ≥48, stretch 15-47, excluido <15 (max teórico: 85)
+
+**Guided mode:** sin cambios — scoring 6 dimensiones + pesos dinámicos. Umbrales strong ≥65, stretch 25-64.
+
+**analyze.js:** ahora parsea `task_preferences` → `task_prefs` y `motivation_preferences` → `motivation_prefs` del body del formulario.
+
+---
+
+### Completado — Sprint UX step-explore-areas (2026-04-05)
+
+**Cambios:**
+- Eliminado el grid "Prefiero evitar" del step-explore-areas
+- Cards con título + descripción 1 línea + ejemplos de roles
+- Grupos guiados: Analítico | Negocio/Clientes | Operación | Personas | Otros
+- Grid 2 columnas en desktop, 1 en mobile
+- Check visual (círculo verde) en cards seleccionadas
+- Máximo 3 áreas seleccionables; el resto queda disabled al llegar al límite
+
+---
+
+### Completado — Sprint expansión catálogo (2026-04-05)
+
+**Catálogo:** 24 → 44 roles (20 nuevos)
+**Áreas:** 8 → 10 (agregadas `tecnologia` y `emprendimiento`)
+**Nuevos campos:**
+- `entry_type`: "real" | "conditional" | "selective"
+- `requires_cv_gate`: true en 4 roles tech/diseño (Dev Web, QA, Soporte TI, UX) — no se muestran en explore
+- `has_commission`: true en Ejecutivo Comercial y Ejecutivo de Ventas
+- `traits`: objeto con 8 dimensiones conductuales (todos los 44 roles)
+**Frontend:**
+- Badges: "Accesible de entrada" (verde), "Requiere preparación" (amarillo), "Competitivo" (naranja) — no se muestran si `requires_cv_gate: true`
+- Aviso de comisión en card: "Rol con componente variable: incluye cuota o comisión"
+
+---
+
+## Sprint expansión catálogo (2026-04-04) — COMPLETADO
+
+### Objetivo
+Expandir `data/junior_roles.json` de 24 → ~43 roles. Pasar de 8 áreas a 10 en `AREA_TO_ROLES` y en `EXPLORE_AREAS` del frontend.
+
+### Nuevas áreas (agregar a EXPLORE_AREAS en app.js)
+- `tecnologia` → label: "Tecnología" (BA/Product, no Dev/QA)
+- `emprendimiento` → label: "Emprendimiento"
+
+### Roles a agregar al catálogo (19 nuevos, validados como reales en mercado chileno)
+| Título | Área | Clasificación |
+|---|---|---|
+| Analista BI Junior | analitica | Entry condicionado |
+| Analista de Inversiones Junior | finanzas | Entry selectivo ⚠️ |
+| Analista de Tesorería Junior | finanzas | Entry real |
+| Analista de Riesgo Junior | finanzas | Entry condicionado |
+| Analista de Presupuestos Junior | finanzas/control-gestion | Entry real |
+| Ejecutivo Comercial Junior | comercial | Entry real |
+| Ejecutivo de Ventas Junior | comercial | Entry real |
+| Key Account Manager Junior | comercial | Entry selectivo ⚠️ |
+| Analista de Marketing Digital Junior | marketing | Entry condicionado |
+| Analista de Performance Junior | marketing | Entry condicionado |
+| Analista de Operaciones Junior | operaciones | Entry condicionado |
+| Analista de Supply Chain Junior | operaciones | Entry condicionado |
+| Analista de Reclutamiento y Selección Junior | personas | Entry real |
+| Analista de Desarrollo Organizacional Junior | personas | Entry condicionado |
+| Project Manager Junior | proyectos | Entry condicionado |
+| Business Analyst Junior | tecnologia | Entry condicionado |
+| Product Analyst Junior | tecnologia | Entry condicionado |
+| Analista de Innovación Junior | emprendimiento | Entry selectivo ⚠️ |
+| Analista de Nuevos Negocios Junior | emprendimiento | Entry condicionado |
+| Venture Analyst | emprendimiento | Entry selectivo ⚠️ |
+
+### Roles eliminados del sprint (no corresponden al perfil IC)
+- `Analista GIS Junior` → requiere formación geográfica; no es perfil IC
+- `Analista Ambiental Junior` → requiere formación ambiental/química; no es perfil IC
+- `Asistente Legal Junior` → requiere conocimiento jurídico; no es perfil IC
+- `Data Analyst Junior` → duplicado en inglés de Analista de Datos Junior
+
+### Roles con brecha de perfil (mantener en catálogo, mostrar solo con señales CV)
+- Desarrollador Web Junior, QA Tester Junior, Analista de Soporte TI Junior, Diseñador UX/UI Junior
+- Regla: NO mostrar en modo explore. En guided, solo si el CV tiene señales tech/diseño.
+
+### Clasificación de roles — framework de producto
+- **Entry real:** accesible sin experiencia previa relevante. Primer trabajo típico.
+- **Entry condicionado:** posible como primer trabajo, pero requiere algo adicional (certificaciones, práctica, herramientas específicas).
+- **Entry selectivo ⚠️:** existe en el mercado, pero competitivo o con barreras claras (notas, inglés, práctica previa, redes). NO eliminar — mostrar con contexto honesto.
+- **Con brecha de perfil:** posible para IC con autoaprendizaje, pero IC no lo forma directamente.
+
+### Principio de producto (NO olvidar)
+> "No ocultar caminos difíciles. Explicarlos."
+> Entry selectivo ≠ eliminar. El usuario debe saber que el camino existe y qué requiere.
+
+### Decisiones tomadas (resueltas en sprint)
+1. Roles con brecha de perfil → mantener con `requires_cv_gate: true`. No mostrar en explore.
+2. Roles Entry selectivo ⚠️ → badge visual "Competitivo" en card.
+3. Roles comisionales → aviso `.role-commission-notice` en card.
+
+### Roles que compiten internamente (pitches deben ser distintos)
+- CdG + Reporting + Presupuestos → mismo perfil, distintos énfasis. Pitches deben diferenciarlos.
+- Marketing Digital + Performance → Digital ejecuta campañas, Performance mide retorno.
+- Asistente Proyectos + PM Junior → PM Junior lidera, Asistente apoya.
+- Logística + Supply Chain → Logística mueve mercancías, SC planifica el flujo.
+- Ejecutivo Comercial + Ejecutivo de Ventas → Comercial: B2B hunting. Ventas: cartera asignada.
+
+### AREA_TO_ROLES objetivo (10 áreas, post-sprint)
+```
+analitica:       Analista de Datos Junior, Analista de Reporting Junior,
+                 Analista Comercial Junior, Analista BI Junior
+
+finanzas:        Analista Financiero Junior, Asistente Contable Junior,
+                 Analista de Tesorería Junior, Analista de Presupuestos Junior,
+                 Analista de Riesgo Junior, Analista de Inversiones Junior
+
+control-gestion: Analista Control de Gestión Junior, Analista de Reporting Junior,
+                 Analista Financiero Junior, Analista de Presupuestos Junior
+
+comercial:       Analista Comercial Junior, Ejecutivo Comercial Junior,
+                 Ejecutivo de Ventas Junior, Key Account Manager Junior,
+                 Analista de Customer Success Junior
+
+marketing:       Analista de Marketing Junior, Analista de Marketing Digital Junior,
+                 Analista de Performance Junior, Community Manager Junior,
+                 Redactor de Contenidos Junior
+
+operaciones:     Coordinador de Operaciones Junior, Analista de Logística Junior,
+                 Analista de Supply Chain Junior, Analista de Operaciones Junior
+
+personas:        Asistente de RRHH Junior, Analista de Reclutamiento y Selección Junior,
+                 Analista de Desarrollo Organizacional Junior, Coordinador Académico Junior
+
+proyectos:       Asistente de Proyectos Junior, Project Manager Junior,
+                 Analista de Compliance Junior, Coordinador de Operaciones Junior
+
+tecnologia:      Business Analyst Junior, Product Analyst Junior
+
+emprendimiento:  Analista de Innovación Junior, Analista de Nuevos Negocios Junior,
+                 Venture Analyst
+```
 
 ---
 
@@ -249,9 +430,25 @@ pm2 restart labora-mvp       # reiniciar servidor tras cambios
 pm2 logs labora-mvp          # ver logs en tiempo real
 pm2 status                   # estado del proceso
 
-# Test rápido (sin CV) — Windows-compatible (sin /dev/stdin)
+# Test guided mode (sin CV)
 curl -s -X POST http://localhost:3000/api/analyze \
   -H "Content-Type: application/json" \
-  -d "{\"degree\":\"Ingenieria Comercial\",\"academicStatus\":\"titulado\",\"city\":\"Santiago\",\"desiredModality\":\"[]\",\"areasOfInterest\":\"[{\\\"value\\\":\\\"finanzas\\\",\\\"weight\\\":3}]\"}" \
+  -d "{\"degree\":\"Ingenieria Comercial\",\"academicStatus\":\"titulado\",\"city\":\"Santiago\",\"user_intent_mode\":\"guided\",\"desiredModality\":\"[]\",\"areasOfInterest\":\"[{\\\"value\\\":\\\"finanzas\\\",\\\"weight\\\":3}]\"}" \
   > C:/Temp/result.json && node -e "const d=JSON.parse(require('fs').readFileSync('C:/Temp/result.json','utf8')); console.log('roles:', (d.matches?.strong_matches?.length||0)+(d.matches?.stretch_matches?.length||0), '| user_type:', d.matches?.user_type)"
+
+# Test explore mode con señales conductuales
+curl -s -X POST http://localhost:3000/api/analyze \
+  -F "degree=Ingenieria Comercial" \
+  -F "academicStatus=egresado" \
+  -F "city=Santiago" \
+  -F "user_intent_mode=explore" \
+  -F 'areas_interest=["analitica","finanzas"]' \
+  -F 'task_preferences=["analizar-datos","resolver-problemas"]' \
+  -F 'motivation_preferences=["aprender","crecer-rapido"]' \
+  -F 'avoid_preferences=["ventas-metas","atencion-clientes"]' \
+  > C:/Temp/explore.json && node -e "
+const d=JSON.parse(require('fs').readFileSync('C:/Temp/explore.json','utf8'));
+const all=[...(d.matches?.strong_matches||[]),...(d.matches?.stretch_matches||[])];
+all.forEach(r => { const sb=r.score_breakdown; console.log(r.score+' '+r.title+' cv:'+sb.cv+' beh:'+sb.behavioral+' area:'+sb.area_boost+' avoid:-'+sb.avoid_penalty); });
+"
 ```
