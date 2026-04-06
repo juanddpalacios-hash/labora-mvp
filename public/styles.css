@@ -1588,3 +1588,29 @@ fieldset.field {
 .explore-confirm-instruction {
   font-size: 14px;
 }
+
+/* ── Entry type badges ─────────────────────────────────────────────── */
+.role-entry-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+.role-entry-badge--real        { background: #d1fae5; color: #065f46; }
+.role-entry-badge--conditional { background: #fef3c7; color: #92400e; }
+.role-entry-badge--selective   { background: #ffedd5; color: #9a3412; }
+
+/* ── Commission notice ─────────────────────────────────────────────── */
+.role-commission-notice {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #fff7ed;
+  border-left: 3px solid #f97316;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #7c2d12;
+  line-height: 1.5;
+}

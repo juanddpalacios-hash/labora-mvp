@@ -840,6 +840,9 @@ function renderRoleCard(role, isExplore = false) {
       <article class="role-card role-card--pilot${extraClass}">
         <div class="role-header">
           <div>
+            ${!role.requires_cv_gate && role.entry_type === "selective" ? `<span class="role-entry-badge role-entry-badge--selective">Competitivo</span>` : ""}
+            ${!role.requires_cv_gate && role.entry_type === "conditional" ? `<span class="role-entry-badge role-entry-badge--conditional">Requiere preparación</span>` : ""}
+            ${!role.requires_cv_gate && role.entry_type === "real" ? `<span class="role-entry-badge role-entry-badge--real">Accesible de entrada</span>` : ""}
             <h3>${role.title}</h3>
             <p class="muted" style="margin:2px 0 0;">${role.area || role.category || ""}${role.subarea ? ` · ${role.subarea}` : ""}</p>
           </div>
@@ -875,6 +878,9 @@ function renderRoleCard(role, isExplore = false) {
       <div class="role-header">
         <div>
           ${role.is_recommended ? `<span class="role-recommended-badge">Recomendado</span>` : ""}
+          ${!role.requires_cv_gate && role.entry_type === "selective" ? `<span class="role-entry-badge role-entry-badge--selective">Competitivo</span>` : ""}
+          ${!role.requires_cv_gate && role.entry_type === "conditional" ? `<span class="role-entry-badge role-entry-badge--conditional">Requiere preparación</span>` : ""}
+          ${!role.requires_cv_gate && role.entry_type === "real" ? `<span class="role-entry-badge role-entry-badge--real">Accesible de entrada</span>` : ""}
           <h3>${role.title}</h3>
           <p class="muted" style="margin:2px 0 0;">${role.area || role.category || ""}${role.subarea ? ` · ${role.subarea}` : ""}</p>
         </div>
@@ -882,6 +888,11 @@ function renderRoleCard(role, isExplore = false) {
       </div>
 
       ${currentHasCv ? `<p class="role-description">${description}</p>` : ""}
+
+      ${role.has_commission ? `
+      <div class="role-commission-notice">
+        <strong>Rol con componente variable:</strong> incluye cuota o comisión. El sueldo total depende del rendimiento comercial.
+      </div>` : ""}
 
       <div class="role-section">
         <h4>Por qué este camino podría hacerte sentido</h4>
@@ -931,6 +942,9 @@ function renderCompactRoleCard(role, isExplore = false) {
       <article class="role-card role-card--compact${extraClass}">
         <div class="role-header">
           <div>
+            ${!role.requires_cv_gate && role.entry_type === "selective" ? `<span class="role-entry-badge role-entry-badge--selective">Competitivo</span>` : ""}
+            ${!role.requires_cv_gate && role.entry_type === "conditional" ? `<span class="role-entry-badge role-entry-badge--conditional">Requiere preparación</span>` : ""}
+            ${!role.requires_cv_gate && role.entry_type === "real" ? `<span class="role-entry-badge role-entry-badge--real">Accesible de entrada</span>` : ""}
             <h3>${role.title}</h3>
             <p class="muted" style="margin:2px 0 0;">${area}${role.subarea ? ` · ${role.subarea}` : ""}</p>
           </div>
@@ -953,6 +967,9 @@ function renderCompactRoleCard(role, isExplore = false) {
     <article class="role-card role-card--compact${extraClass}">
       <div class="role-header">
         <div>
+          ${!role.requires_cv_gate && role.entry_type === "selective" ? `<span class="role-entry-badge role-entry-badge--selective">Competitivo</span>` : ""}
+          ${!role.requires_cv_gate && role.entry_type === "conditional" ? `<span class="role-entry-badge role-entry-badge--conditional">Requiere preparación</span>` : ""}
+          ${!role.requires_cv_gate && role.entry_type === "real" ? `<span class="role-entry-badge role-entry-badge--real">Accesible de entrada</span>` : ""}
           <h3>${role.title}</h3>
           <p class="muted" style="margin:2px 0 0;">${area}${role.subarea ? ` · ${role.subarea}` : ""}</p>
         </div>
@@ -1890,7 +1907,9 @@ const EXPLORE_AREAS = [
   { value: "marketing",       label: "Marketing" },
   { value: "operaciones",     label: "Operaciones" },
   { value: "personas",        label: "Personas / RRHH" },
-  { value: "proyectos",       label: "Proyectos" }
+  { value: "proyectos",       label: "Proyectos" },
+  { value: "tecnologia",      label: "Tecnología (BA / Producto)" },
+  { value: "emprendimiento",  label: "Emprendimiento" }
 ];
 
 // Contenido específico por rol para el flujo explore.
