@@ -240,8 +240,9 @@ La pregunta del formulario solo aparece cuando `academicStatus === "titulado"`.
 9. ~~Sprint UX step-explore-areas: grupos guiados, cards con descripción, eliminar "evitar"~~ — completado.
 10. ~~Sprint motor de matching: behavioral-first, areaBoost soft, avoidPenalty aditiva, diversityTop5~~ — completado.
 11. ~~Sprint diversidad y descubrimiento: ROLE_CLUSTERS granulares, diversifyResults con discovery bonus, Compliance reclasificado~~ — completado (2026-04-06).
-12. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — pendiente (solo 5 tienen contenido específico).
-13. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real.
+12. ~~Sprint selección conductual: BEHAVIORAL_INTERESTS reemplaza EXPLORE_AREAS, áreas y traits inferidos~~ — completado (2026-04-06).
+13. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — pendiente (solo 5 tienen contenido específico).
+14. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real.
 
 Repo en GitHub (público): https://github.com/juanddpalacios-hash/labora-mvp
 
@@ -260,7 +261,7 @@ finalScore = cvScore(0-35) + behavioralScore(0-40) + areaBoost(0-10) - avoidPena
 ```
 
 - **cvScore (0-35):** grado IC→14 pts, skills max 12, experiencia max 5, especialización max 4
-- **behavioralScore (0-40):** `buildUserTraitVector(taskPrefs, motivPrefs)` → vector 8 dims; formula: `min(role,user)*2 - max(gap,0)` por dimensión; rango [-24,+48] → normalizado [0,40]
+- **behavioralScore (0-40):** `buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs)` → vector 8 dims; formula: `min(role,user)*2 - max(gap,0)` por dimensión; rango [-24,+48] → normalizado [0,40]
 - **areaBoost (0-10):** +8 área directa seleccionada, +3 área adyacente (mapa `AREA_ADJACENCY`). NO filtra — roles sin área seleccionada reciben 0, no se excluyen
 - **avoidPenalty (aditiva):** `AVOID_PENALTY_RULES`: -15 a -40 por condición de traits; acumulable. Ej: Ejecutivo Comercial con ventas+clientes+presión avoids → -100 pts, score cae a 0
 - **diversifyResults():** top3 (máx 2/cluster, score-greedy) → #4 (non-top3 cluster, +5 discovery bonus para WIDE_CLUSTERS) → #5 (sort aprendizaje DESC, no score puro)
@@ -322,6 +323,53 @@ data (analitica, tecnologia) | finance (finanzas) | control_gestion (control-ges
 **Frontend:**
 - Badges: "Accesible de entrada" (verde), "Requiere preparación" (amarillo), "Competitivo" (naranja) — no se muestran si `requires_cv_gate: true`
 - Aviso de comisión en card: "Rol con componente variable: incluye cuota o comisión"
+
+---
+
+## Estado actual (2026-04-06) — post sprint selección conductual
+
+### Completado — Sprint selección conductual (2026-04-06, commit 880babf)
+
+**Problema resuelto:**
+El paso `step-explore-areas` mostraba categorías explícitas ("Finanzas", "Analítica") que rompían la sensación de descubrimiento personalizado y exponían la arquitectura interna al usuario.
+
+**Principio aplicado:**
+> El usuario no elige áreas. Elige cómo quiere trabajar. El sistema infiere las áreas internamente.
+
+**Cambios en `public/app.js`:**
+- `EXPLORE_AREAS` + `EXPLORE_AREA_GROUPS` eliminados → reemplazados por `BEHAVIORAL_INTERESTS` (8 opciones)
+- `exploreAreasInterest` / `exploreAreasAvoid` → `exploreInterests` (array de IDs, máx 3)
+- `renderExploreAreasGrid()` → `renderBehavioralInterestsGrid()`: grid plano, frases conductuales, sin grupos ni labels de área
+- **Submit:** `areas_interest` se infiere con unión deduplicada de `item.areas` antes de enviar; `interest_preferences` se envía como nuevo campo
+- **`inferAreas()`:** señal de `exploreInterests` (+3 por área por ID) reemplaza señal explícita (+4 por área declarada)
+- **`buildConfirmExplanation()`:** clasificador de perfil ahora usa señales de `exploreInterests` (`hasAnalyticInterest`, `hasPeopleInterest`, `hasOpsInterest`, `hasLearningInterest`, `hasStrategyInterest`) en lugar de `areasI`
+- **`renderExploreConfirm()`:** cards sin `<h3>` de área; solo descripción conductual. Header: "Con lo que nos contaste, esto parece cercano a cómo te ves trabajando:"
+
+**Cambios en `public/upload.html`:**
+- Título: "Pensando en tu día a día, ¿qué tipo de cosas te gustaría estar haciendo?"
+- Hint: "Elige al menos una opción para continuar."
+
+**Cambios en `server/routes/analyze.js`:**
+- Nuevo campo parseado: `interest_prefs: req.body.interest_preferences ? JSON.parse(...) : []`
+
+**Cambios en `server/services/roleMatcher.js`:**
+- `INTEREST_TO_TRAITS`: mapa de 8 IDs → deltas de traits (sincronizado con `BEHAVIORAL_INTERESTS` del frontend)
+- `buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs = [])`: tercer parámetro agrega señal de intereses al vector conductual
+
+**`BEHAVIORAL_INTERESTS` — 8 opciones con mapping:**
+| ID | Áreas inferidas | Traits |
+|---|---|---|
+| `entender-datos` | analitica, finanzas | analisis+2, aprendizaje+1 |
+| `numeros-negocio` | finanzas, control-gestion | analisis+2 |
+| `procesos-ordenados` | operaciones, control-gestion | ejecucion+2, coordinacion+1 |
+| `coordinar-avanzar` | proyectos, personas | coordinacion+2, social+1 |
+| `cerca-personas` | comercial, personas, marketing | social+2, contacto_cliente+1, coordinacion+1 |
+| `mejorar-organizacion` | control-gestion, proyectos, personas | coordinacion+1, ejecucion+1, aprendizaje+1 |
+| `aprender-profundo` | analitica, tecnologia, emprendimiento | aprendizaje+3 |
+| `crear-impacto` | emprendimiento, proyectos, control-gestion | analisis+1, coordinacion+1, aprendizaje+1 |
+
+### Regla 12. BEHAVIORAL_INTERESTS ↔ INTEREST_TO_TRAITS deben estar sincronizados
+Si se agrega, elimina o modifica una opción en `BEHAVIORAL_INTERESTS` (app.js), actualizar también `INTEREST_TO_TRAITS` en `roleMatcher.js`. Son la misma fuente de verdad dividida por razones de arquitectura (frontend/backend).
 
 ---
 
