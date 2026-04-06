@@ -110,6 +110,223 @@ const AREA_TO_ROLES = {
 };
 
 // -------------------------------------------------------------------
+// AREA_ADJACENCY — soft boost map for explore mode
+// Used to give +3 pts to roles in adjacent areas when user hasn't selected them directly.
+// -------------------------------------------------------------------
+const AREA_ADJACENCY = {
+  "finanzas":         ["control-gestion", "analitica"],
+  "control-gestion":  ["finanzas", "analitica", "proyectos"],
+  "analitica":        ["finanzas", "control-gestion", "tecnologia"],
+  "comercial":        ["marketing", "personas"],
+  "marketing":        ["comercial"],
+  "operaciones":      ["proyectos"],
+  "proyectos":        ["operaciones", "control-gestion"],
+  "personas":         ["comercial"],
+  "tecnologia":       ["analitica"],
+  "emprendimiento":   ["comercial", "proyectos"]
+};
+
+// Task preferences → behavioral trait deltas
+const TASK_TO_TRAITS = {
+  "analizar-datos":     { analisis: 2, aprendizaje: 1 },
+  "resolver-problemas": { analisis: 1, ejecucion: 1 },
+  "trabajar-personas":  { social: 2, coordinacion: 1, contacto_cliente: 1 },
+  "organizar-procesos": { ejecucion: 2, coordinacion: 1 },
+  "crear-estrategias":  { analisis: 1, coordinacion: 1, aprendizaje: 1 }
+};
+
+// Motivation preferences → behavioral trait deltas (can be negative)
+const MOTIVATION_TO_TRAITS = {
+  "aprender":      { aprendizaje: 2 },
+  "crecer-rapido": { presion: 1, ejecucion: 1 },
+  "estabilidad":   { presion: -1, movilidad: -1 },
+  "buen-sueldo":   { presion: 1, contacto_cliente: 1 },
+  "buen-ambiente": { social: 1 },
+  "impacto":       { aprendizaje: 1, coordinacion: 1 }
+};
+
+// Additive avoid penalties — subtracted from final score.
+// Rules are ordered strongest-first; only the first match per avoid value applies.
+const AVOID_PENALTY_RULES = [
+  { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 3 && t.presion >= 2, penalty: 40 },
+  { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 2,                   penalty: 25 },
+  { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 3,                   penalty: 30 },
+  { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 2,                   penalty: 15 },
+  { avoid: "trabajo-terreno",        condition: (t) => t.movilidad >= 2,                          penalty: 30 },
+  { avoid: "trabajo-terreno",        condition: (t) => t.movilidad >= 1,                          penalty: 15 },
+  { avoid: "ambientes-competitivos", condition: (t) => t.presion >= 3,                            penalty: 30 },
+  { avoid: "ambientes-competitivos", condition: (t) => t.presion >= 2,                            penalty: 15 },
+  { avoid: "trabajo-repetitivo",     condition: (t) => t.aprendizaje <= 1 && t.ejecucion >= 3,   penalty: 20 }
+];
+
+// Role clusters for diversity logic in explore mode.
+// Kept granular so that selecting finanzas + analitica doesn't block both from top3.
+const ROLE_CLUSTERS = {
+  "analitica":       "data",
+  "tecnologia":      "data",
+  "finanzas":        "finance",
+  "control-gestion": "finance",
+  "comercial":       "commercial",
+  "marketing":       "marketing",
+  "operaciones":     "operations",
+  "proyectos":       "projects",
+  "personas":        "people",
+  "emprendimiento":  "entrepreneurship"
+};
+
+// -------------------------------------------------------------------
+// Explore-mode scoring functions
+// -------------------------------------------------------------------
+
+/**
+ * Builds a user trait vector (8 dims, each 0-3) from task and motivation signals.
+ * Each task/motivation adds deltas to the corresponding traits; final values clamped to [0,3].
+ */
+function buildUserTraitVector(taskPrefs, motivPrefs) {
+  const traits = { analisis: 0, ejecucion: 0, coordinacion: 0, contacto_cliente: 0, social: 0, presion: 0, aprendizaje: 0, movilidad: 0 };
+
+  for (const task of (taskPrefs || [])) {
+    const deltas = TASK_TO_TRAITS[task] || {};
+    for (const [key, val] of Object.entries(deltas)) {
+      if (Object.prototype.hasOwnProperty.call(traits, key)) traits[key] += val;
+    }
+  }
+
+  for (const motiv of (motivPrefs || [])) {
+    const deltas = MOTIVATION_TO_TRAITS[motiv] || {};
+    for (const [key, val] of Object.entries(deltas)) {
+      if (Object.prototype.hasOwnProperty.call(traits, key)) traits[key] += val;
+    }
+  }
+
+  for (const key of Object.keys(traits)) {
+    traits[key] = Math.max(0, Math.min(3, traits[key]));
+  }
+
+  return traits;
+}
+
+/**
+ * Behavioral score (0-40): rewards trait alignment, penalizes mismatch.
+ * formula per dim: min(role,user)*2 - max(role-user,0)*1
+ * raw range: [−24, +48] → normalized to [0, 40]
+ */
+function scoreBehavioral(userTraits, role) {
+  const rTraits = role.traits || {};
+  const dims = ["analisis", "ejecucion", "coordinacion", "contacto_cliente", "social", "presion", "aprendizaje", "movilidad"];
+
+  let raw = 0;
+  for (const dim of dims) {
+    const r = rTraits[dim] ?? 0;
+    const u = userTraits[dim] ?? 0;
+    raw += Math.min(r, u) * 2 - Math.max(r - u, 0);
+  }
+
+  return Math.max(0, Math.min(40, Math.round(((raw + 24) / 72) * 40)));
+}
+
+/**
+ * Area boost (0-10): +8 for direct area match, +3 for adjacent area.
+ * Does NOT filter — roles with no area match simply get 0.
+ */
+function scoreAreaBoost(areasInterest, role) {
+  if (!areasInterest || areasInterest.length === 0) return 0;
+  const cat = role.category || "";
+  if (areasInterest.includes(cat)) return 8;
+  for (const area of areasInterest) {
+    if ((AREA_ADJACENCY[area] || []).includes(cat)) return 3;
+  }
+  return 0;
+}
+
+/**
+ * Additive avoid penalty (subtracted from final score).
+ * Returns total points to subtract (>= 0).
+ * Applies rules in order; for each avoid value, only the first matching rule fires.
+ */
+function computeAvoidPenaltyAdditive(avoidPreferences, role) {
+  if (!avoidPreferences || avoidPreferences.length === 0) return 0;
+  const rTraits = role.traits || {};
+  let total = 0;
+
+  for (const avoidVal of avoidPreferences) {
+    for (const rule of AVOID_PENALTY_RULES) {
+      if (rule.avoid === avoidVal && rule.condition(rTraits)) {
+        total += rule.penalty;
+        break;
+      }
+    }
+  }
+
+  return total;
+}
+
+/**
+ * CV-based score (0-35): maps degree/skills/experience/specialization to a fixed scale.
+ * Degree: 30→14, 20→10, 10→5, 0→0 | Skills: max 12 | Exp: max 5 | Spec: max 4
+ */
+function scoreCv(profile, role) {
+  const degreeRaw = scoreDegree(profile, role);
+  const skillsRaw = scoreSkills(profile, role);
+  const expRaw    = scoreExperience(profile, role);
+  const specRaw   = scoreSpecialization(profile, role);
+
+  const degreePts = degreeRaw === 30 ? 14 : degreeRaw === 20 ? 10 : degreeRaw === 10 ? 5 : 0;
+  const skillsPts = Math.round((skillsRaw / 25) * 12);
+  const expPts    = Math.round((expRaw    / 15) * 5);
+  const specPts   = Math.round((specRaw   / 15) * 4);
+
+  return {
+    cv: Math.min(35, degreePts + skillsPts + expPts + specPts),
+    degreeRaw, skillsRaw, expRaw, specRaw
+  };
+}
+
+/**
+ * Structured diversity for explore-mode top-5:
+ *   top3: best by score, max 2 from same cluster
+ *   #4:   best from a cluster not in top3
+ *   #5:   stretch role (aprendizaje ≥ 2) from a cluster not yet used, or next best
+ */
+function diversifyResults(allScored) {
+  if (allScored.length === 0) return [];
+
+  const clusterOf = (r) => ROLE_CLUSTERS[r.category] || "other";
+
+  // top3 with cluster cap
+  const top3 = [];
+  const clusterCount = {};
+  for (const r of allScored) {
+    if (top3.length >= 3) break;
+    const cl = clusterOf(r);
+    if ((clusterCount[cl] || 0) < 2) {
+      top3.push(r);
+      clusterCount[cl] = (clusterCount[cl] || 0) + 1;
+    }
+  }
+
+  const usedSet = new Set(top3);
+  const top3Clusters = new Set(top3.map(clusterOf));
+
+  // #4: different cluster from top3
+  const fourth = allScored.find(r => !usedSet.has(r) && !top3Clusters.has(clusterOf(r)));
+  if (fourth) usedSet.add(fourth);
+  const usedClusters = new Set([...top3.map(clusterOf), fourth ? clusterOf(fourth) : null].filter(Boolean));
+
+  // #5: stretch from unused cluster
+  const fifth =
+    allScored.find(r =>
+      !usedSet.has(r) &&
+      !usedClusters.has(clusterOf(r)) &&
+      (r.role_traits?.aprendizaje ?? 0) >= 2
+    ) ||
+    allScored.find(r => !usedSet.has(r) && !usedClusters.has(clusterOf(r))) ||
+    allScored.find(r => !usedSet.has(r));
+
+  return [top3[0], top3[1], top3[2], fourth, fifth].filter(Boolean);
+}
+
+// -------------------------------------------------------------------
 // Scoring weights — DINÁMICOS según calidad del perfil
 // Carrera: 30 | Skills: 25 | Especialización: 15 | Experiencia: 15
 // Intereses: 10 | Modalidad: 5  → máximo teórico: 100 (perfil medio)
@@ -752,21 +969,11 @@ function computeAvoidPenalty(avoidPreferences, role) {
 }
 
 function matchRoles(profile, roleCatalog, metadata = {}) {
-  // Filtrar catálogo por áreas elegidas (solo en modo explore).
-  // Si no hay áreas declaradas (modo guided), se usan todos los roles.
+  const isExploreMode = (metadata.user_intent_mode === "explore");
+
   const areasInterest = Array.isArray(metadata.areas_interest)
     ? metadata.areas_interest
     : (metadata.areas_interest ? JSON.parse(metadata.areas_interest) : []);
-
-  let activeCatalog = roleCatalog;
-  if (areasInterest.length > 0) {
-    const allowedTitles = new Set(
-      areasInterest.flatMap(a => AREA_TO_ROLES[a] || [])
-    );
-    const filtered = roleCatalog.filter(r => allowedTitles.has(r.title));
-    // Safety fallback: si el filtro deja catálogo vacío (área no mapeada), usar todo
-    activeCatalog = filtered.length > 0 ? filtered : roleCatalog;
-  }
 
   const enrichedProfile = {
     ...profile,
@@ -776,20 +983,128 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
   };
   const avoidPreferences = metadata.avoidPreferences || [];
 
-  // Evaluar calidad del perfil UNA VEZ antes del loop
+  // ─── EXPLORE MODE: behavioral-first scoring ──────────────────────
+  if (isExploreMode) {
+    const taskPrefs  = metadata.task_prefs        || [];
+    const motivPrefs = metadata.motivation_prefs  || [];
+    const userTraits = buildUserTraitVector(taskPrefs, motivPrefs);
+
+    const EXPLORE_STRONG  = 48;
+    const EXPLORE_STRETCH = 15;
+
+    const exploreCatalog = roleCatalog.filter(r => !r.requires_cv_gate);
+
+    const allScored = exploreCatalog
+      .map((role) => {
+        // CV component (0-35)
+        const cvResult  = scoreCv(enrichedProfile, role);
+        const cvScore   = cvResult.cv;
+
+        // Behavioral component (0-40)
+        const behavioralScore = scoreBehavioral(userTraits, role);
+
+        // Area boost (0-10) — soft, no hard filter
+        const areaBoost = scoreAreaBoost(areasInterest, role);
+
+        // Avoid penalty (additive subtraction)
+        const avoidPenalty = computeAvoidPenaltyAdditive(avoidPreferences, role);
+
+        // Postgraduate penalty for basic roles (flat deduction)
+        const isBasicRole = /^Asistente\s/i.test(role.title);
+        const pgPenalty   = (enrichedProfile.has_postgrad && isBasicRole) ? 8 : 0;
+
+        const score = Math.max(0, Math.min(85,
+          cvScore + behavioralScore + areaBoost - avoidPenalty - pgPenalty
+        ));
+
+        const missingSkills = buildMissingSkills(enrichedProfile, role);
+        const top_missing_skills = [...missingSkills]
+          .sort((a, b) => (ACTIONABLE_SKILLS.has(normalizeText(a)) ? 0 : 1) - (ACTIONABLE_SKILLS.has(normalizeText(b)) ? 0 : 1))
+          .slice(0, 3);
+
+        const interestAlignment = evaluateInterestAlignment(
+          enrichedProfile, role, cvResult.degreeRaw, cvResult.skillsRaw, cvResult.expRaw, cvResult.specRaw
+        );
+        const interestNote = (interestAlignment.alignment === "low" && interestAlignment.declared_interest)
+          ? buildInterestNote(top_missing_skills)
+          : null;
+
+        return {
+          id:               role.id,
+          title:            role.title,
+          area:             role.area,
+          subarea:          role.subarea,
+          category:         role.category,
+          entry_type:       role.entry_type,
+          has_commission:   role.has_commission   || false,
+          requires_cv_gate: role.requires_cv_gate || false,
+          score,
+          role_traits:      role.traits || {},
+          score_breakdown: {
+            cv:            cvScore,
+            behavioral:    behavioralScore,
+            area_boost:    areaBoost,
+            avoid_penalty: avoidPenalty,
+            // Legacy fields — kept for evaluateInterestAlignment + computeRecommendationScore
+            carrera:         cvResult.degreeRaw,
+            skills:          cvResult.skillsRaw,
+            especializacion: cvResult.specRaw,
+            experiencia:     cvResult.expRaw,
+            intereses:       0,
+            modalidad:       0
+          },
+          match_reasons:      buildReasons(enrichedProfile, role, cvResult.degreeRaw, cvResult.specRaw),
+          gaps:               buildGaps(enrichedProfile, role),
+          missing_skills:     missingSkills,
+          top_missing_skills,
+          interest_alignment: interestAlignment,
+          interest_note:      interestNote,
+          job_links:          generateJobLinks(role, enrichedProfile.city)
+        };
+      })
+      .filter((r) => r.score >= EXPLORE_STRETCH)
+      .sort((a, b) => b.score - a.score);
+
+    const top5 = diversifyResults(allScored);
+
+    const strongMatches  = top5.filter((r) => r.score >= EXPLORE_STRONG);
+    const stretchMatches = top5.filter((r) => r.score < EXPLORE_STRONG);
+
+    [...strongMatches, ...stretchMatches].forEach((r) => {
+      r.recommendation_score = computeRecommendationScore(r);
+    });
+
+    const allRanked = [...strongMatches, ...stretchMatches]
+      .sort((a, b) => b.recommendation_score - a.recommendation_score);
+    if (allRanked[0]) allRanked[0].is_recommended = true;
+
+    const profileQuality = evaluateProfileQuality(enrichedProfile);
+    const user_type = classifyUserType(enrichedProfile, { strong_matches: strongMatches, stretch_matches: stretchMatches });
+    const context_message = buildContextMessage(user_type, enrichedProfile, allRanked[0] || null);
+
+    return {
+      detected_area:   buildDetectedArea(enrichedProfile, strongMatches, stretchMatches),
+      strong_matches:  strongMatches,
+      stretch_matches: stretchMatches,
+      profile_quality: profileQuality,
+      weights_used:    { mode: "explore", user_traits: userTraits },
+      user_type,
+      context_message
+    };
+  }
+
+  // ─── GUIDED MODE: original weighted scoring ────────────────────────
   const profileQuality  = evaluateProfileQuality(enrichedProfile);
   const baseWeights     = getDynamicWeights(profileQuality);
 
-  // Si la carrera no está en el catálogo, reducir peso de carrera y aumentar intereses
-  // para que el motor confíe más en lo que el usuario declara que le interesa.
   const isUnknownCareer = !getCareerFamilies(enrichedProfile.degree || "");
   const weights = isUnknownCareer
     ? { ...baseWeights, carrera: Math.max(10, baseWeights.carrera - 15), intereses: baseWeights.intereses + 15 }
     : baseWeights;
 
-  const totalWeightSum  = Object.values(weights).reduce((a, b) => a + b, 0);
+  const totalWeightSum = Object.values(weights).reduce((a, b) => a + b, 0);
 
-  const allScored = activeCatalog
+  const allScored = roleCatalog
     .map((role) => {
       const degreeScore         = scoreDegree(enrichedProfile, role);
       const skillScore          = scoreSkills(enrichedProfile, role);
@@ -798,8 +1113,6 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
       const interestScore       = scoreInterests(enrichedProfile, role);
       const modalityScore       = scoreModality(enrichedProfile, role);
 
-      // Cada dimensión se normaliza (0-1) y luego se escala por su peso dinámico.
-      // El resultado se normaliza a 100 dividiendo por totalWeightSum.
       const weightedRaw =
         (degreeScore         / 30) * weights.carrera        +
         (skillScore          / 25) * weights.skills          +
@@ -810,22 +1123,15 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
 
       const rawScore = Math.round((weightedRaw / totalWeightSum) * 100);
 
-      // Postgrado: penalizar roles básicos (Asistente) cuando el perfil tiene posgrado
       const isBasicRole         = /^Asistente\s/i.test(role.title);
       const postgraduatePenalty = (enrichedProfile.has_postgrad && isBasicRole) ? 0.7 : 1;
-      // Evitar: penalizar roles cuya familia primaria el usuario quiere evitar
       const avoidPenalty        = computeAvoidPenalty(avoidPreferences, role);
-      // Sin overlap formativo → penalización suave (×0.6) en vez de exclusión total.
-      // Para carreras desconocidas (isUnknownCareer) ya se redujo el peso de carrera;
-      // no aplicar doble penalización si degreeScore termina en 0.
-      const noFamilyPenalty = (degreeScore === 0 && !isUnknownCareer) ? 0.6 : 1;
+      const noFamilyPenalty     = (degreeScore === 0 && !isUnknownCareer) ? 0.6 : 1;
       const score = Math.min(100, Math.round(
         rawScore * postgraduatePenalty * avoidPenalty * noFamilyPenalty
       ));
 
       const missingSkills = buildMissingSkills(enrichedProfile, role);
-
-      // Priorizar skills accionables (Excel, SQL, Python, etc.) en el top
       const top_missing_skills = [...missingSkills]
         .sort((a, b) => {
           const aActionable = ACTIONABLE_SKILLS.has(normalizeText(a)) ? 0 : 1;
@@ -834,7 +1140,6 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
         })
         .slice(0, 3);
 
-      // Alineación entre interés declarado y evidencia real del perfil (Fase 5)
       const interestAlignment = evaluateInterestAlignment(
         enrichedProfile, role, degreeScore, skillScore, experienceScore, specializationScore
       );
@@ -875,25 +1180,20 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
   const strongMatches  = allScored.filter((r) => r.score >= STRONG_THRESHOLD).slice(0, 5);
   const stretchMatches = allScored.filter((r) => r.score < STRONG_THRESHOLD).slice(0, 5);
 
-  // Calcular recommendation_score en cada rol (Fase 6)
   [...strongMatches, ...stretchMatches].forEach((r) => {
     r.recommendation_score = computeRecommendationScore(r);
   });
 
-  // El recomendado principal es el de mayor recommendation_score,
-  // no necesariamente el de mayor score bruto
   const allRanked = [...strongMatches, ...stretchMatches]
     .sort((a, b) => b.recommendation_score - a.recommendation_score);
   const topRecommended = allRanked[0];
   if (topRecommended) topRecommended.is_recommended = true;
 
-  // Clasificar tipo de usuario (Fase 4)
   const user_type = classifyUserType(enrichedProfile, {
     strong_matches:  strongMatches,
     stretch_matches: stretchMatches
   });
 
-  // Mensaje contextual adaptado al tipo de usuario (Fase 8)
   const context_message = buildContextMessage(user_type, enrichedProfile, topRecommended || allRanked[0] || null);
 
   return {

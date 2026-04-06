@@ -55,7 +55,9 @@ router.post("/", upload.single("cv"), async (req, res) => {
       company_preferences_other: req.body.company_preferences_other || "",
       user_intent_mode:          req.body.user_intent_mode || "guided",
       avoidPreferences:          req.body.avoid_preferences ? JSON.parse(req.body.avoid_preferences) : [],
-      areas_interest:            req.body.areas_interest   ? JSON.parse(req.body.areas_interest)   : []
+      areas_interest:            req.body.areas_interest   ? JSON.parse(req.body.areas_interest)   : [],
+      task_prefs:                req.body.task_preferences      ? JSON.parse(req.body.task_preferences)      : [],
+      motivation_prefs:          req.body.motivation_preferences ? JSON.parse(req.body.motivation_preferences) : []
     };
 
     // Estudiante en último año → tratarlo como egresado en el scoring
