@@ -161,21 +161,10 @@
       <div class="step" id="step-explore-areas" hidden>
         <div class="step-header">
           <h2>Pensando en tu carrera, ¿qué áreas te hacen más sentido hoy?</h2>
-          <p class="muted">No tiene que ser definitivo. Esto solo nos ayuda a acercarnos mejor a lo que te interesa.</p>
+          <p class="muted">Elige hasta 3 áreas. No tiene que ser definitivo.</p>
         </div>
-        <div class="explore-areas-section">
-          <p class="explore-group-label">Me interesa explorar</p>
-          <div class="explore-grid" id="explore-areas-interest-grid">
-            <!-- renderizado por JS -->
-          </div>
-        </div>
-        <div class="explore-areas-section" style="margin-top: 20px;">
-          <p class="explore-group-label explore-group-label--avoid">Prefiero evitar por ahora <span class="optional">(opcional)</span></p>
-          <div class="explore-grid" id="explore-areas-avoid-grid">
-            <!-- renderizado por JS -->
-          </div>
-        </div>
-        <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos un área que te interese para continuar.</p>
+        <div id="explore-areas-interest-grid"></div>
+        <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos un área para continuar.</p>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-areas">← Atrás</button>
           <button type="button" class="button primary" id="next-explore-areas" disabled>Siguiente</button>

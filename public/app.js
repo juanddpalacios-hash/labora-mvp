@@ -1900,16 +1900,24 @@ const EXPLORE_MOTIVATIONS = [
 ];
 
 const EXPLORE_AREAS = [
-  { value: "finanzas",        label: "Finanzas" },
-  { value: "analitica",       label: "Analítica y datos" },
-  { value: "control-gestion", label: "Control de Gestión" },
-  { value: "comercial",       label: "Comercial y ventas" },
-  { value: "marketing",       label: "Marketing" },
-  { value: "operaciones",     label: "Operaciones" },
-  { value: "personas",        label: "Personas / RRHH" },
-  { value: "proyectos",       label: "Proyectos" },
-  { value: "tecnologia",      label: "Tecnología (BA / Producto)" },
-  { value: "emprendimiento",  label: "Emprendimiento" }
+  { value: "finanzas",        label: "Finanzas",                   description: "Trabajas con números para entender cómo está una empresa y apoyar decisiones importantes.", roles: "Analista financiero, tesorería, presupuestos" },
+  { value: "analitica",       label: "Analítica y datos",          description: "Trabajas con datos para entender qué está pasando y apoyar decisiones.",                    roles: "Analista de datos, BI, reporting" },
+  { value: "control-gestion", label: "Control de Gestión",         description: "Revisas números de la empresa, detectas problemas y ayudas a mejorar resultados.",           roles: "Control de gestión, presupuestos, reporting" },
+  { value: "comercial",       label: "Comercial y ventas",         description: "Trabajas con clientes para generar ingresos, ya sea vendiendo o gestionando cuentas.",       roles: "Ejecutivo comercial, ventas, customer success" },
+  { value: "marketing",       label: "Marketing",                  description: "Planificas campañas, creas contenido y mides qué funciona y qué no.",                        roles: "Marketing digital, performance, community manager" },
+  { value: "operaciones",     label: "Operaciones",                description: "Te encargas de que todo funcione bien en la operación del día a día.",                       roles: "Operaciones, logística, supply chain" },
+  { value: "proyectos",       label: "Proyectos",                  description: "Organizas tareas y equipos para que proyectos se ejecuten bien y a tiempo.",                 roles: "Project manager, coordinación de proyectos" },
+  { value: "personas",        label: "Personas / RRHH",            description: "Trabajas con personas dentro de la empresa, desde contratación hasta desarrollo.",           roles: "Reclutamiento, desarrollo organizacional, RRHH" },
+  { value: "tecnologia",      label: "Tecnología (BA / Producto)", description: "Conectas negocio y tecnología para construir productos o mejorar sistemas.",                 roles: "Business analyst, product analyst" },
+  { value: "emprendimiento",  label: "Emprendimiento",             description: "Trabajas en crear o hacer crecer nuevos negocios o ideas.",                                  roles: "Nuevos negocios, innovación, venture" }
+];
+
+const EXPLORE_AREA_GROUPS = [
+  { label: "Analítico",          areas: ["finanzas", "analitica", "control-gestion"] },
+  { label: "Negocio / Clientes", areas: ["comercial", "marketing"] },
+  { label: "Operación",          areas: ["operaciones", "proyectos"] },
+  { label: "Personas",           areas: ["personas"] },
+  { label: "Otros",              areas: ["tecnologia", "emprendimiento"] }
 ];
 
 // Contenido específico por rol para el flujo explore.
@@ -2164,32 +2172,62 @@ function renderExploreGrid(containerId, options, selectedArr, maxSelections, onC
  * Renderiza el grid de áreas explícitas (interés / evitar).
  * Evita contradicciones: si un área está en el otro array, no se puede seleccionar aquí.
  */
-function renderExploreAreasGrid(containerId, options, selectedArr, oppositeArr, onChangeCallback) {
-  const grid = document.getElementById(containerId);
-  if (!grid) return;
-  grid.innerHTML = "";
+function renderExploreAreasGrid(containerId, options, selectedArr, onChangeCallback) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
 
-  options.forEach(({ value, label }) => {
-    const isSelected = selectedArr.includes(value);
-    const isBlocked  = oppositeArr.includes(value);
-    const card = document.createElement("div");
-    card.className = "explore-option" +
-      (isSelected ? " selected" : "") +
-      (isBlocked ? " disabled" : "");
-    card.innerHTML = `<span class="explore-option-check">✓</span><span>${label}</span>`;
+  const areaMap = Object.fromEntries(options.map(o => [o.value, o]));
 
-    card.addEventListener("click", () => {
-      if (isBlocked) return;
-      if (isSelected) {
-        selectedArr.splice(selectedArr.indexOf(value), 1);
-      } else {
-        selectedArr.push(value);
-      }
-      renderExploreAreasGrid(containerId, options, selectedArr, oppositeArr, onChangeCallback);
-      if (onChangeCallback) onChangeCallback();
+  EXPLORE_AREA_GROUPS.forEach(({ label: groupLabel, areas }) => {
+    const groupEl = document.createElement("div");
+    groupEl.className = "explore-group";
+
+    const header = document.createElement("p");
+    header.className = "explore-group-label";
+    header.textContent = groupLabel;
+    groupEl.appendChild(header);
+
+    const grid = document.createElement("div");
+    grid.className = "explore-cards-grid";
+
+    areas.forEach(value => {
+      const opt = areaMap[value];
+      if (!opt) return;
+      const { label, description, roles } = opt;
+      const isSelected = selectedArr.includes(value);
+      const atMax      = !isSelected && selectedArr.length >= 3;
+
+      const card = document.createElement("div");
+      card.className = "explore-option" +
+        (isSelected ? " selected" : "") +
+        (atMax ? " disabled" : "");
+
+      card.innerHTML = `
+        <div class="explore-option-header">
+          <span class="explore-option-label">${label}</span>
+          <span class="explore-option-check">✓</span>
+        </div>
+        <p class="explore-option-desc">${description}</p>
+        <p class="explore-option-roles">Ej: ${roles}</p>
+      `;
+
+      card.addEventListener("click", () => {
+        if (atMax) return;
+        if (isSelected) {
+          selectedArr.splice(selectedArr.indexOf(value), 1);
+        } else {
+          selectedArr.push(value);
+        }
+        renderExploreAreasGrid(containerId, options, selectedArr, onChangeCallback);
+        if (onChangeCallback) onChangeCallback();
+      });
+
+      grid.appendChild(card);
     });
 
-    grid.appendChild(card);
+    groupEl.appendChild(grid);
+    container.appendChild(groupEl);
   });
 }
 
@@ -2384,10 +2422,8 @@ function updateExploreProgress(step) {
 function initExploreFlow() {
   // ── Render grids ──────────────────────────────────────────────────────
 
-  // explore-areas: dos grids que se sincronizan (interés / evitar)
   function refreshAreasGrids() {
-    renderExploreAreasGrid("explore-areas-interest-grid", EXPLORE_AREAS, exploreAreasInterest, exploreAreasAvoid, refreshAreasGrids);
-    renderExploreAreasGrid("explore-areas-avoid-grid",    EXPLORE_AREAS, exploreAreasAvoid,    exploreAreasInterest, refreshAreasGrids);
+    renderExploreAreasGrid("explore-areas-interest-grid", EXPLORE_AREAS, exploreAreasInterest, refreshAreasGrids);
     const nextBtn = document.getElementById("next-explore-areas");
     const hintEl  = document.getElementById("explore-areas-hint");
     const hasMin  = exploreAreasInterest.length > 0;
