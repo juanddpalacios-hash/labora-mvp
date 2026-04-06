@@ -141,8 +141,15 @@ async function handleFormSubmit(event) {
       formData.append("task_preferences",   JSON.stringify(exploreTaskPrefs));
       formData.append("avoid_preferences",  JSON.stringify(exploreAvoid));
       formData.append("motivation_preferences", JSON.stringify(exploreMotivations));
-      formData.append("areas_interest",     JSON.stringify(exploreAreasInterest));
-      formData.append("areas_avoid",        JSON.stringify(exploreAreasAvoid));
+      // Inferir áreas desde behavioral interests (unión deduplicada)
+      const inferredAreasFromInterests = [...new Set(
+        exploreInterests.flatMap(id => {
+          const item = BEHAVIORAL_INTERESTS.find(b => b.id === id);
+          return item ? item.areas : [];
+        })
+      )];
+      formData.append("areas_interest",       JSON.stringify(inferredAreasFromInterests));
+      formData.append("interest_preferences", JSON.stringify(exploreInterests));
       formData.append("extra_motivation_text", document.getElementById("extra-motivation")?.value || "");
     }
 
@@ -164,8 +171,7 @@ async function handleFormSubmit(event) {
       sessionStorage.setItem("laboraExploreTaskPrefs",    JSON.stringify(exploreTaskPrefs));
       sessionStorage.setItem("laboraExploreAvoid",        JSON.stringify(exploreAvoid));
       sessionStorage.setItem("laboraExploreMotivations",  JSON.stringify(exploreMotivations));
-      sessionStorage.setItem("laboraExploreAreasInterest",JSON.stringify(exploreAreasInterest));
-      sessionStorage.setItem("laboraExploreAreasAvoid",   JSON.stringify(exploreAreasAvoid));
+      sessionStorage.setItem("laboraExploreInterests",    JSON.stringify(exploreInterests));
     }
     // Guardar si es estudiante en año no final (para ajustar copy de resultados)
     const academicStatusVal = document.getElementById("academicStatus")?.value || "";
@@ -1870,8 +1876,7 @@ let exploreTaskPrefs      = [];  // máx 2
 let exploreAvoid          = [];  // min 1, sin límite superior
 let exploreMotivations    = [];  // min 1, máx 2
 let selectedInferredAreas = [];  // áreas confirmadas (máx 2)
-let exploreAreasInterest  = [];  // áreas explícitas de interés (min 1)
-let exploreAreasAvoid     = [];  // áreas explícitas a evitar (opcional)
+let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 3)
 
 const EXPLORE_TASKS = [
   { value: "analizar-datos",    label: "Mirar información, encontrar patrones y llegar a conclusiones claras" },
@@ -1899,25 +1904,19 @@ const EXPLORE_MOTIVATIONS = [
   { value: "impacto",        label: "Trabajar en algo con impacto o propósito, aunque no sea lo más rentable" }
 ];
 
-const EXPLORE_AREAS = [
-  { value: "finanzas",        label: "Finanzas",                   description: "Trabajas con números para entender cómo está una empresa y apoyar decisiones importantes.", roles: "Analista financiero, tesorería, presupuestos" },
-  { value: "analitica",       label: "Analítica y datos",          description: "Trabajas con datos para entender qué está pasando y apoyar decisiones.",                    roles: "Analista de datos, BI, reporting" },
-  { value: "control-gestion", label: "Control de Gestión",         description: "Revisas números de la empresa, detectas problemas y ayudas a mejorar resultados.",           roles: "Control de gestión, presupuestos, reporting" },
-  { value: "comercial",       label: "Comercial y ventas",         description: "Trabajas con clientes para generar ingresos, ya sea vendiendo o gestionando cuentas.",       roles: "Ejecutivo comercial, ventas, customer success" },
-  { value: "marketing",       label: "Marketing",                  description: "Planificas campañas, creas contenido y mides qué funciona y qué no.",                        roles: "Marketing digital, performance, community manager" },
-  { value: "operaciones",     label: "Operaciones",                description: "Te encargas de que todo funcione bien en la operación del día a día.",                       roles: "Operaciones, logística, supply chain" },
-  { value: "proyectos",       label: "Proyectos",                  description: "Organizas tareas y equipos para que proyectos se ejecuten bien y a tiempo.",                 roles: "Project manager, coordinación de proyectos" },
-  { value: "personas",        label: "Personas / RRHH",            description: "Trabajas con personas dentro de la empresa, desde contratación hasta desarrollo.",           roles: "Reclutamiento, desarrollo organizacional, RRHH" },
-  { value: "tecnologia",      label: "Tecnología (BA / Producto)", description: "Conectas negocio y tecnología para construir productos o mejorar sistemas.",                 roles: "Business analyst, product analyst" },
-  { value: "emprendimiento",  label: "Emprendimiento",             description: "Trabajas en crear o hacer crecer nuevos negocios o ideas.",                                  roles: "Nuevos negocios, innovación, venture" }
-];
-
-const EXPLORE_AREA_GROUPS = [
-  { label: "Analítico",          areas: ["finanzas", "analitica", "control-gestion"] },
-  { label: "Negocio / Clientes", areas: ["comercial", "marketing"] },
-  { label: "Operación",          areas: ["operaciones", "proyectos"] },
-  { label: "Personas",           areas: ["personas"] },
-  { label: "Otros",              areas: ["tecnologia", "emprendimiento"] }
+// Behavioral interests — reemplazan la selección explícita de áreas.
+// Cada opción mapea internamente a áreas (para areaBoost) y traits (para behavioralScore).
+// El usuario ve solo el label; áreas y traits son invisibles.
+// IMPORTANTE: traits debe mantenerse sincronizado con INTEREST_TO_TRAITS en roleMatcher.js.
+const BEHAVIORAL_INTERESTS = [
+  { id: "entender-datos",       label: "Entender qué hay detrás de la información y convertirlo en algo útil",                      areas: ["analitica", "finanzas"],                        traits: { analisis: 2, aprendizaje: 1 } },
+  { id: "numeros-negocio",      label: "Trabajar con los números de un negocio para saber si va bien o mal",                         areas: ["finanzas", "control-gestion"],                  traits: { analisis: 2 } },
+  { id: "procesos-ordenados",   label: "Hacer que las cosas se hagan bien, de forma ordenada y consistente",                         areas: ["operaciones", "control-gestion"],               traits: { ejecucion: 2, coordinacion: 1 } },
+  { id: "coordinar-avanzar",    label: "Coordinar personas o proyectos para que las cosas lleguen a buen término",                   areas: ["proyectos", "personas"],                        traits: { coordinacion: 2, social: 1 } },
+  { id: "cerca-personas",       label: "Estar en contacto con personas y ayudar a resolver lo que necesitan",                        areas: ["comercial", "personas", "marketing"],           traits: { social: 2, contacto_cliente: 1, coordinacion: 1 } },
+  { id: "mejorar-organizacion", label: "Entender cómo funciona una organización por dentro y contribuir a mejorarla",                areas: ["control-gestion", "proyectos", "personas"],     traits: { coordinacion: 1, ejecucion: 1, aprendizaje: 1 } },
+  { id: "aprender-profundo",    label: "Investigar cómo funcionan las cosas, aprender en profundidad y no quedarme solo con lo básico", areas: ["analitica", "tecnologia", "emprendimiento"], traits: { aprendizaje: 3 } },
+  { id: "crear-impacto",        label: "Pensar en cómo crear algo nuevo, hacer crecer un negocio o generar impacto real",            areas: ["emprendimiento", "proyectos", "control-gestion"], traits: { analisis: 1, coordinacion: 1, aprendizaje: 1 } }
 ];
 
 // Contenido específico por rol para el flujo explore.
@@ -2089,9 +2088,8 @@ const AREA_DESCRIPTIONS = {
 function inferAreas() {
   const scores = {};
 
-  // Sumar puntos de tasks y avoid
-  const allSelections = [...exploreTaskPrefs, ...exploreAvoid];
-  for (const sel of allSelections) {
+  // Señal de tasks + avoids (igual que antes)
+  for (const sel of [...exploreTaskPrefs, ...exploreAvoid]) {
     const mapping = AREA_SCORE_MAP[sel];
     if (!mapping) continue;
     for (const [area, pts] of Object.entries(mapping)) {
@@ -2099,15 +2097,15 @@ function inferAreas() {
     }
   }
 
-  // Señal explícita de áreas: +4 por interés declarado, -3 por descarte declarado
-  for (const area of exploreAreasInterest) {
-    scores[area] = (scores[area] || 0) + 4;
-  }
-  for (const area of exploreAreasAvoid) {
-    scores[area] = (scores[area] || 0) - 3;
+  // Señal de behavioral interests: +3 por cada área de cada interés seleccionado
+  for (const id of exploreInterests) {
+    const item = BEHAVIORAL_INTERESTS.find(b => b.id === id);
+    if (!item) continue;
+    for (const area of item.areas) {
+      scores[area] = (scores[area] || 0) + 3;
+    }
   }
 
-  // Ordenar por score descendente, filtrar los que tienen score > 0
   const ranked = Object.entries(scores)
     .filter(([, s]) => s > 0)
     .sort((a, b) => b[1] - a[1])
@@ -2119,10 +2117,10 @@ function inferAreas() {
       score
     }));
 
-  // Si no hay resultados, usar áreas explícitas de interés o fallback neutro
   if (ranked.length === 0) {
-    const fallback = exploreAreasInterest.length > 0
-      ? exploreAreasInterest.slice(0, 3)
+    const fallback = exploreInterests.length > 0
+      ? [...new Set(exploreInterests.flatMap(id => (BEHAVIORAL_INTERESTS.find(b => b.id === id)?.areas || [])))]
+          .slice(0, 3)
       : ["analitica", "operaciones", "proyectos"];
     return fallback.map(a => ({
       value: a,
@@ -2169,66 +2167,49 @@ function renderExploreGrid(containerId, options, selectedArr, maxSelections, onC
 }
 
 /**
- * Renderiza el grid de áreas explícitas (interés / evitar).
- * Evita contradicciones: si un área está en el otro array, no se puede seleccionar aquí.
+ * Renderiza el grid de behavioral interests (reemplaza el grid de áreas explícitas).
+ * Muestra frases conductuales; áreas y traits son invisibles al usuario.
  */
-function renderExploreAreasGrid(containerId, options, selectedArr, onChangeCallback) {
+function renderBehavioralInterestsGrid(containerId, onChangeCallback) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.innerHTML = "";
 
-  const areaMap = Object.fromEntries(options.map(o => [o.value, o]));
+  const grid = document.createElement("div");
+  grid.className = "explore-cards-grid";
 
-  EXPLORE_AREA_GROUPS.forEach(({ label: groupLabel, areas }) => {
-    const groupEl = document.createElement("div");
-    groupEl.className = "explore-group";
+  BEHAVIORAL_INTERESTS.forEach(({ id, label }) => {
+    const isSelected = exploreInterests.includes(id);
+    const atMax      = !isSelected && exploreInterests.length >= 3;
 
-    const header = document.createElement("p");
-    header.className = "explore-group-label";
-    header.textContent = groupLabel;
-    groupEl.appendChild(header);
+    const card = document.createElement("div");
+    card.className = "explore-option" +
+      (isSelected ? " selected" : "") +
+      (atMax ? " disabled" : "");
 
-    const grid = document.createElement("div");
-    grid.className = "explore-cards-grid";
+    card.innerHTML = `
+      <div class="explore-option-header">
+        <span class="explore-option-check">✓</span>
+      </div>
+      <p class="explore-option-desc">${label}</p>
+    `;
 
-    areas.forEach(value => {
-      const opt = areaMap[value];
-      if (!opt) return;
-      const { label, description, roles } = opt;
-      const isSelected = selectedArr.includes(value);
-      const atMax      = !isSelected && selectedArr.length >= 3;
-
-      const card = document.createElement("div");
-      card.className = "explore-option" +
-        (isSelected ? " selected" : "") +
-        (atMax ? " disabled" : "");
-
-      card.innerHTML = `
-        <div class="explore-option-header">
-          <span class="explore-option-label">${label}</span>
-          <span class="explore-option-check">✓</span>
-        </div>
-        <p class="explore-option-desc">${description}</p>
-        <p class="explore-option-roles">Ej: ${roles}</p>
-      `;
-
-      card.addEventListener("click", () => {
-        if (atMax) return;
-        if (isSelected) {
-          selectedArr.splice(selectedArr.indexOf(value), 1);
-        } else {
-          selectedArr.push(value);
-        }
-        renderExploreAreasGrid(containerId, options, selectedArr, onChangeCallback);
-        if (onChangeCallback) onChangeCallback();
-      });
-
-      grid.appendChild(card);
+    card.addEventListener("click", () => {
+      if (atMax) return;
+      const idx = exploreInterests.indexOf(id);
+      if (idx >= 0) {
+        exploreInterests.splice(idx, 1);
+      } else {
+        exploreInterests.push(id);
+      }
+      renderBehavioralInterestsGrid(containerId, onChangeCallback);
+      if (onChangeCallback) onChangeCallback();
     });
 
-    groupEl.appendChild(grid);
-    container.appendChild(groupEl);
+    grid.appendChild(card);
   });
+
+  container.appendChild(grid);
 }
 
 // Mapeo de tasks a descripciones naturales para la frase explicativa
@@ -2250,10 +2231,10 @@ const AVOID_NATURAL = {
 };
 
 function buildConfirmExplanation() {
-  const tasks  = exploreTaskPrefs;
-  const avoids = exploreAvoid;
-  const motivs = exploreMotivations;
-  const areasI = exploreAreasInterest;
+  const tasks    = exploreTaskPrefs;
+  const avoids   = exploreAvoid;
+  const motivs   = exploreMotivations;
+  const interests = exploreInterests;
 
   // Señales de perfil — tareas
   const isAnalytic  = tasks.includes("analizar-datos") || tasks.includes("resolver-problemas");
@@ -2273,20 +2254,22 @@ function buildConfirmExplanation() {
   const wantsStability = motivs.includes("estabilidad");
   const wantsImpact    = motivs.includes("impacto");
 
-  // Señal de áreas explícitas (refuerzo)
-  const hasAnalyticArea  = areasI.some(a => ["analitica","finanzas","control-gestion"].includes(a));
-  const hasPeopleArea    = areasI.includes("personas");
-  const hasOpsArea       = areasI.includes("operaciones") || areasI.includes("proyectos");
+  // Señales de behavioral interests (refuerzo)
+  const hasAnalyticInterest = interests.some(i => ["entender-datos","numeros-negocio"].includes(i));
+  const hasPeopleInterest   = interests.some(i => ["cerca-personas","coordinar-avanzar"].includes(i));
+  const hasOpsInterest      = interests.some(i => ["procesos-ordenados","mejorar-organizacion"].includes(i));
+  const hasLearningInterest = interests.includes("aprender-profundo");
+  const hasStrategyInterest = interests.includes("crear-impacto");
 
   // Clasificar perfil predominante
   let profile = "mixto";
-  if ((isAnalytic || isOrderly) && avoidsClients)      profile = "analitico";
-  else if (isAnalytic && isOrderly)                    profile = "analitico";
-  else if (isAnalytic || hasAnalyticArea)              profile = "analitico";
-  else if (isPeople && !avoidsClients)                 profile = "relacional";
-  else if (isOrderly && !isStrategic)                  profile = "operativo";
-  else if (isStrategic && !isPeople && avoidsClients)  profile = "estrategico";
-  else if (isStrategic)                                profile = "estrategico";
+  if ((isAnalytic || isOrderly || hasAnalyticInterest) && avoidsClients) profile = "analitico";
+  else if (isAnalytic && (isOrderly || hasAnalyticInterest))             profile = "analitico";
+  else if (isAnalytic || hasAnalyticInterest)                            profile = "analitico";
+  else if ((isPeople || hasPeopleInterest) && !avoidsClients)            profile = "relacional";
+  else if (isOrderly || hasOpsInterest)                                  profile = "operativo";
+  else if ((isStrategic || hasStrategyInterest) && avoidsClients)        profile = "estrategico";
+  else if (isStrategic || hasStrategyInterest)                           profile = "estrategico";
 
   // Frase base (perfil)
   const baseTexts = {
@@ -2325,16 +2308,16 @@ function buildConfirmExplanation() {
 
   let text = (baseTexts[profile] || baseTexts.mixto)();
 
-  // Segunda frase: motivación o señal de áreas explícitas
+  // Segunda frase: motivación + señal de interés de aprendizaje
   let extra = "";
-  if (wantsLearning) {
-    extra = " El interés en seguir aprendiendo orienta a roles con curva activa y entornos donde se aprende haciendo.";
+  if (wantsLearning || hasLearningInterest) {
+    extra = " El interés en explorar y aprender en profundidad orienta a roles con curva activa y entornos donde se aprende haciendo.";
   } else if (wantsGrowth && !wantsStability) {
     extra = " El interés en crecer rápido orienta a entornos más exigentes donde hay más responsabilidad desde temprano.";
   } else if (wantsStability) {
     extra = " La búsqueda de estabilidad orienta más a empresas con procesos definidos y culturas establecidas.";
-  } else if (wantsImpact) {
-    extra = " El interés en impacto orienta a organizaciones donde el trabajo tiene un efecto visible más allá de los resultados comerciales.";
+  } else if (wantsImpact || hasStrategyInterest) {
+    extra = " El interés en impacto y estrategia orienta a organizaciones donde el trabajo tiene un efecto visible más allá de los resultados inmediatos.";
   }
 
   return text + extra;
@@ -2359,16 +2342,15 @@ function renderExploreConfirm() {
 
   const headerEl = document.createElement("div");
   headerEl.className = "explore-confirm-header";
-  headerEl.innerHTML = `<p class="explore-confirm-section-label">Con todo lo que nos contaste, estas áreas se ven más cercanas a ti:</p>`;
+  headerEl.innerHTML = `<p class="explore-confirm-section-label">Con lo que nos contaste, esto parece cercano a cómo te ves trabajando:</p>`;
   grid.appendChild(headerEl);
 
-  inferred.forEach(({ value, label, description }) => {
+  inferred.forEach(({ value, description }) => {
     const card = document.createElement("div");
     card.className = "explore-confirm-card";
     card.innerHTML = `
       <span class="explore-option-check">✓</span>
-      <h3>${label}</h3>
-      <p class="muted">${description}</p>`;
+      <p>${description}</p>`;
 
     card.addEventListener("click", () => {
       const idx = selectedInferredAreas.indexOf(value);
@@ -2422,15 +2404,15 @@ function updateExploreProgress(step) {
 function initExploreFlow() {
   // ── Render grids ──────────────────────────────────────────────────────
 
-  function refreshAreasGrids() {
-    renderExploreAreasGrid("explore-areas-interest-grid", EXPLORE_AREAS, exploreAreasInterest, refreshAreasGrids);
+  function refreshInterestsGrid() {
+    renderBehavioralInterestsGrid("explore-areas-interest-grid", refreshInterestsGrid);
     const nextBtn = document.getElementById("next-explore-areas");
     const hintEl  = document.getElementById("explore-areas-hint");
-    const hasMin  = exploreAreasInterest.length > 0;
+    const hasMin  = exploreInterests.length > 0;
     if (nextBtn) nextBtn.disabled = !hasMin;
     if (hintEl)  hintEl.hidden = hasMin;
   }
-  refreshAreasGrids();
+  refreshInterestsGrid();
 
   // explore-1 (tareas)
   renderExploreGrid("explore-tasks-grid", EXPLORE_TASKS, exploreTaskPrefs, 2, (arr) => {
@@ -2467,7 +2449,7 @@ function initExploreFlow() {
   // explore-areas (idx 0)
   document.getElementById("back-explore-areas")?.addEventListener("click", () => showStep(2));
   document.getElementById("next-explore-areas")?.addEventListener("click", () => {
-    if (exploreAreasInterest.length === 0) {
+    if (exploreInterests.length === 0) {
       const hintEl = document.getElementById("explore-areas-hint");
       if (hintEl) hintEl.hidden = false;
       return;

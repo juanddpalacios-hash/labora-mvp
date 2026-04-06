@@ -145,6 +145,19 @@ const MOTIVATION_TO_TRAITS = {
   "impacto":       { aprendizaje: 1, coordinacion: 1 }
 };
 
+// Behavioral interest preferences → trait deltas.
+// Mirrors BEHAVIORAL_INTERESTS in public/app.js — keep in sync if options change.
+const INTEREST_TO_TRAITS = {
+  "entender-datos":      { analisis: 2, aprendizaje: 1 },
+  "numeros-negocio":     { analisis: 2 },
+  "procesos-ordenados":  { ejecucion: 2, coordinacion: 1 },
+  "coordinar-avanzar":   { coordinacion: 2, social: 1 },
+  "cerca-personas":      { social: 2, contacto_cliente: 1, coordinacion: 1 },
+  "mejorar-organizacion":{ coordinacion: 1, ejecucion: 1, aprendizaje: 1 },
+  "aprender-profundo":   { aprendizaje: 3 },
+  "crear-impacto":       { analisis: 1, coordinacion: 1, aprendizaje: 1 }
+};
+
 // Additive avoid penalties — subtracted from final score.
 // Rules are ordered strongest-first; only the first match per avoid value applies.
 const AVOID_PENALTY_RULES = [
@@ -184,7 +197,7 @@ const ROLE_CLUSTERS = {
  * Builds a user trait vector (8 dims, each 0-3) from task and motivation signals.
  * Each task/motivation adds deltas to the corresponding traits; final values clamped to [0,3].
  */
-function buildUserTraitVector(taskPrefs, motivPrefs) {
+function buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs = []) {
   const traits = { analisis: 0, ejecucion: 0, coordinacion: 0, contacto_cliente: 0, social: 0, presion: 0, aprendizaje: 0, movilidad: 0 };
 
   for (const task of (taskPrefs || [])) {
@@ -196,6 +209,13 @@ function buildUserTraitVector(taskPrefs, motivPrefs) {
 
   for (const motiv of (motivPrefs || [])) {
     const deltas = MOTIVATION_TO_TRAITS[motiv] || {};
+    for (const [key, val] of Object.entries(deltas)) {
+      if (Object.prototype.hasOwnProperty.call(traits, key)) traits[key] += val;
+    }
+  }
+
+  for (const interest of (interestPrefs || [])) {
+    const deltas = INTEREST_TO_TRAITS[interest] || {};
     for (const [key, val] of Object.entries(deltas)) {
       if (Object.prototype.hasOwnProperty.call(traits, key)) traits[key] += val;
     }
@@ -1019,9 +1039,10 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
 
   // ─── EXPLORE MODE: behavioral-first scoring ──────────────────────
   if (isExploreMode) {
-    const taskPrefs  = metadata.task_prefs        || [];
-    const motivPrefs = metadata.motivation_prefs  || [];
-    const userTraits = buildUserTraitVector(taskPrefs, motivPrefs);
+    const taskPrefs     = metadata.task_prefs       || [];
+    const motivPrefs    = metadata.motivation_prefs || [];
+    const interestPrefs = metadata.interest_prefs   || [];
+    const userTraits = buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs);
 
     const EXPLORE_STRONG  = 48;
     const EXPLORE_STRETCH = 15;
