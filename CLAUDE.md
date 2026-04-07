@@ -11,7 +11,7 @@ Motor de matching laboral para egresados chilenos. Stack: Node.js + Express + mu
 Servidor activo en PM2, puerto 3000. Comando: `pm2 restart labora-mvp`.
 
 Archivos clave:
-- `server/services/roleMatcher.js` — motor de scoring; modo explore: behavioral-first (cv+behavioral+area-boost-avoid); modo guided: 6 dimensiones + pesos dinámicos
+- `server/services/roleMatcher.js` — motor de scoring; modo explore: latent profile first (cv+behavioral-avoid, sin areaBoost); modo guided: 6 dimensiones + pesos dinámicos
 - `server/routes/analyze.js` — POST /api/analyze, recibe CV + metadatos del formulario (incluyendo task_preferences y motivation_preferences)
 - `server/services/aiExtractor.js` — extrae perfil estructurado del texto del CV
 - `data/junior_roles.json` — catálogo de 44 roles junior con required_skills, families, traits (8 dimensiones conductuales), entry_type, has_commission, requires_cv_gate
@@ -291,7 +291,7 @@ data (analitica, tecnologia) | finance (finanzas) | control_gestion (control-ges
 
 > Nota: "control-gestion" y "operaciones" comparten cluster `control_gestion`. Compliance (`category: operaciones`) vive en este cluster — su clasificación es funcional (proceso/gestión), no académica.
 
-**Umbrales explore:** strong ≥48, stretch 15-47, excluido <15 (max teórico: 85)
+**Umbrales explore:** strong ≥40, stretch 12-39, excluido <12 (max teórico: 75 — sin areaBoost)
 
 **Guided mode:** sin cambios — scoring 6 dimensiones + pesos dinámicos. Umbrales strong ≥65, stretch 25-64.
 
@@ -533,51 +533,60 @@ emprendimiento:  Analista de Innovación Junior, Analista de Nuevos Negocios Jun
 
 ---
 
-## Análisis arquitectural del motor — areaBoost como clasificación temprana (2026-04-06)
+## Estado actual (2026-04-06) — post sprint latent profile
 
-### Problema identificado (pendiente de implementación)
+### Completado — Sprint latent profile (2026-04-06, commits f575ad6 → eb3a63f)
 
-El `scoreAreaBoost()` usa `areas_interest` (inferidas de BEHAVIORAL_INTERESTS en el frontend) como **input de scoring**, contribuyendo hasta +10 pts antes del ranking. Esto genera double-counting:
+**Problema resuelto:**
+`scoreAreaBoost()` producía double-counting: los behavioral interests ya influían en `behavioralScore` vía `INTEREST_TO_TRAITS`, y además inflaban `areaBoost` vía `areas_interest`. La misma señal amplificaba los mismos roles por dos rutas.
 
-1. Las selecciones conductuales del usuario entran a `INTEREST_TO_TRAITS` → modifican `behavioralScore`
-2. Las mismas selecciones infieren `areas_interest` → entran a `scoreAreaBoost()` → modifican `finalScore` otra vez
+**Principio aplicado:**
+> Las áreas no son input del ranking. Son interpretación posterior del resultado.
 
-La misma señal amplifica los mismos roles por dos rutas distintas, consolidando el resultado en lugar de descubrirlo.
+**Cambios en `server/services/roleMatcher.js`:**
+- `scoreAreaBoost()` eliminado del `finalScore` (función existe pero no se invoca)
+- Fórmula nueva: `cvScore + behavioralScore - avoidPenalty - pgPenalty` (max 75)
+- Thresholds recalibrados: `EXPLORE_STRONG = 40`, `EXPLORE_STRETCH = 12`
+- `area_boost` eliminado del `score_breakdown`
+- Nueva función `buildExploreContextMessage(topRoles)`: deriva copy desde clusters del top-5
+  - 1 cluster → `"Hay señales claras de que te calzan roles donde [cómo se trabaja]."`
+  - 2 clusters → `"Vemos una mezcla entre roles donde [X] y otros donde [Y]."`
+  - 3+ clusters → `"Hoy aparecen varias direcciones posibles: [X], [Y], [Z]."`
+  - Usa `CLUSTER_WORK_LABELS` (frases de cómo se trabaja) y `CLUSTER_WORK_SHORT` — NO etiquetas de área
+- `user_type` eliminado del return de explore mode (ya no se usa para el mensaje)
 
-### Flujo actual (problema)
+**Cambios en `public/app.js`:**
+- `areas_interest` eliminado del form submit — ya no se envía ni se usa en el motor
+- `selectedInferredAreas` eliminado (variable global + toda su lógica)
+- `step-explore-confirm` reconvertido a paso de reflexión UX sin selección requerida:
+  - Muestra `buildConfirmExplanation()` (perfil conductual en lenguaje natural — sin cambios)
+  - Muestra `buildTraitDirections()`: 2 orientaciones derivadas del vector de traits del usuario
+  - `TRAIT_DIRECTIONS`: 5 orientaciones con título + bajada práctica del día a día
+  - Botón siempre habilitado — no bloquea el flujo ni afecta el backend
+
+**Cambios en `public/styles.css`:**
+- Nuevas clases: `.explore-confirm-direction`, `.explore-confirm-direction-title`, `.explore-confirm-direction-desc`
+
+**Flujo resultante:**
 ```
-Selecciones conductuales
-  ↓
-inferAreas()  →  areas_interest  →  scoreAreaBoost(+8/+3)  ← clasifica ANTES de rankear
-  ↓
-buildUserTraitVector()  →  scoreBehavioral(0-40)
-  ↓
-finalScore = cv + behavioral + areaBoost - avoidPenalty
+Respuestas conductuales
+  → buildUserTraitVector()
+  → score = cvScore + behavioralScore - avoidPenalty - pgPenalty (max 75)
+  → diversifyResults() — sin cambios (opera sobre clusters)
+  → Top 5
+  → buildExploreContextMessage(top5) — clusters como output interpretativo
 ```
 
-### Flujo propuesto (latent profile first)
-```
-Selecciones conductuales
-  ↓
-buildUserTraitVector()  →  scoreBehavioral(0-40)
-  ↓
-finalScore = cv + behavioral - avoidPenalty   ← areaBoost eliminado del score
-  ↓
-diversifyResults()  →  Top 5
-  ↓
-Observar clusters dominantes del top 5  →  copy: "aparecen caminos de X e Y"
-```
-
-### Decisiones pendientes antes de implementar
-1. **Umbrales:** areaBoost vale ~12% del max (10/85). Al eliminarlo, recalibrar `strong ≥48` y `stretch 15-47`.
-2. **step-explore-confirm:** con áreas eliminadas del score, confirmar áreas no aporta información al motor. ¿Eliminar el paso o convertirlo en otra cosa?
-3. **areas_interest:** pasa a ser solo señal de display/copy, no input de scoring.
+### Regla 13. areas_interest ya no afecta el ranking
+`areas_interest` NO se envía desde el frontend ni se usa en el motor de scoring.
+Los clusters/áreas solo existen como interpretación posterior al ranking, derivados de los roles ganadores.
+No reintroducir `scoreAreaBoost()` ni equivalente oculto. El `score_breakdown` solo contiene: `cv`, `behavioral`, `avoid_penalty`.
 
 ### Prioridades actuales (2026-04-06)
-1. ~~Sprints 1-12~~ — completados
-13. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
-14. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
-15. **Sprint latent profile:** eliminar areaBoost del score → derivar áreas desde el ranking (pendiente decisiones de producto arriba)
+1. ~~Sprints 1-15~~ — todos completados
+16. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+17. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
+18. **Tests end-to-end en Render** — verificar flujo completo post sprint latent profile
 
 ---
 
@@ -594,19 +603,20 @@ curl -s -X POST http://localhost:3000/api/analyze \
   -d "{\"degree\":\"Ingenieria Comercial\",\"academicStatus\":\"titulado\",\"city\":\"Santiago\",\"user_intent_mode\":\"guided\",\"desiredModality\":\"[]\",\"areasOfInterest\":\"[{\\\"value\\\":\\\"finanzas\\\",\\\"weight\\\":3}]\"}" \
   > C:/Temp/result.json && node -e "const d=JSON.parse(require('fs').readFileSync('C:/Temp/result.json','utf8')); console.log('roles:', (d.matches?.strong_matches?.length||0)+(d.matches?.stretch_matches?.length||0), '| user_type:', d.matches?.user_type)"
 
-# Test explore mode con señales conductuales
+# Test explore mode con señales conductuales (latent profile — sin areas_interest)
 curl -s -X POST http://localhost:3000/api/analyze \
   -F "degree=Ingenieria Comercial" \
   -F "academicStatus=egresado" \
   -F "city=Santiago" \
   -F "user_intent_mode=explore" \
-  -F 'areas_interest=["analitica","finanzas"]' \
+  -F 'interest_preferences=["entender-datos","aprender-profundo"]' \
   -F 'task_preferences=["analizar-datos","resolver-problemas"]' \
   -F 'motivation_preferences=["aprender","crecer-rapido"]' \
   -F 'avoid_preferences=["ventas-metas","atencion-clientes"]' \
   > C:/Temp/explore.json && node -e "
 const d=JSON.parse(require('fs').readFileSync('C:/Temp/explore.json','utf8'));
 const all=[...(d.matches?.strong_matches||[]),...(d.matches?.stretch_matches||[])];
-all.forEach(r => { const sb=r.score_breakdown; console.log(r.score+' '+r.title+' cv:'+sb.cv+' beh:'+sb.behavioral+' area:'+sb.area_boost+' avoid:-'+sb.avoid_penalty); });
+console.log('headline:', d.matches?.context_message?.headline);
+all.forEach(r => { const sb=r.score_breakdown; console.log(r.score+' '+r.title+' cv:'+sb.cv+' beh:'+sb.behavioral+' avoid:-'+sb.avoid_penalty); });
 "
 ```
