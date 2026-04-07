@@ -582,11 +582,60 @@ Respuestas conductuales
 Los clusters/áreas solo existen como interpretación posterior al ranking, derivados de los roles ganadores.
 No reintroducir `scoreAreaBoost()` ni equivalente oculto. El `score_breakdown` solo contiene: `cv`, `behavioral`, `avoid_penalty`.
 
-### Prioridades actuales (2026-04-06)
-1. ~~Sprints 1-15~~ — todos completados
-16. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
-17. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
-18. **Tests end-to-end en Render** — verificar flujo completo post sprint latent profile
+---
+
+## Estado actual (2026-04-07) — post sprint simplificación de flujo
+
+### Completado — Sprint simplificación de flujo (2026-04-07)
+
+**Objetivo:** Reducir fricción en el onboarding eliminando preguntas que no aportaban señal diferenciadora al motor.
+
+#### Subpreguntas de etapa eliminadas
+
+- **Último año (estudiante):** pregunta condicional eliminada de `step-2`. `isLastYear` removido del payload, de `analyze.js` y de toda la lógica JS.
+- **Postgrado (titulado):** pregunta condicional eliminada. `has_postgrad` ahora proviene solo del CV (extractor). `formPostgrad` hardcodeado a `false` en `analyze.js`.
+- `pgPenalty` sigue activa — la señal ahora es solo del CV, no del formulario.
+
+#### Paso ciudad + modalidad eliminado (step-5 completo)
+
+- `CITIES`, `initCityAutocomplete()`, `initModality()`, `getCheckedValues()` eliminados de `app.js`.
+- `city`, `region`, `desiredModality` eliminados del payload y de `analyze.js`.
+- `next-4` ahora bifurca: explore → `form.requestSubmit()`, guided → step 6 (resumen).
+- `back-6` ahora vuelve a step 4.
+- `TOTAL_STEPS`: 5 → 4 (guided). Explore: 9 → 7 pasos totales.
+
+#### Pantalla unificada intereses + tareas (step-explore-areas + step-explore-1 → una pantalla)
+
+**Principio:** reducir la cantidad de pantallas sin perder señal. Los dos arrays siguen siendo independientes.
+
+- `EXPLORE_STEP_IDS`: `["step-explore-areas", "step-explore-2", "step-explore-3", "step-explore-confirm"]` (step-explore-1 eliminado).
+- **Bloque A** (QUÉ te interesa): `exploreInterests[]` — `BEHAVIORAL_INTERESTS`, máx 3. Label: "¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?"
+- **Bloque B** (CÓMO trabajas): `exploreTaskPrefs[]` — `EXPLORE_TASKS`, máx 2. Label: "Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?"
+- Separados por `<hr class="explore-block-divider">` + línea de transición: "Ahora, más allá del tipo de trabajo, pensemos en cómo te gusta trabajar."
+- Botón `next-explore-areas` valida ambos arrays antes de avanzar.
+- `updateCombinedNext()`: botón deshabilitado hasta que cada bloque tiene ≥1 selección.
+
+**Labels Bloque B (EXPLORE_TASKS) — estilo conductual primera persona:**
+| Value | Label visible |
+|---|---|
+| `analizar-datos` | Analizo antes de actuar y entiendo bien el problema |
+| `resolver-problemas` | Avanzo probando, iterando y ajustando en el camino |
+| `trabajar-personas` | Colaboro con otros y hago que las cosas avancen |
+| `organizar-procesos` | Organizo y estructuro para que todo funcione bien |
+| `crear-estrategias` | Tomo decisiones y priorizo con una mirada estratégica |
+
+**Scoring sin cambios:** `exploreInterests` → `interest_preferences` → `metadata.interest_prefs` → `INTEREST_TO_TRAITS`. `exploreTaskPrefs` → `task_preferences` → `metadata.task_prefs` → `TASK_TO_TRAITS`. Ambos entran por separado a `buildUserTraitVector()`.
+
+**Pantalla unificada CERRADA:** no más cambios funcionales, semánticos ni de UX. Ajustes visuales/diseño se revisarán después.
+
+### Regla 14. Pantalla unificada intereses+tareas: no mezclar arrays
+`exploreInterests[]` y `exploreTaskPrefs[]` son señales distintas con mapas distintos. No fusionar ni redirigir una al array de la otra. El contrato con el motor es fijo.
+
+### Prioridades actuales (2026-04-07)
+1. ~~Sprints 1-18~~ — todos completados
+19. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+20. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
+21. **Tests end-to-end en Render** — verificar flujo completo post sprint simplificación
 
 ---
 

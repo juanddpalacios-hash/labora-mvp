@@ -10,9 +10,6 @@ let currentRawDegree  = "";
 // Indicador global: si el usuario cargó un CV (se setea en renderResults)
 let currentHasCv = false;
 
-// Indicador global: estudiante en año no final (cambia el copy de resultados)
-let currentIsStudentNotLastYear = false;
-
 // Intención del usuario (step 0)
 let userIntentMode = "guided";
 
@@ -77,12 +74,6 @@ function normalizeDegree(raw) {
   return raw.trim().replace(/^\w/, (c) => c.toUpperCase());
 }
 
-/** Devuelve los valores de todos los checkboxes marcados con ese name */
-function getCheckedValues(name) {
-  return Array.from(
-    document.querySelectorAll(`input[name="${name}"]:checked`)
-  ).map((el) => el.value);
-}
 
 /** Muestra u oculta el overlay de carga */
 function setLoading(active) {
@@ -129,9 +120,6 @@ async function handleFormSubmit(event) {
     formData.append("raw_degree",      rawDegree);
     formData.append("degree",          normalizedDegree);
     formData.append("academicStatus",  document.getElementById("academicStatus").value);
-    formData.append("isLastYear",      document.getElementById("isLastYear")?.value || "");
-    formData.append("city",            document.getElementById("city")?.value || "");
-    formData.append("desiredModality", JSON.stringify(getCheckedValues("desiredModality")));
     formData.append("areasOfInterest", JSON.stringify(weightedInterests));
     formData.append("user_intent_mode", userIntentMode);
 
@@ -165,12 +153,6 @@ async function handleFormSubmit(event) {
       sessionStorage.setItem("laboraExploreMotivations",  JSON.stringify(exploreMotivations));
       sessionStorage.setItem("laboraExploreInterests",    JSON.stringify(exploreInterests));
     }
-    // Guardar si es estudiante en año no final (para ajustar copy de resultados)
-    const academicStatusVal = document.getElementById("academicStatus")?.value || "";
-    const isLastYearVal     = document.getElementById("isLastYear")?.value || "";
-    sessionStorage.setItem("laboraIsStudentNotLastYear",
-      academicStatusVal === "estudiante" && isLastYearVal === "false" ? "true" : "false"
-    );
     window.location.href = "/results.html";
   } catch (error) {
     setLoading(false);
@@ -351,8 +333,6 @@ function renderResults() {
   const matches = data.matches || {};
 
   currentHasCv = (profile.raw_text_length || 0) > 0;
-  currentIsStudentNotLastYear = sessionStorage.getItem("laboraIsStudentNotLastYear") === "true";
-
   const strongMatches  = matches.strong_matches  || [];
   const stretchMatches = matches.stretch_matches || [];
   const allRoles       = [...strongMatches, ...stretchMatches];
@@ -463,9 +443,7 @@ function renderResults() {
 
       rolesSection = `
         <section class="card">
-          <h2 class="section-title">${currentIsStudentNotLastYear
-            ? "Estos son los caminos hacia los que puedes orientar tu formación"
-            : "Estas son las opciones que hoy se ven más cercanas a ti"}</h2>
+          <h2 class="section-title">Estas son las opciones que hoy se ven más cercanas a ti</h2>
           <p class="muted" style="margin-bottom:16px;">De todas las opciones, esta es la que hoy se ve más cercana a lo que nos contaste.</p>
           <div class="role-list">
             ${renderRoleCard(primaryRole, false)}
@@ -1625,147 +1603,6 @@ function initInterests() {
 }
 
 // ------------------------------------------------------------------ //
-// Autocomplete de ciudad (Chile)
-// ------------------------------------------------------------------ //
-
-/**
- * Ciudades principales de Chile con su región.
- * Se usa para el autocomplete del campo de ubicación.
- * La región se guarda en un campo oculto para uso futuro en el backend.
- */
-const CITIES = [
-  { name: "Santiago",      region: "Región Metropolitana" },
-  { name: "Antofagasta",   region: "Región de Antofagasta" },
-  { name: "Calama",        region: "Región de Antofagasta" },
-  { name: "Viña del Mar",  region: "Región de Valparaíso" },
-  { name: "Valparaíso",    region: "Región de Valparaíso" },
-  { name: "San Antonio",   region: "Región de Valparaíso" },
-  { name: "La Serena",     region: "Región de Coquimbo" },
-  { name: "Coquimbo",      region: "Región de Coquimbo" },
-  { name: "Ovalle",        region: "Región de Coquimbo" },
-  { name: "Copiapó",       region: "Región de Atacama" },
-  { name: "Iquique",       region: "Región de Tarapacá" },
-  { name: "Arica",         region: "Región de Arica y Parinacota" },
-  { name: "Rancagua",      region: "Región del Libertador Gral. Bernardo O'Higgins" },
-  { name: "Talca",         region: "Región del Maule" },
-  { name: "Curicó",        region: "Región del Maule" },
-  { name: "Linares",       region: "Región del Maule" },
-  { name: "Chillán",       region: "Región de Ñuble" },
-  { name: "Concepción",    region: "Región del Biobío" },
-  { name: "Talcahuano",    region: "Región del Biobío" },
-  { name: "Los Ángeles",   region: "Región del Biobío" },
-  { name: "Temuco",        region: "Región de La Araucanía" },
-  { name: "Valdivia",      region: "Región de Los Ríos" },
-  { name: "Osorno",        region: "Región de Los Lagos" },
-  { name: "Puerto Montt",  region: "Región de Los Lagos" },
-  { name: "Punta Arenas",  region: "Región de Magallanes" }
-];
-
-function initCityAutocomplete() {
-  const input       = document.getElementById("city");
-  const list        = document.getElementById("city-suggestions");
-  const regionInput = document.getElementById("cityRegion");
-  if (!input || !list) return;
-
-  let activeIndex = -1;
-
-  function normalize(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-  }
-
-  function openList(matches) {
-    list.innerHTML = "";
-    activeIndex = -1;
-    if (!matches.length) { list.classList.remove("open"); return; }
-
-    matches.forEach((city) => {
-      const li = document.createElement("li");
-      li.textContent = city.name;
-      li.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        input.value = city.name;
-        if (regionInput) regionInput.value = city.region;
-        list.classList.remove("open");
-      });
-      list.appendChild(li);
-    });
-
-    list.classList.add("open");
-  }
-
-  function closeList() {
-    list.classList.remove("open");
-    activeIndex = -1;
-  }
-
-  function setActive(index) {
-    const items = list.querySelectorAll("li");
-    items.forEach((li) => li.classList.remove("active"));
-    if (index >= 0 && index < items.length) {
-      items[index].classList.add("active");
-      items[index].scrollIntoView({ block: "nearest" });
-    }
-  }
-
-  input.addEventListener("input", () => {
-    const query = normalize(input.value);
-    if (regionInput) regionInput.value = ""; // limpiar región si edita manualmente
-    if (!query) { closeList(); return; }
-    openList(CITIES.filter((c) => normalize(c.name).includes(query)).slice(0, 8));
-  });
-
-  input.addEventListener("keydown", (e) => {
-    const items = list.querySelectorAll("li");
-    if (!list.classList.contains("open") || !items.length) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      activeIndex = Math.min(activeIndex + 1, items.length - 1);
-      setActive(activeIndex);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      activeIndex = Math.max(activeIndex - 1, 0);
-      setActive(activeIndex);
-    } else if (e.key === "Enter" && activeIndex >= 0) {
-      e.preventDefault();
-      const selected = CITIES.find((c) => c.name === items[activeIndex].textContent);
-      input.value = items[activeIndex].textContent;
-      if (regionInput && selected) regionInput.value = selected.region;
-      closeList();
-    } else if (e.key === "Escape") {
-      closeList();
-    }
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!input.contains(e.target) && !list.contains(e.target)) closeList();
-  });
-}
-
-// ------------------------------------------------------------------ //
-// Modalidad de trabajo
-// ------------------------------------------------------------------ //
-
-function initModality() {
-  const nextBtn = document.getElementById("next-5");
-
-  function updateModalityNext() {
-    const anyChecked = [...document.querySelectorAll('input[name="desiredModality"]')].some(cb => cb.checked);
-    if (nextBtn) nextBtn.disabled = !anyChecked;
-  }
-
-  document.querySelectorAll('input[name="desiredModality"]').forEach((cb) => {
-    cb.addEventListener("change", () => {
-      const label = cb.closest(".modality-option");
-      if (label) label.classList.toggle("selected", cb.checked);
-      updateModalityNext();
-    });
-  });
-
-  updateModalityNext(); // estado inicial
-}
-
-// ------------------------------------------------------------------ //
 // Preferencias de empresa
 // ------------------------------------------------------------------ //
 
@@ -1870,11 +1707,11 @@ let exploreMotivations    = [];  // min 1, máx 2
 let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 3)
 
 const EXPLORE_TASKS = [
-  { value: "analizar-datos",    label: "Mirar información, encontrar patrones y llegar a conclusiones claras" },
-  { value: "resolver-problemas",label: "Resolver problemas específicos con soluciones concretas" },
-  { value: "trabajar-personas", label: "Coordinar con personas y trabajar en equipo para que las cosas avancen" },
-  { value: "organizar-procesos",label: "Ordenar procesos y hacer que las cosas funcionen mejor" },
-  { value: "crear-estrategias", label: "Pensar estrategias, priorizar y tomar decisiones con más visión" }
+  { value: "analizar-datos",    label: "Analizo antes de actuar y entiendo bien el problema" },
+  { value: "resolver-problemas",label: "Avanzo probando, iterando y ajustando en el camino" },
+  { value: "trabajar-personas", label: "Colaboro con otros y hago que las cosas avancen" },
+  { value: "organizar-procesos",label: "Organizo y estructuro para que todo funcione bien" },
+  { value: "crear-estrategias", label: "Tomo decisiones y priorizo con una mirada estratégica" }
 ];
 
 // Flat list — sin grupos, sin "industrias-no-van"
@@ -2425,7 +2262,7 @@ function renderExploreConfirm() {
 }
 
 // Explore step sequence: explore-areas → explore-1 → explore-2 → explore-3 → explore-confirm
-const EXPLORE_STEP_IDS = ["step-explore-areas", "step-explore-1", "step-explore-2", "step-explore-3", "step-explore-confirm"];
+const EXPLORE_STEP_IDS = ["step-explore-areas", "step-explore-2", "step-explore-3", "step-explore-confirm"];
 let currentExploreStep = 0;
 
 function showExploreStep(idx) {
@@ -2441,7 +2278,7 @@ function showExploreStep(idx) {
 }
 
 function updateExploreProgress(step) {
-  const total = 9; // 1:carrera, 2:etapa, 3-6:explore screens, 7:CV, 8:ciudad, 9:resumen
+  const total = 7; // 1:carrera, 2:etapa, 3-6:explore screens, 7:CV
   const fill = document.getElementById("step-progress-fill");
   const label = document.getElementById("step-progress-label");
   const pct = Math.round((step / total) * 100);
@@ -2452,25 +2289,26 @@ function updateExploreProgress(step) {
 function initExploreFlow() {
   // ── Render grids ──────────────────────────────────────────────────────
 
+  // ── Pantalla unificada: intereses (bloque A) + tareas (bloque B) ──────
+  function updateCombinedNext() {
+    const nextBtn = document.getElementById("next-explore-areas");
+    if (nextBtn) nextBtn.disabled = exploreInterests.length === 0 || exploreTaskPrefs.length === 0;
+  }
+
   function refreshInterestsGrid() {
     renderBehavioralInterestsGrid("explore-areas-interest-grid", refreshInterestsGrid);
-    const nextBtn = document.getElementById("next-explore-areas");
-    const hintEl  = document.getElementById("explore-areas-hint");
-    const hasMin  = exploreInterests.length > 0;
-    if (nextBtn) nextBtn.disabled = !hasMin;
-    if (hintEl)  hintEl.hidden = hasMin;
+    const hintEl = document.getElementById("explore-areas-hint");
+    if (hintEl) hintEl.hidden = exploreInterests.length > 0;
+    updateCombinedNext();
   }
   refreshInterestsGrid();
 
-  // explore-1 (tareas)
   renderExploreGrid("explore-tasks-grid", EXPLORE_TASKS, exploreTaskPrefs, 2, (arr) => {
-    const nextBtn = document.getElementById("next-explore-1");
-    const hintEl  = document.getElementById("explore-tasks-hint");
-    if (nextBtn) nextBtn.disabled = arr.length === 0;
-    if (hintEl)  hintEl.hidden = arr.length > 0;
+    const hintEl = document.getElementById("explore-tasks-hint");
+    if (hintEl) hintEl.hidden = arr.length > 0;
+    updateCombinedNext();
   });
-  const nextExplore1Btn = document.getElementById("next-explore-1");
-  if (nextExplore1Btn) nextExplore1Btn.disabled = exploreTaskPrefs.length === 0;
+  updateCombinedNext();
 
   // explore-2 (evitar) — ahora flat, validación mínimo 1
   renderExploreGrid("explore-avoid-grid", EXPLORE_AVOID, exploreAvoid, null, (arr) => {
@@ -2494,41 +2332,37 @@ function initExploreFlow() {
 
   // ── Navegación ────────────────────────────────────────────────────────
 
-  // explore-areas (idx 0)
+  // explore-areas (idx 0) — pantalla unificada intereses + tareas
   document.getElementById("back-explore-areas")?.addEventListener("click", () => showStep(2));
   document.getElementById("next-explore-areas")?.addEventListener("click", () => {
+    let valid = true;
     if (exploreInterests.length === 0) {
       const hintEl = document.getElementById("explore-areas-hint");
       if (hintEl) hintEl.hidden = false;
-      return;
+      valid = false;
     }
-    showExploreStep(1);
-  });
-
-  // explore-1 (idx 1)
-  document.getElementById("back-explore-1")?.addEventListener("click", () => showExploreStep(0));
-  document.getElementById("next-explore-1")?.addEventListener("click", () => {
     if (exploreTaskPrefs.length === 0) {
       const hintEl = document.getElementById("explore-tasks-hint");
       if (hintEl) hintEl.hidden = false;
-      return;
+      valid = false;
     }
-    showExploreStep(2);
+    if (!valid) return;
+    showExploreStep(1);
   });
 
-  // explore-2 (idx 2)
-  document.getElementById("back-explore-2")?.addEventListener("click", () => showExploreStep(1));
+  // explore-2 (idx 1)
+  document.getElementById("back-explore-2")?.addEventListener("click", () => showExploreStep(0));
   document.getElementById("next-explore-2")?.addEventListener("click", () => {
     if (exploreAvoid.length === 0) {
       const hintEl = document.getElementById("explore-avoid-hint");
       if (hintEl) hintEl.hidden = false;
       return;
     }
-    showExploreStep(3);
+    showExploreStep(2);
   });
 
-  // explore-3 (idx 3)
-  document.getElementById("back-explore-3")?.addEventListener("click", () => showExploreStep(2));
+  // explore-3 (idx 2)
+  document.getElementById("back-explore-3")?.addEventListener("click", () => showExploreStep(1));
   document.getElementById("next-explore-3")?.addEventListener("click", () => {
     if (exploreMotivations.length === 0) {
       const hintEl = document.getElementById("explore-motivation-hint");
@@ -2536,11 +2370,11 @@ function initExploreFlow() {
       return;
     }
     renderExploreConfirm();
-    showExploreStep(4);
+    showExploreStep(3);
   });
 
-  // explore-confirm (idx 4)
-  document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(3));
+  // explore-confirm (idx 3)
+  document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(2));
   document.getElementById("next-explore-confirm")?.addEventListener("click", () => {
     showStep(4); // CV step
   });
@@ -2585,7 +2419,7 @@ function initIntentStep() {
 
 let currentStep = 1;
 let cvChoice    = null; // "yes" | "no"
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 4;
 
 function showStep(n) {
   document.querySelectorAll(".step").forEach((s) => { s.hidden = true; });
@@ -2601,9 +2435,9 @@ function updateProgress(n) {
   const label = document.getElementById("step-progress-label");
 
   if (userIntentMode === "explore") {
-    // 1:carrera, 2:etapa, 3-7:explore screens, 8:CV, 9:ciudad (resumen eliminado)
-    const exploreMap = { 1: 1, 2: 2, 4: 8, 5: 9 };
-    const total = 9;
+    // 1:carrera, 2:etapa, 3-6:explore screens, 7:CV
+    const exploreMap = { 1: 1, 2: 2, 4: 7 };
+    const total = 7;
     const mapped = exploreMap[n] || n;
     const pct = Math.round((mapped / total) * 100);
     if (fill)  fill.style.width = pct + "%";
@@ -2669,13 +2503,9 @@ function renderSummary() {
   const degree     = document.getElementById("degree")?.value.trim() ||
                      document.getElementById("degree_other")?.value.trim() || "—";
   const statusRaw  = document.getElementById("academicStatus")?.value || "";
-  const hasPostgrad = document.getElementById("hasPostgrad")?.value === "true";
   const STATUS_LABELS = { estudiante: "Estoy estudiando", egresado: "Egresado", titulado: "Titulado" };
-  const statusLabel = STATUS_LABELS[statusRaw] || statusRaw || "—";
-  const statusBadge = statusLabel + (hasPostgrad ? " · Con postgrado" : "");
+  const statusBadge = STATUS_LABELS[statusRaw] || statusRaw || "—";
 
-  const city    = document.getElementById("city")?.value.trim() || "";
-  const mods    = getCheckedValues("desiredModality");
   const cvFile  = cvChoice === "yes" ? (document.getElementById("cv")?.files[0]?.name || null) : null;
 
   const interestValues = selectedInterests;
@@ -2683,10 +2513,6 @@ function renderSummary() {
   const interestTags   = interestValues.length > 0
     ? interestValues.map((v) => `<span class="summary-tag summary-tag--interest">${INTEREST_REGISTRY[v] || v}</span>`).join("")
     : `<span class="summary-tag summary-tag--empty">Sin selección</span>`;
-
-  const modTags = mods.length > 0
-    ? mods.map((m) => `<span class="summary-tag summary-tag--mod">${m.charAt(0).toUpperCase() + m.slice(1)}</span>`).join("")
-    : `<span class="summary-tag summary-tag--empty">Sin preferencia</span>`;
 
   container.innerHTML = `
     <div class="summary-v2">
@@ -2699,21 +2525,6 @@ function renderSummary() {
         <div class="summary-tags-col">
           <p class="summary-col-label">${interestLabel}</p>
           <div class="summary-tags-list">${interestTags}</div>
-        </div>
-        <div class="summary-tags-col">
-          <p class="summary-col-label">Modalidad</p>
-          <div class="summary-tags-list">${modTags}</div>
-        </div>
-      </div>
-
-      <div class="summary-tags-row summary-meta-row">
-        <div class="summary-tags-col">
-          <p class="summary-col-label">Ubicación</p>
-          <div class="summary-tags-list">
-            ${city
-              ? `<span class="summary-tag summary-tag--meta">${city}</span>`
-              : `<span class="summary-tag summary-tag--empty">Sin especificar</span>`}
-          </div>
         </div>
         <div class="summary-tags-col">
           <p class="summary-col-label">CV</p>
@@ -2753,59 +2564,13 @@ function initMultiStep() {
   });
   document.getElementById("back-2")?.addEventListener("click", () => showStep(1));
 
-  // Tarjetas de etapa académica (cambio 2)
+  // Tarjetas de etapa académica
   document.querySelectorAll(".academic-status-cards .intent-card").forEach((card) => {
     card.addEventListener("click", () => {
       document.querySelectorAll(".academic-status-cards .intent-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       const statusInput = document.getElementById("academicStatus");
       if (statusInput) statusInput.value = card.dataset.status;
-
-      // Mostrar pregunta de postgrado solo para titulados
-      const postgradQ   = document.getElementById("postgrad-question");
-      const postgradVal = document.getElementById("hasPostgrad");
-      if (postgradQ) postgradQ.hidden = (card.dataset.status !== "titulado");
-      if (postgradVal && card.dataset.status !== "titulado") postgradVal.value = "false";
-
-      // Mostrar pregunta de último año solo para estudiantes
-      const lastYearQ    = document.getElementById("last-year-question");
-      const lastYearVal  = document.getElementById("isLastYear");
-      const lastYearInfo = document.getElementById("last-year-info");
-      if (lastYearQ) lastYearQ.hidden = (card.dataset.status !== "estudiante");
-      if (lastYearVal && card.dataset.status !== "estudiante") lastYearVal.value = "";
-      if (lastYearInfo) lastYearInfo.hidden = true;
-      // Reset selección de tarjetas último año al cambiar etapa
-      document.querySelectorAll(".last-year-cards .intent-card").forEach(c => c.classList.remove("selected"));
-
-      const nextBtn = document.getElementById("next-2");
-      if (nextBtn) {
-        // Si es estudiante, esperar respuesta de último año antes de habilitar
-        nextBtn.disabled = (card.dataset.status === "estudiante");
-      }
-    });
-  });
-
-  // Tarjetas de postgrado
-  document.querySelectorAll(".postgrad-cards .intent-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      document.querySelectorAll(".postgrad-cards .intent-card").forEach(c => c.classList.remove("selected"));
-      card.classList.add("selected");
-      const postgradVal = document.getElementById("hasPostgrad");
-      if (postgradVal) postgradVal.value = card.dataset.postgrad;
-    });
-  });
-
-  // Tarjetas de último año (solo visibles cuando "Estoy estudiando" está seleccionado)
-  document.querySelectorAll(".last-year-cards .intent-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      document.querySelectorAll(".last-year-cards .intent-card").forEach(c => c.classList.remove("selected"));
-      card.classList.add("selected");
-      const lastYearVal  = document.getElementById("isLastYear");
-      const lastYearInfo = document.getElementById("last-year-info");
-      if (lastYearVal) lastYearVal.value = card.dataset.lastyear;
-      // Mostrar mensaje informativo solo si responde "No"
-      if (lastYearInfo) lastYearInfo.hidden = (card.dataset.lastyear !== "false");
-      // Habilitar siguiente
       const nextBtn = document.getElementById("next-2");
       if (nextBtn) nextBtn.disabled = false;
     });
@@ -2816,30 +2581,25 @@ function initMultiStep() {
   document.getElementById("back-3")?.addEventListener("click", () => showStep(2));
 
   // Step 4 (CV) next/back
-  document.getElementById("next-4")?.addEventListener("click", () => showStep(5));
-  document.getElementById("back-4")?.addEventListener("click", () => {
+  document.getElementById("next-4")?.addEventListener("click", () => {
     if (userIntentMode === "explore") {
-      // Back from CV → explore-confirm (índice 4 en EXPLORE_STEP_IDS)
-      showExploreStep(4);
-    } else {
-      showStep(3);
-    }
-  });
-
-  // Step 5 (city/modality) next/back
-  document.getElementById("next-5")?.addEventListener("click", () => {
-    if (userIntentMode === "explore") {
-      // Flujo explore: saltar step-6 y enviar directamente
       form.requestSubmit();
     } else {
       showStep(6);
       renderSummary();
     }
   });
-  document.getElementById("back-5")?.addEventListener("click", () => showStep(4));
+  document.getElementById("back-4")?.addEventListener("click", () => {
+    if (userIntentMode === "explore") {
+      // Back from CV → explore-confirm (índice 3 en EXPLORE_STEP_IDS)
+      showExploreStep(3);
+    } else {
+      showStep(3);
+    }
+  });
 
   // Step 6 (resumen) — solo back
-  document.getElementById("back-6")?.addEventListener("click", () => showStep(5));
+  document.getElementById("back-6")?.addEventListener("click", () => showStep(4));
 
   // CV choice cards
   const cvYes       = document.getElementById("cv-yes-card");
@@ -2874,9 +2634,7 @@ initIntentStep();
 initMultiStep();
 initExploreFlow();
 initDegreeAutocomplete();
-initCityAutocomplete();
 initInterests();
-initModality();
 initPreferences();
 
 // CV drop zone: actualizar nombre de archivo al seleccionar

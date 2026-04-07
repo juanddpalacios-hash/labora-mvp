@@ -97,39 +97,6 @@
             <p>Ya tengo mi título profesional.</p>
           </div>
         </div>
-        <!-- Pregunta condicional: ¿Último año? (solo para "Estoy estudiando") -->
-        <div id="last-year-question" hidden style="margin-top: 20px;">
-          <p class="muted" style="margin-bottom: 8px;">¿Estás en tu último año de carrera?</p>
-          <div class="intent-cards last-year-cards">
-            <div class="intent-card card" data-lastyear="true">
-              <span class="intent-check" aria-hidden="true">✓</span>
-              <h3>Sí</h3>
-            </div>
-            <div class="intent-card card" data-lastyear="false">
-              <span class="intent-check" aria-hidden="true">✓</span>
-              <h3>No</h3>
-            </div>
-          </div>
-          <p class="muted" id="last-year-info" hidden style="margin-top: 12px; font-size: 14px; line-height: 1.5;">
-            Labora está pensado para quienes están cerca de terminar o ya terminaron. Igual puedes usarlo para orientar tu formación con anticipación.
-          </p>
-        </div>
-        <input type="hidden" id="isLastYear" name="isLastYear" value="" />
-
-        <div id="postgrad-question" hidden style="margin-top: 20px;">
-          <p class="muted" style="margin-bottom: 8px;">¿Tienes algún postgrado? <span class="optional">Por ejemplo: diplomado, magíster o MBA.</span></p>
-          <div class="intent-cards postgrad-cards">
-            <div class="intent-card card" data-postgrad="true">
-              <span class="intent-check" aria-hidden="true">✓</span>
-              <h3>Sí</h3>
-            </div>
-            <div class="intent-card card" data-postgrad="false">
-              <span class="intent-check" aria-hidden="true">✓</span>
-              <h3>No</h3>
-            </div>
-          </div>
-        </div>
-        <input type="hidden" id="hasPostgrad" name="hasPostgrad" value="false" />
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-2">← Atrás</button>
           <button type="button" class="button primary" id="next-2" disabled>Siguiente</button>
@@ -157,33 +124,33 @@
         </div>
       </div>
 
-      <!-- Explore Step 0 (nuevo): Señal explícita de áreas -->
+      <!-- Explore Step 0: Intereses conductuales + Tareas (pantalla unificada) -->
       <div class="step" id="step-explore-areas" hidden>
         <div class="step-header">
-          <h2>Pensando en tu día a día, ¿qué tipo de cosas te gustaría estar haciendo?</h2>
-          <p class="muted">Elige hasta 3. No tiene que ser definitivo.</p>
+          <h2>Cuéntanos un poco cómo te imaginas trabajando</h2>
+          <p class="muted">No tiene que ser definitivo. Responde con lo que sientes hoy.</p>
         </div>
-        <div id="explore-areas-interest-grid"></div>
-        <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos una opción para continuar.</p>
+
+        <div class="explore-block">
+          <p class="explore-block-label">¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?</p>
+          <p class="explore-block-sublabel">Elige hasta 3.</p>
+          <div id="explore-areas-interest-grid"></div>
+          <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos una opción para continuar.</p>
+        </div>
+
+        <hr class="explore-block-divider" />
+        <p class="explore-block-transition">Ahora, más allá del tipo de trabajo, pensemos en cómo te gusta trabajar.</p>
+
+        <div class="explore-block">
+          <p class="explore-block-label">Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?</p>
+          <p class="explore-block-sublabel">Elige hasta 2.</p>
+          <div class="explore-grid" id="explore-tasks-grid"></div>
+          <p class="field-hint" id="explore-tasks-hint" hidden>Elige al menos una opción en este bloque para continuar.</p>
+        </div>
+
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-areas">← Atrás</button>
           <button type="button" class="button primary" id="next-explore-areas" disabled>Siguiente</button>
-        </div>
-      </div>
-
-      <!-- Explore Step 1: Tareas que te atraen -->
-      <div class="step" id="step-explore-1" hidden>
-        <div class="step-header">
-          <h2>¿Qué tipo de trabajo sientes que podría hacerte más sentido?</h2>
-          <p class="muted">No tiene que ser algo que ya domines. Piensa en lo que se te haría más natural o interesante. Elige hasta 2.</p>
-        </div>
-        <div class="explore-grid" id="explore-tasks-grid">
-          <!-- renderizado por JS -->
-        </div>
-        <p class="field-hint" id="explore-tasks-hint" hidden>Elige al menos una opción para continuar.</p>
-        <div class="step-actions">
-          <button type="button" class="button ghost" id="back-explore-1">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-1" disabled>Siguiente</button>
         </div>
       </div>
 
@@ -268,44 +235,6 @@
         </div>
       </div>
 
-      <!-- Step 5: Ciudad + Modalidad -->
-      <div class="step" id="step-5" hidden>
-        <div class="step-header">
-          <h2>Pensando en el día a día, ¿dónde y cómo te gustaría trabajar?</h2>
-          <p class="muted">Esto nos ayuda a mostrarte opciones más cercanas a lo que realmente podrías buscar hoy.</p>
-        </div>
-        <div class="field">
-          <label for="city">Ciudad <span class="optional">(opcional — si quieres ver opciones más cercanas)</span></label>
-          <div class="autocomplete-wrap">
-            <input type="text" id="city" name="city" autocomplete="off"
-                   placeholder="Ej: Santiago" />
-            <ul class="autocomplete-list" id="city-suggestions"></ul>
-          </div>
-          <input type="hidden" id="cityRegion" name="cityRegion" />
-        </div>
-        <div class="field">
-          <label>Modalidad</label>
-          <div class="modality-grid">
-            <label class="modality-option">
-              <input type="checkbox" name="desiredModality" value="presencial" />
-              <span>Presencial (en oficina)</span>
-            </label>
-            <label class="modality-option">
-              <input type="checkbox" name="desiredModality" value="híbrido" />
-              <span>Híbrido (mezcla oficina y remoto)</span>
-            </label>
-            <label class="modality-option">
-              <input type="checkbox" name="desiredModality" value="remoto" />
-              <span>Remoto (desde cualquier lugar)</span>
-            </label>
-          </div>
-          <span class="field-hint">Selecciona al menos una opción para continuar.</span>
-        </div>
-        <div class="step-actions">
-          <button type="button" class="button ghost" id="back-5">← Atrás</button>
-          <button type="button" class="button primary" id="next-5" disabled>Siguiente</button>
-        </div>
-      </div>
 
       <!-- Step 6: Resumen antes de analizar -->
       <div class="step" id="step-6" hidden>

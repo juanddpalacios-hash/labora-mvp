@@ -1383,6 +1383,36 @@ fieldset.field {
 /* Explore flow — multiselect cards                                   */
 /* ================================================================== */
 
+/* Bloque interno de la pantalla unificada intereses+tareas */
+.explore-block {
+  margin-bottom: 32px;
+}
+
+.explore-block-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.explore-block-sublabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.explore-block-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 8px 0 16px;
+}
+
+.explore-block-transition {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
 .explore-grid {
   display: grid;
   grid-template-columns: 1fr;

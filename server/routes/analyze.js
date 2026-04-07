@@ -46,9 +46,6 @@ router.post("/", upload.single("cv"), async (req, res) => {
       name: req.body.name || "",
       degree: req.body.degree || "",
       academicStatus: req.body.academicStatus || "",
-      city:   req.body.city       || "",
-      region: req.body.cityRegion || "",
-      desiredModality:           req.body.desiredModality ? JSON.parse(req.body.desiredModality) : [],
       areasOfInterest:           req.body.areasOfInterest ? JSON.parse(req.body.areasOfInterest) : [],
       interest_other:            req.body.interest_other || "",
       company_preferences:       req.body.company_preferences ? JSON.parse(req.body.company_preferences) : [],
@@ -61,14 +58,8 @@ router.post("/", upload.single("cv"), async (req, res) => {
       interest_prefs:            req.body.interest_preferences  ? JSON.parse(req.body.interest_preferences)  : []
     };
 
-    // Estudiante en último año → tratarlo como egresado en el scoring
-    const isLastYear = req.body.isLastYear === "true";
-    if (metadata.academicStatus === "estudiante" && isLastYear) {
-      metadata.academicStatus = "egresado";
-    }
-
-    // has_postgrad declarado explícitamente en el formulario (sin CV)
-    const formPostgrad = req.body.hasPostgrad === "true";
+    // has_postgrad: solo desde CV (formulario ya no pregunta postgrado)
+    const formPostgrad = false;
 
     let extractedProfile;
     let parsedText = "";
@@ -102,9 +93,6 @@ router.post("/", upload.single("cv"), async (req, res) => {
         name:              metadata.name,
         degree:            metadata.degree,
         academic_status:   metadata.academicStatus,
-        city:              metadata.city,
-        region:            metadata.region,
-        desired_modality:  metadata.desiredModality,
         areas_of_interest: metadata.areasOfInterest,
         preferences:       metadata.company_preferences,
         tools:             [],
