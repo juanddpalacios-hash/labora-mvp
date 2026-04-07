@@ -1047,7 +1047,7 @@ function buildExploreContextMessage(topRoles) {
     const l1 = CLUSTER_WORK_LABELS[clusters[0]] || clusters[0];
     const l2 = CLUSTER_WORK_LABELS[clusters[1]] || clusters[1];
     return {
-      headline: `Vemos una mezcla entre roles donde ${l1}, y otros donde ${l2}.`,
+      headline: `Vemos una mezcla entre roles donde ${l1} y otros donde ${l2}.`,
       subtext:  "Eso es normal al inicio — hay más de un camino posible. Estas son las opciones que hoy muestran mejor fit con lo que nos contaste."
     };
   }
