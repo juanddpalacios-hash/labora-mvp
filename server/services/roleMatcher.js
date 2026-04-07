@@ -1038,7 +1038,7 @@ function buildExploreContextMessage(topRoles) {
   if (clusters.length === 1) {
     const label = CLUSTER_WORK_LABELS[clusters[0]] || clusters[0];
     return {
-      headline: `Por lo que nos contaste, parece que te acomoda más un trabajo donde ${label} es parte importante del día a día.`,
+      headline: `Hay señales claras de que te calzan roles donde ${label}.`,
       subtext:  "Las opciones que ves abajo combinan bien con esta forma de trabajar y el tipo de tareas que te interesan hoy."
     };
   }
@@ -1047,14 +1047,14 @@ function buildExploreContextMessage(topRoles) {
     const l1 = CLUSTER_WORK_LABELS[clusters[0]] || clusters[0];
     const l2 = CLUSTER_WORK_LABELS[clusters[1]] || clusters[1];
     return {
-      headline: `No aparece un solo camino claro — hay una mezcla interesante entre roles donde ${l1}, y otros donde ${l2}.`,
+      headline: `Vemos una mezcla entre roles donde ${l1}, y otros donde ${l2}.`,
       subtext:  "Eso es normal al inicio — hay más de un camino posible. Estas son las opciones que hoy muestran mejor fit con lo que nos contaste."
     };
   }
 
   const shortLabels = clusters.slice(0, 3).map(c => CLUSTER_WORK_SHORT[c] || c).join(", ");
   return {
-    headline: `No aparece un solo camino claro — hay varias direcciones posibles: ${shortLabels}.`,
+    headline: `Hoy aparecen varias direcciones posibles: ${shortLabels}.`,
     subtext:  "El perfil muestra señales distribuidas. Estas son las opciones que hoy muestran mejor fit con lo que nos contaste."
   };
 }
