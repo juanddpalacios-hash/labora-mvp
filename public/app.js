@@ -141,14 +141,6 @@ async function handleFormSubmit(event) {
       formData.append("task_preferences",   JSON.stringify(exploreTaskPrefs));
       formData.append("avoid_preferences",  JSON.stringify(exploreAvoid));
       formData.append("motivation_preferences", JSON.stringify(exploreMotivations));
-      // Inferir áreas desde behavioral interests (unión deduplicada)
-      const inferredAreasFromInterests = [...new Set(
-        exploreInterests.flatMap(id => {
-          const item = BEHAVIORAL_INTERESTS.find(b => b.id === id);
-          return item ? item.areas : [];
-        })
-      )];
-      formData.append("areas_interest",       JSON.stringify(inferredAreasFromInterests));
       formData.append("interest_preferences", JSON.stringify(exploreInterests));
       formData.append("extra_motivation_text", document.getElementById("extra-motivation")?.value || "");
     }
@@ -1875,7 +1867,6 @@ function initPreferences() {
 let exploreTaskPrefs      = [];  // máx 2
 let exploreAvoid          = [];  // min 1, sin límite superior
 let exploreMotivations    = [];  // min 1, máx 2
-let selectedInferredAreas = [];  // áreas confirmadas (máx 2)
 let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 3)
 
 const EXPLORE_TASKS = [
@@ -2323,57 +2314,114 @@ function buildConfirmExplanation() {
   return text + extra;
 }
 
+const TRAIT_DIRECTIONS = [
+  {
+    id: "informacion",
+    title: "Roles donde la información importa",
+    description: "analizar, interpretar, modelar o convertir información en decisiones útiles",
+    requiredTraits: { analisis: 2, aprendizaje: 1 }
+  },
+  {
+    id: "control",
+    title: "Roles donde el control y la mejora importan",
+    description: "seguir procesos, detectar desvíos, ordenar cómo se hacen las cosas y asegurarte de que funcionen mejor",
+    requiredTraits: { ejecucion: 2, coordinacion: 1 }
+  },
+  {
+    id: "personas",
+    title: "Roles donde las personas importan",
+    description: "acompañar equipos, coordinar con otros, relacionarte con clientes o apoyar procesos donde el vínculo humano es clave",
+    requiredTraits: { social: 2, contacto_cliente: 1 }
+  },
+  {
+    id: "proyectos",
+    title: "Roles donde los proyectos y la coordinación importan",
+    description: "planificar, hacer seguimiento y asegurarte de que los equipos avancen hacia el objetivo",
+    requiredTraits: { coordinacion: 2, social: 1 }
+  },
+  {
+    id: "aprendizaje",
+    title: "Roles donde aprender en profundidad importa",
+    description: "investigar, entender cómo funcionan las cosas y crecer en entornos técnicos o complejos que cambian rápido",
+    requiredTraits: { aprendizaje: 3 }
+  }
+];
+
+const TRAIT_DIRECTION_TASK_SIGNALS = {
+  "analizar-datos":     { analisis: 2, aprendizaje: 1 },
+  "resolver-problemas": { analisis: 1, ejecucion: 1 },
+  "trabajar-personas":  { social: 2, coordinacion: 1, contacto_cliente: 1 },
+  "organizar-procesos": { ejecucion: 2, coordinacion: 1 },
+  "crear-estrategias":  { analisis: 1, coordinacion: 1, aprendizaje: 1 }
+};
+
+function buildTraitDirections() {
+  const traits = { analisis: 0, ejecucion: 0, coordinacion: 0,
+                   contacto_cliente: 0, social: 0, aprendizaje: 0 };
+
+  for (const id of exploreInterests) {
+    const item = BEHAVIORAL_INTERESTS.find(b => b.id === id);
+    if (!item) continue;
+    for (const [k, v] of Object.entries(item.traits || {})) {
+      if (k in traits) traits[k] += v;
+    }
+  }
+
+  for (const task of exploreTaskPrefs) {
+    const deltas = TRAIT_DIRECTION_TASK_SIGNALS[task] || {};
+    for (const [k, v] of Object.entries(deltas)) {
+      if (k in traits) traits[k] += v;
+    }
+  }
+
+  for (const k of Object.keys(traits)) {
+    traits[k] = Math.min(3, traits[k]);
+  }
+
+  const matched = TRAIT_DIRECTIONS.filter(d =>
+    Object.entries(d.requiredTraits).every(([dim, threshold]) => (traits[dim] || 0) >= threshold)
+  );
+
+  if (matched.length > 0) return matched.slice(0, 2);
+
+  // Fallback: direction with highest trait overlap
+  const scored = TRAIT_DIRECTIONS.map(d => ({
+    ...d,
+    score: Object.entries(d.requiredTraits)
+             .reduce((sum, [dim, req]) => sum + Math.min(traits[dim] || 0, req), 0)
+  })).sort((a, b) => b.score - a.score);
+  return [scored[0]];
+}
+
 function renderExploreConfirm() {
   const grid    = document.getElementById("explore-confirm-grid");
   const nextBtn = document.getElementById("next-explore-confirm");
   const hintEl  = document.getElementById("explore-confirm-hint");
-  if (!grid) return;
-  grid.innerHTML = "";
 
   const explainEl = document.getElementById("explore-confirm-explanation");
   if (explainEl) {
     explainEl.innerHTML = `<p class="muted">${buildConfirmExplanation()}</p>`;
   }
 
-  const inferred = inferAreas();
-  selectedInferredAreas = [];
-  if (nextBtn) nextBtn.disabled = true;
+  if (grid) {
+    const directions = buildTraitDirections();
+    const introText = directions.length === 1
+      ? "Con lo que nos contaste, hay señales más claras hacia:"
+      : "No aparece un solo camino claro — vemos señales en más de una dirección:";
+
+    grid.innerHTML = `
+      <p class="explore-confirm-section-label">${introText}</p>
+      ${directions.map(d => `
+        <div class="explore-confirm-direction">
+          <p class="explore-confirm-direction-title">${d.title}</p>
+          <p class="explore-confirm-direction-desc muted">${d.description}</p>
+        </div>
+      `).join("")}
+    `;
+  }
+
+  if (nextBtn) nextBtn.disabled = false;
   if (hintEl)  hintEl.hidden = true;
-
-  const headerEl = document.createElement("div");
-  headerEl.className = "explore-confirm-header";
-  headerEl.innerHTML = `<p class="explore-confirm-section-label">Con lo que nos contaste, esto parece cercano a cómo te ves trabajando:</p>`;
-  grid.appendChild(headerEl);
-
-  inferred.forEach(({ value, description }) => {
-    const card = document.createElement("div");
-    card.className = "explore-confirm-card";
-    card.innerHTML = `
-      <span class="explore-option-check">✓</span>
-      <p>${description}</p>`;
-
-    card.addEventListener("click", () => {
-      const idx = selectedInferredAreas.indexOf(value);
-      if (idx >= 0) {
-        selectedInferredAreas.splice(idx, 1);
-        card.classList.remove("selected");
-      } else if (selectedInferredAreas.length < 2) {
-        selectedInferredAreas.push(value);
-        card.classList.add("selected");
-      }
-      const hasSelection = selectedInferredAreas.length > 0;
-      if (nextBtn) nextBtn.disabled = !hasSelection;
-      if (hintEl)  hintEl.hidden = hasSelection;
-    });
-
-    grid.appendChild(card);
-  });
-
-  const instrEl = document.createElement("p");
-  instrEl.className = "muted explore-confirm-instruction";
-  instrEl.style.marginTop = "12px";
-  instrEl.textContent = "Elige 1 o 2 caminos que sientas más cercanos a ti ahora.";
-  grid.appendChild(instrEl);
 }
 
 // Explore step sequence: explore-areas → explore-1 → explore-2 → explore-3 → explore-confirm
@@ -2494,12 +2542,6 @@ function initExploreFlow() {
   // explore-confirm (idx 4)
   document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(3));
   document.getElementById("next-explore-confirm")?.addEventListener("click", () => {
-    if (selectedInferredAreas.length === 0) {
-      const hintEl = document.getElementById("explore-confirm-hint");
-      if (hintEl) hintEl.hidden = false;
-      return;
-    }
-    selectedInterests = [...selectedInferredAreas];
     showStep(4); // CV step
   });
 }

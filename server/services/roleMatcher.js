@@ -987,6 +987,79 @@ function buildContextMessage(userType, profile, topMatch) {
 }
 
 // -------------------------------------------------------------------
+// Explore-mode context message (derived from top-role clusters, not declared areas)
+// -------------------------------------------------------------------
+
+const CLUSTER_WORK_LABELS = {
+  data:             "analizar información y convertirla en decisiones",
+  finance:          "entender los números del negocio y trabajar con criterio financiero",
+  control_gestion:  "controlar, hacer seguimiento y mejorar cómo funciona una organización",
+  commercial:       "relacionarte con clientes y generar resultados concretos",
+  marketing:        "comunicar, medir y hacer crecer una marca o producto",
+  operations:       "ordenar procesos y asegurarte de que las cosas funcionen bien",
+  projects:         "planificar, coordinar equipos y que los proyectos lleguen a buen término",
+  people:           "acompañar personas, gestionar talento y trabajar cerca de equipos",
+  entrepreneurship: "crear o hacer crecer negocios con visión y capacidad de decisión"
+};
+
+// Short work descriptions for 3+ cluster headlines (no area labels)
+const CLUSTER_WORK_SHORT = {
+  data:             "trabajar con datos",
+  finance:          "manejar los números del negocio",
+  control_gestion:  "controlar y mejorar procesos",
+  commercial:       "gestionar clientes y resultados",
+  marketing:        "comunicar y medir impacto",
+  operations:       "ordenar la operación",
+  projects:         "coordinar proyectos y equipos",
+  people:           "trabajar con personas",
+  entrepreneurship: "crear y hacer crecer negocios"
+};
+
+/**
+ * Derives context message from top-5 ranked roles.
+ * Areas are interpreted from the result, never used as ranking input.
+ */
+function buildExploreContextMessage(topRoles) {
+  if (!topRoles || topRoles.length === 0) {
+    return {
+      headline: "Vemos señales hacia ciertos tipos de trabajo según lo que nos contaste.",
+      subtext:  "Las opciones que ves abajo combinan bien con esta forma de trabajar y el tipo de tareas que te interesan hoy."
+    };
+  }
+
+  const top3 = topRoles.slice(0, 3);
+  const clusterCounts = {};
+  for (const r of top3) {
+    const cl = ROLE_CLUSTERS[r.category] || null;
+    if (cl) clusterCounts[cl] = (clusterCounts[cl] || 0) + 1;
+  }
+  const clusters = Object.entries(clusterCounts).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+
+  if (clusters.length === 1) {
+    const label = CLUSTER_WORK_LABELS[clusters[0]] || clusters[0];
+    return {
+      headline: `Por lo que nos contaste, parece que te acomoda más un trabajo donde ${label} es parte importante del día a día.`,
+      subtext:  "Las opciones que ves abajo combinan bien con esta forma de trabajar y el tipo de tareas que te interesan hoy."
+    };
+  }
+
+  if (clusters.length === 2) {
+    const l1 = CLUSTER_WORK_LABELS[clusters[0]] || clusters[0];
+    const l2 = CLUSTER_WORK_LABELS[clusters[1]] || clusters[1];
+    return {
+      headline: `No aparece un solo camino claro — hay una mezcla interesante entre roles donde ${l1}, y otros donde ${l2}.`,
+      subtext:  "Eso es normal al inicio — hay más de un camino posible. Estas son las opciones que hoy muestran mejor fit con lo que nos contaste."
+    };
+  }
+
+  const shortLabels = clusters.slice(0, 3).map(c => CLUSTER_WORK_SHORT[c] || c).join(", ");
+  return {
+    headline: `No aparece un solo camino claro — hay varias direcciones posibles: ${shortLabels}.`,
+    subtext:  "El perfil muestra señales distribuidas. Estas son las opciones que hoy muestran mejor fit con lo que nos contaste."
+  };
+}
+
+// -------------------------------------------------------------------
 // Matching principal
 // -------------------------------------------------------------------
 
@@ -1044,8 +1117,8 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
     const interestPrefs = metadata.interest_prefs   || [];
     const userTraits = buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs);
 
-    const EXPLORE_STRONG  = 48;
-    const EXPLORE_STRETCH = 15;
+    const EXPLORE_STRONG  = 40;
+    const EXPLORE_STRETCH = 12;
 
     const exploreCatalog = roleCatalog.filter(r => !r.requires_cv_gate);
 
@@ -1058,9 +1131,6 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
         // Behavioral component (0-40)
         const behavioralScore = scoreBehavioral(userTraits, role);
 
-        // Area boost (0-10) — soft, no hard filter
-        const areaBoost = scoreAreaBoost(areasInterest, role);
-
         // Avoid penalty (additive subtraction)
         const avoidPenalty = computeAvoidPenaltyAdditive(avoidPreferences, role);
 
@@ -1068,8 +1138,8 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
         const isBasicRole = /^Asistente\s/i.test(role.title);
         const pgPenalty   = (enrichedProfile.has_postgrad && isBasicRole) ? 8 : 0;
 
-        const score = Math.max(0, Math.min(85,
-          cvScore + behavioralScore + areaBoost - avoidPenalty - pgPenalty
+        const score = Math.max(0, Math.min(75,
+          cvScore + behavioralScore - avoidPenalty - pgPenalty
         ));
 
         const missingSkills = buildMissingSkills(enrichedProfile, role);
@@ -1098,7 +1168,6 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
           score_breakdown: {
             cv:            cvScore,
             behavioral:    behavioralScore,
-            area_boost:    areaBoost,
             avoid_penalty: avoidPenalty,
             // Legacy fields — kept for evaluateInterestAlignment + computeRecommendationScore
             carrera:         cvResult.degreeRaw,
@@ -1134,8 +1203,8 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
     if (allRanked[0]) allRanked[0].is_recommended = true;
 
     const profileQuality = evaluateProfileQuality(enrichedProfile);
-    const user_type = classifyUserType(enrichedProfile, { strong_matches: strongMatches, stretch_matches: stretchMatches });
-    const context_message = buildContextMessage(user_type, enrichedProfile, allRanked[0] || null);
+    const allTopRoles = [...strongMatches, ...stretchMatches];
+    const context_message = buildExploreContextMessage(allTopRoles);
 
     return {
       detected_area:   buildDetectedArea(enrichedProfile, strongMatches, stretchMatches),
@@ -1143,7 +1212,6 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
       stretch_matches: stretchMatches,
       profile_quality: profileQuality,
       weights_used:    { mode: "explore", user_traits: userTraits },
-      user_type,
       context_message
     };
   }
