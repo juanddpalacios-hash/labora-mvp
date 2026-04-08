@@ -631,11 +631,66 @@ No reintroducir `scoreAreaBoost()` ni equivalente oculto. El `score_breakdown` s
 ### Regla 14. Pantalla unificada intereses+tareas: no mezclar arrays
 `exploreInterests[]` y `exploreTaskPrefs[]` son señales distintas con mapas distintos. No fusionar ni redirigir una al array de la otra. El contrato con el motor es fijo.
 
+---
+
+## Estado actual (2026-04-07) — post sprint cv_weight
+
+### Completado — Sprint cv_weight: modulación de señal del CV (2026-04-07, commit 854dfcb)
+
+**Problema resuelto:**
+El CV podía introducir ruido en el scoring (trabajos part-time irrelevantes → skills/exp falsos) y competir con la señal conductual que es el núcleo del motor.
+
+**Principio aplicado:**
+> El grado siempre suma. El behavioral siempre manda. El CV refuerza cuando es relevante y se apaga cuando no lo es.
+
+**Nueva fórmula (explore mode):**
+```
+finalScore = degreePts(estable) + (cvSignal × cv_weight) + behavioralScore - penalties
+```
+- `degreePts`: siempre 14 para IC. No modulado — es señal formativa, no de calidad del CV.
+- `cvSignal = cvResult.cv - degreePts`: skills + exp + spec (0-21). Solo esta parte se modera.
+- `cv_weight`: 0.2 (low) / 0.6 (medium) / 1.0 (high). Viene de declaración explícita del usuario.
+- Sin CV: `cvSignal = 0` → `cv_weight` irrelevante. Comportamiento idéntico al actual.
+
+**Cambios en `server/routes/analyze.js`:**
+- Lee `req.body.cv_relevance` ("low" | "medium" | "high")
+- Mapea a `cv_weight`: `{ low: 0.2, medium: 0.6, high: 1.0 }`
+- Default: 1.0 si hay CV pero no se declaró relevancia
+- Pasa `cv_weight` en `metadata` a `matchRoles()`
+
+**Cambios en `server/services/roleMatcher.js`:**
+- Lee `metadata.cv_weight` (default 1.0)
+- Separa `degreePts` de `cvSignal` dentro del explore loop
+- Aplica: `cvScore = degreePts + Math.round(cvSignal × cv_weight)`
+- Agrega `cv_weight` al `score_breakdown` para trazabilidad
+
+**Cambios en `public/upload.html`:**
+- Nuevo copy step-4: "Puedes agregar tu CV si crees que aporta información relevante..."
+- Nueva sección `#cv-relevance-section` (hidden por defecto): 3 cards de relevancia con `data-relevance="low|medium|high"`
+- `<input type="hidden" id="cvRelevanceInput" name="cv_relevance">`
+
+**Cambios en `public/app.js`:**
+- Variable global `cvRelevance = null`
+- `updateNext4State()`: habilita siguiente solo cuando `cvChoice="no"` OR (`cvChoice="yes"` AND archivo seleccionado AND relevancia elegida)
+- Listener en `cvFileInput.change` para actualizar estado del botón
+- Listeners en cards de relevancia → setean `cvRelevance` + hidden input
+- Submit: `if (cvRelevance) formData.append("cv_relevance", cvRelevance)`
+
+**Invariantes garantizados:**
+- `aiExtractor.js` sin cambios
+- `scoreCv()`, `scoreDegree()`, `scoreSkills()` sin cambios
+- `buildUserTraitVector()` sin cambios
+- Guided mode sin cambios
+- Un CV con relevancia "low" nunca score menor que sin CV (floor = degreePts = 14)
+
+### Regla 15. cvSignal ≠ degreeScore
+`degreePts` (14 para IC) es señal formativa, siempre estable. `cvSignal = cvResult.cv - degreePts` es la única parte modulable por `cv_weight`. No confundir ni mezclar.
+
 ### Prioridades actuales (2026-04-07)
-1. ~~Sprints 1-18~~ — todos completados
-19. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
-20. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
-21. **Tests end-to-end en Render** — verificar flujo completo post sprint simplificación
+1. ~~Sprints 1-21~~ — todos completados
+22. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+23. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
+24. **Tests end-to-end en Render** — verificar flujo completo post sprint cv_weight
 
 ---
 
