@@ -1115,6 +1115,7 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
     const taskPrefs     = metadata.task_prefs       || [];
     const motivPrefs    = metadata.motivation_prefs || [];
     const interestPrefs = metadata.interest_prefs   || [];
+    const cv_weight     = metadata.cv_weight !== undefined ? metadata.cv_weight : 1.0;
     const userTraits = buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs);
 
     const EXPLORE_STRONG  = 40;
@@ -1126,7 +1127,10 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
       .map((role) => {
         // CV component (0-35)
         const cvResult  = scoreCv(enrichedProfile, role);
-        const cvScore   = cvResult.cv;
+        // Separar grado (siempre estable) del cvSignal (modulado por relevancia)
+        const degreePts = cvResult.degreeRaw === 30 ? 14 : cvResult.degreeRaw === 20 ? 10 : cvResult.degreeRaw === 10 ? 5 : 0;
+        const cvSignal  = cvResult.cv - degreePts;
+        const cvScore   = degreePts + Math.round(cvSignal * cv_weight);
 
         // Behavioral component (0-40)
         const behavioralScore = scoreBehavioral(userTraits, role);
@@ -1167,6 +1171,7 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
           role_traits:      role.traits || {},
           score_breakdown: {
             cv:            cvScore,
+            cv_weight,
             behavioral:    behavioralScore,
             avoid_penalty: avoidPenalty,
             // Legacy fields — kept for evaluateInterestAlignment + computeRecommendationScore

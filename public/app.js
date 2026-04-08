@@ -136,6 +136,7 @@ async function handleFormSubmit(event) {
     const fileInput = document.getElementById("cv");
     if (fileInput?.files[0]) {
       formData.append("cv", fileInput.files[0]);
+      if (cvRelevance) formData.append("cv_relevance", cvRelevance);
     }
 
     const response = await fetch("/api/analyze", { method: "POST", body: formData });
@@ -2419,6 +2420,7 @@ function initIntentStep() {
 
 let currentStep = 1;
 let cvChoice    = null; // "yes" | "no"
+let cvRelevance = null; // "low" | "medium" | "high"
 const TOTAL_STEPS = 4;
 
 function showStep(n) {
@@ -2602,25 +2604,58 @@ function initMultiStep() {
   document.getElementById("back-6")?.addEventListener("click", () => showStep(4));
 
   // CV choice cards
-  const cvYes       = document.getElementById("cv-yes-card");
-  const cvNo        = document.getElementById("cv-no-card");
-  const next4       = document.getElementById("next-4");
-  const uploadArea  = document.getElementById("cv-upload-area");
+  const cvYes           = document.getElementById("cv-yes-card");
+  const cvNo            = document.getElementById("cv-no-card");
+  const next4           = document.getElementById("next-4");
+  const uploadArea      = document.getElementById("cv-upload-area");
+  const relevanceSection = document.getElementById("cv-relevance-section");
+  const cvFileInput     = document.getElementById("cv");
+
+  function updateNext4State() {
+    if (!next4) return;
+    if (cvChoice === "no") {
+      next4.disabled = false;
+    } else if (cvChoice === "yes") {
+      const hasFile      = !!(cvFileInput?.files?.[0]);
+      const hasRelevance = !!cvRelevance;
+      next4.disabled = !(hasFile && hasRelevance);
+    } else {
+      next4.disabled = true;
+    }
+  }
 
   cvYes?.addEventListener("click", () => {
     cvChoice = "yes";
     cvYes.classList.add("selected");
     cvNo?.classList.remove("selected");
-    if (uploadArea) uploadArea.hidden = false;
-    if (next4) next4.disabled = false;
+    if (uploadArea)       uploadArea.hidden = false;
+    if (relevanceSection) relevanceSection.hidden = false;
+    updateNext4State();
   });
 
   cvNo?.addEventListener("click", () => {
     cvChoice = "no";
+    cvRelevance = null;
     cvNo.classList.add("selected");
     cvYes?.classList.remove("selected");
-    if (uploadArea) uploadArea.hidden = true;
-    if (next4) next4.disabled = false;
+    if (uploadArea)       uploadArea.hidden = true;
+    if (relevanceSection) relevanceSection.hidden = true;
+    updateNext4State();
+  });
+
+  // Habilitar siguiente cuando se sube un archivo
+  cvFileInput?.addEventListener("change", () => updateNext4State());
+
+  // Cards de relevancia del CV
+  document.querySelectorAll("#cv-relevance-section .intent-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll("#cv-relevance-section .intent-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      cvRelevance = card.dataset.relevance;
+      const hiddenInput = document.getElementById("cvRelevanceInput");
+      if (hiddenInput) hiddenInput.value = cvRelevance;
+      updateNext4State();
+    });
   });
 }
 

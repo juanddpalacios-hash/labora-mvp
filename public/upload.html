@@ -205,18 +205,18 @@
       <!-- Step 4: CV (elección explícita) -->
       <div class="step" id="step-4" hidden>
         <div class="step-header">
-          <h2>Si tienes tu CV a mano, podemos afinar mejor los resultados</h2>
-          <p class="muted">Si lo subes, podemos ajustar las opciones según tu experiencia real y lo que ya has hecho. Si no, igual verás resultados con lo que nos contaste.</p>
+          <h2>Puedes agregar tu CV si crees que aporta información relevante a lo que te gustaría hacer</h2>
+          <p class="muted">Si no tienes experiencia relevante aún, no te preocupes — puedes continuar sin agregar tu CV.</p>
         </div>
         <div class="intent-cards">
           <div class="intent-card card" id="cv-yes-card">
             <span class="intent-check" aria-hidden="true">✓</span>
-            <h3>Sí, quiero hacerlo más preciso con mi CV</h3>
-            <p>Para que las recomendaciones se ajusten mejor a mi experiencia real.</p>
+            <h3>Sí, quiero agregar mi CV</h3>
+            <p>Tengo experiencia que podría ser relevante a lo que busco.</p>
           </div>
           <div class="intent-card card" id="cv-no-card">
             <span class="intent-check" aria-hidden="true">✓</span>
-            <h3>Prefiero seguir así por ahora</h3>
+            <h3>Prefiero seguir sin CV</h3>
             <p>Ver resultados con lo que ya respondí.</p>
           </div>
         </div>
@@ -228,6 +228,27 @@
             <span class="cv-file-name" id="cv-file-name">PDF o DOCX, máx. 10 MB</span>
             <input type="file" id="cv" name="cv" accept=".pdf,.docx" class="cv-input-hidden" />
           </label>
+        </div>
+        <div id="cv-relevance-section" hidden style="margin-top: 24px;">
+          <p class="explore-block-label">¿Qué tan relacionado está tu CV con lo que te gustaría hacer?</p>
+          <div class="intent-cards" style="margin-top: 10px;">
+            <div class="intent-card card" data-relevance="low">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>Poco o nada relacionado</h3>
+              <p>Mi experiencia es de otro ámbito o es muy poca.</p>
+            </div>
+            <div class="intent-card card" data-relevance="medium">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>Algo relacionado</h3>
+              <p>Hay cosas relevantes, pero no es todo lo que busco.</p>
+            </div>
+            <div class="intent-card card" data-relevance="high">
+              <span class="intent-check" aria-hidden="true">✓</span>
+              <h3>Muy relacionado</h3>
+              <p>Mi experiencia apunta directamente a lo que quiero hacer.</p>
+            </div>
+          </div>
+          <input type="hidden" id="cvRelevanceInput" name="cv_relevance" value="" />
         </div>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-4">← Atrás</button>

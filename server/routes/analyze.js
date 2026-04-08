@@ -55,7 +55,12 @@ router.post("/", upload.single("cv"), async (req, res) => {
       areas_interest:            req.body.areas_interest   ? JSON.parse(req.body.areas_interest)   : [],
       task_prefs:                req.body.task_preferences      ? JSON.parse(req.body.task_preferences)      : [],
       motivation_prefs:          req.body.motivation_preferences ? JSON.parse(req.body.motivation_preferences) : [],
-      interest_prefs:            req.body.interest_preferences  ? JSON.parse(req.body.interest_preferences)  : []
+      interest_prefs:            req.body.interest_preferences  ? JSON.parse(req.body.interest_preferences)  : [],
+      cv_weight: (function () {
+        if (!req.file) return 1.0; // sin CV: cv_weight irrelevante (cvSignal será 0)
+        const map = { low: 0.2, medium: 0.6, high: 1.0 };
+        return map[req.body.cv_relevance] ?? 1.0;
+      })()
     };
 
     // has_postgrad: solo desde CV (formulario ya no pregunta postgrado)
