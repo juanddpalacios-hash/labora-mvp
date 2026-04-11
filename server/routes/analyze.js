@@ -58,7 +58,7 @@ router.post("/", upload.single("cv"), async (req, res) => {
       interest_prefs:            req.body.interest_preferences  ? JSON.parse(req.body.interest_preferences)  : [],
       cv_weight: (function () {
         if (!req.file) return 1.0; // sin CV: cv_weight irrelevante (cvSignal será 0)
-        const map = { low: 0.2, medium: 0.6, high: 1.0 };
+        const map = { low: 0.35, medium: 0.65, high: 0.85 };
         return map[req.body.cv_relevance] ?? 1.0;
       })()
     };

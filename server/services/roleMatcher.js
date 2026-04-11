@@ -196,14 +196,58 @@ function getDomainFitModifier(userCareer, roleDomain) {
 const AVOID_PENALTY_RULES = [
   { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 3 && t.presion >= 2, penalty: 40 },
   { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 2,                   penalty: 25 },
+  { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 1 && t.presion >= 1, penalty: 12 },
   { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 3,                   penalty: 30 },
   { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 2,                   penalty: 15 },
+  { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 1,                   penalty: 8  },
   { avoid: "trabajo-terreno",        condition: (t) => t.movilidad >= 2,                          penalty: 30 },
   { avoid: "trabajo-terreno",        condition: (t) => t.movilidad >= 1,                          penalty: 15 },
   { avoid: "ambientes-competitivos", condition: (t) => t.presion >= 3,                            penalty: 30 },
   { avoid: "ambientes-competitivos", condition: (t) => t.presion >= 2,                            penalty: 15 },
   { avoid: "trabajo-repetitivo",     condition: (t) => t.aprendizaje <= 1 && t.ejecucion >= 3,   penalty: 20 }
 ];
+
+// -------------------------------------------------------------------
+// ROLE_INTENT_GATE
+// Roles con perfil conductual genérico (match muchos usuarios) que
+// requieren al menos una señal explícita del dominio para aparecer
+// sin penalización. Impide que Compliance y CdG surfacen para perfiles
+// que usan "estructura" u "orden" como proxy sin intención financiera.
+// -------------------------------------------------------------------
+const ROLE_INTENT_GATE = {
+  "analista-compliance-junior": {
+    // Compliance requiere señal financiera/estratégica — "procesos-ordenados" solo
+    // indica operaciones, no regulación. "numeros-negocio" o "mejorar-organizacion"
+    // son los discriminadores clave: implican rigor de negocio, no solo estructura.
+    required_signals: {
+      interests: ["numeros-negocio", "mejorar-organizacion"],
+      tasks:     ["crear-estrategias"]
+    },
+    absent_penalty: 22
+  },
+  "analista-control-gestion-junior": {
+    // CdG requiere señal de seguimiento de negocio. Un perfil puramente analítico
+    // (entender-datos + analizar-datos) apunta a data/analytics, no a control/reporting.
+    required_signals: {
+      interests: ["numeros-negocio", "procesos-ordenados", "mejorar-organizacion"],
+      tasks:     ["organizar-procesos", "crear-estrategias"]
+    },
+    absent_penalty: 15
+  }
+};
+
+/**
+ * Returns the intent gate penalty for a role.
+ * 0 if the role has no gate or the user has at least one matching signal.
+ */
+function computeIntentGatePenalty(roleId, interestPrefs, taskPrefs) {
+  const gate = ROLE_INTENT_GATE[roleId];
+  if (!gate) return 0;
+  const hasMatch =
+    gate.required_signals.interests.some(i => (interestPrefs || []).includes(i)) ||
+    gate.required_signals.tasks.some(t => (taskPrefs || []).includes(t));
+  return hasMatch ? 0 : gate.absent_penalty;
+}
 
 // Role clusters for diversity logic in explore mode.
 // One cluster per conceptual area — kept granular so adjacent areas don't block each other.
@@ -1175,8 +1219,11 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
         const isBasicRole = /^Asistente\s/i.test(role.title);
         const pgPenalty   = (enrichedProfile.has_postgrad && isBasicRole) ? 8 : 0;
 
+        // Intent gate penalty: roles with generic behavioral profiles require domain signals
+        const intentGatePenalty = computeIntentGatePenalty(role.id, interestPrefs, taskPrefs);
+
         const score = Math.max(0, Math.min(75,
-          cvScore + behavioralScore - avoidPenalty - pgPenalty
+          cvScore + behavioralScore - avoidPenalty - pgPenalty - intentGatePenalty
         ));
 
         const missingSkills = buildMissingSkills(enrichedProfile, role);
@@ -1204,10 +1251,11 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
           score,
           role_traits:      role.traits || {},
           score_breakdown: {
-            cv:            cvScore,
+            cv:                 cvScore,
             cv_weight,
-            behavioral:    behavioralScore,
-            avoid_penalty: avoidPenalty,
+            behavioral:         behavioralScore,
+            avoid_penalty:      avoidPenalty,
+            intent_gate_penalty: intentGatePenalty,
             // Legacy fields — kept for evaluateInterestAlignment + computeRecommendationScore
             carrera:         cvResult.degreeRaw,
             skills:          cvResult.skillsRaw,
