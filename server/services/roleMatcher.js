@@ -196,7 +196,6 @@ function getDomainFitModifier(userCareer, roleDomain) {
 const AVOID_PENALTY_RULES = [
   { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 3 && t.presion >= 2, penalty: 40 },
   { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 2,                   penalty: 25 },
-  { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 1 && t.presion >= 1, penalty: 12 },
   { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 3,                   penalty: 30 },
   { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 2,                   penalty: 15 },
   { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 1,                   penalty: 8  },
@@ -216,14 +215,15 @@ const AVOID_PENALTY_RULES = [
 // -------------------------------------------------------------------
 const ROLE_INTENT_GATE = {
   "analista-compliance-junior": {
-    // Compliance requiere señal financiera/estratégica — "procesos-ordenados" solo
-    // indica operaciones, no regulación. "numeros-negocio" o "mejorar-organizacion"
-    // son los discriminadores clave: implican rigor de negocio, no solo estructura.
+    // PROXY TEMPORAL: hoy no existe una señal de regulación/normativa en el sistema.
+    // Usamos "numeros-negocio" como único habilitador porque es la señal más cercana
+    // al rigor financiero-regulatorio disponible. Esto NO implica que compliance = finanzas.
+    // Revisar y reemplazar cuando se agregue una dimensión de regulación al test.
     required_signals: {
-      interests: ["numeros-negocio", "mejorar-organizacion"],
-      tasks:     ["crear-estrategias"]
+      interests: ["numeros-negocio"],
+      tasks:     []
     },
-    absent_penalty: 22
+    absent_penalty: 28
   },
   "analista-control-gestion-junior": {
     // CdG requiere señal de seguimiento de negocio. Un perfil puramente analítico
