@@ -1708,9 +1708,9 @@ let exploreMotivations    = [];  // min 1, máx 2
 let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 3)
 
 const EXPLORE_TASKS = [
-  { value: "analizar-datos",    label: "Analizo antes de actuar y entiendo bien el problema" },
+  { value: "analizar-datos",    label: "Analizo el problema a fondo antes de proponer o actuar" },
   { value: "resolver-problemas",label: "Avanzo probando, iterando y ajustando en el camino" },
-  { value: "trabajar-personas", label: "Colaboro con otros y hago que las cosas avancen" },
+  { value: "trabajar-personas", label: "Trabajo codo a codo con otros para que las cosas avancen" },
   { value: "organizar-procesos",label: "Organizo y estructuro para que todo funcione bien" },
   { value: "crear-estrategias", label: "Tomo decisiones y priorizo con una mirada estratégica" }
 ];
@@ -1738,14 +1738,14 @@ const EXPLORE_MOTIVATIONS = [
 // El usuario ve solo el label; áreas y traits son invisibles.
 // IMPORTANTE: traits debe mantenerse sincronizado con INTEREST_TO_TRAITS en roleMatcher.js.
 const BEHAVIORAL_INTERESTS = [
-  { id: "entender-datos",       label: "Entender qué hay detrás de la información y convertirlo en algo útil",                      areas: ["analitica", "finanzas"],                        traits: { analisis: 2, aprendizaje: 1 } },
-  { id: "numeros-negocio",      label: "Trabajar con los números de un negocio para saber si va bien o mal",                         areas: ["finanzas", "control-gestion"],                  traits: { analisis: 2 } },
-  { id: "procesos-ordenados",   label: "Hacer que las cosas se hagan bien, de forma ordenada y consistente",                         areas: ["operaciones", "control-gestion"],               traits: { ejecucion: 2, coordinacion: 1 } },
-  { id: "coordinar-avanzar",    label: "Coordinar personas o proyectos para que las cosas lleguen a buen término",                   areas: ["proyectos", "personas"],                        traits: { coordinacion: 2, social: 1 } },
-  { id: "cerca-personas",       label: "Estar en contacto con personas y ayudar a resolver lo que necesitan",                        areas: ["comercial", "personas"],                        traits: { social: 2, contacto_cliente: 1, coordinacion: 1 } },
-  { id: "mejorar-organizacion", label: "Entender cómo funciona una organización por dentro y contribuir a mejorarla",                areas: ["control-gestion", "proyectos", "personas"],     traits: { coordinacion: 1, ejecucion: 1, aprendizaje: 1 } },
-  { id: "aprender-profundo",    label: "Investigar cómo funcionan las cosas, aprender en profundidad y no quedarme solo con lo básico", areas: ["analitica", "tecnologia", "emprendimiento"], traits: { aprendizaje: 3 } },
-  { id: "crear-impacto",        label: "Pensar en cómo crear algo nuevo, hacer crecer un negocio o generar impacto real",            areas: ["emprendimiento", "proyectos", "control-gestion"], traits: { analisis: 1, coordinacion: 1, aprendizaje: 1 } }
+  { id: "entender-datos",       label: "Explorar datos, encontrar patrones y convertir eso en algo que sirva para decidir",                         areas: ["analitica", "finanzas"],                          traits: { analisis: 2, aprendizaje: 1 } },
+  { id: "numeros-negocio",      label: "Analizar cómo le va al negocio — ventas, costos, resultados — y apoyar decisiones con esa información",     areas: ["finanzas", "control-gestion"],                    traits: { analisis: 2 } },
+  { id: "procesos-ordenados",   label: "Asegurar que los procesos del día a día funcionen de forma eficiente",                                       areas: ["operaciones", "control-gestion"],                 traits: { ejecucion: 2, coordinacion: 1 } },
+  { id: "coordinar-avanzar",    label: "Coordinar equipos o proyectos y hacer que las cosas avancen hacia un objetivo concreto",                     areas: ["proyectos", "personas"],                          traits: { coordinacion: 2, social: 1 } },
+  { id: "cerca-personas",       label: "Trabajar directamente con personas — clientes, usuarios, equipos — y ayudarlas a resolver lo que necesitan", areas: ["comercial", "personas"],                          traits: { social: 2, contacto_cliente: 1, coordinacion: 1 } },
+  { id: "mejorar-organizacion", label: "Diagnosticar cómo funciona un equipo u organización y proponer mejoras concretas",                          areas: ["control-gestion", "proyectos", "personas"],       traits: { coordinacion: 1, ejecucion: 1, aprendizaje: 1 } },
+  { id: "aprender-profundo",    label: "Profundizar en temas hasta entenderlos de raíz, aunque tome tiempo",                                         areas: ["analitica", "tecnologia", "emprendimiento"],      traits: { aprendizaje: 3 } },
+  { id: "crear-impacto",        label: "Crear o hacer crecer algo desde cero — un proyecto o negocio propio",                                        areas: ["emprendimiento", "proyectos", "control-gestion"], traits: { analisis: 1, coordinacion: 1, aprendizaje: 1 } }
 ];
 
 // Contenido específico por rol para el flujo explore.
