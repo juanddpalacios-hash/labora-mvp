@@ -158,6 +158,39 @@ const INTEREST_TO_TRAITS = {
   "crear-impacto":       { analisis: 1, coordinacion: 1, aprendizaje: 1 }
 };
 
+// -------------------------------------------------------------------
+// DOMAIN FIT — soft context layer for explore mode
+// Maps career (normalised) → domain affinity classification.
+// Source: declared career only. CV not used here.
+// Modifier applied AFTER base scoring, on top-20 only.
+// -------------------------------------------------------------------
+const DOMAIN_FIT_MAP = {
+  "ingenieria comercial": {
+    // "business_general" es temporal y debería reducirse en el tiempo moviendo roles a dominios más específicos
+    natural:  ["finance", "commercial", "marketing", "analytics", "business_general"],
+    nearby:   ["operations", "people_org", "tech"],
+    distant:  ["education", "communications"]
+  }
+};
+
+const DOMAIN_MODIFIERS = { natural: 5, nearby: 0, distant: -4 };
+
+/**
+ * Returns domain fit score modifier for a role given the user's career.
+ *   +5 → natural domain for this career
+ *    0 → nearby domain (or career/domain not in map)
+ *   -4 → distant domain for this career
+ */
+function getDomainFitModifier(userCareer, roleDomain) {
+  const norm = normalizeText(userCareer || "");
+  const careerMap = DOMAIN_FIT_MAP[norm];
+  if (!careerMap || !roleDomain) return 0;
+  if (careerMap.natural.includes(roleDomain))  return DOMAIN_MODIFIERS.natural;
+  if (careerMap.nearby.includes(roleDomain))   return DOMAIN_MODIFIERS.nearby;
+  if (careerMap.distant.includes(roleDomain))  return DOMAIN_MODIFIERS.distant;
+  return 0;
+}
+
 // Additive avoid penalties — subtracted from final score.
 // Rules are ordered strongest-first; only the first match per avoid value applies.
 const AVOID_PENALTY_RULES = [
@@ -1167,6 +1200,7 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
           entry_type:       role.entry_type,
           has_commission:   role.has_commission   || false,
           requires_cv_gate: role.requires_cv_gate || false,
+          domain:           role.domain           || null,
           score,
           role_traits:      role.traits || {},
           score_breakdown: {
@@ -1194,7 +1228,22 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
       .filter((r) => r.score >= EXPLORE_STRETCH)
       .sort((a, b) => b.score - a.score);
 
-    const top5 = diversifyResults(allScored);
+    // Domain fit: apply soft modifier to top 20, then re-sort.
+    // Operates on already-scored roles so behavioral stays as primary driver.
+    // Uses map (not forEach) to avoid mutating allScored objects.
+    const userCareer = enrichedProfile.degree || "";
+    const topN = allScored.slice(0, 20).map(r => {
+      const modifier = getDomainFitModifier(userCareer, r.domain);
+      return {
+        ...r,
+        score: modifier !== 0 ? Math.max(0, Math.min(75, r.score + modifier)) : r.score,
+        score_breakdown: { ...r.score_breakdown, domain_fit: modifier }
+      };
+    });
+    const rest = allScored.slice(20);
+    const reRanked = [...topN.sort((a, b) => b.score - a.score), ...rest];
+
+    const top5 = diversifyResults(reRanked);
 
     const strongMatches  = top5.filter((r) => r.score >= EXPLORE_STRONG);
     const stretchMatches = top5.filter((r) => r.score < EXPLORE_STRONG);

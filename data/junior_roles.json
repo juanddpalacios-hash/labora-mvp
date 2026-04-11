@@ -3,616 +3,2399 @@
     "id": "analista-datos-junior",
     "title": "Analista de Datos Junior",
     "pitch": "Extrae insights desde datos usando SQL y Python, y los comunica en dashboards.",
-    "area": "Analítica", "subarea": "Datos", "category": "analitica",
+    "area": "Analítica",
+    "subarea": "Datos",
+    "category": "analitica",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["analitica"], "secondary_families": ["negocios", "ingenieria"],
-    "skills": ["SQL", "Python", "Power BI", "análisis de datos", "visualización de datos", "Excel"],
-    "required_skills": ["SQL", "Python", "Excel"],
-    "experience_signals": ["analisis", "dashboard", "sql", "python", "tesis", "practica"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 3, "ejecucion": 1, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "analitica"
+    ],
+    "secondary_families": [
+      "negocios",
+      "ingenieria"
+    ],
+    "skills": [
+      "SQL",
+      "Python",
+      "Power BI",
+      "análisis de datos",
+      "visualización de datos",
+      "Excel"
+    ],
+    "required_skills": [
+      "SQL",
+      "Python",
+      "Excel"
+    ],
+    "experience_signals": [
+      "analisis",
+      "dashboard",
+      "sql",
+      "python",
+      "tesis",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 1,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "analytics"
   },
   {
     "id": "analista-reporting-junior",
     "title": "Analista de Reporting Junior",
     "pitch": "Construye reportes de gestión y dashboards para que otros tomen mejores decisiones.",
-    "area": "Analítica", "subarea": "Reporting", "category": "analitica",
+    "area": "Analítica",
+    "subarea": "Reporting",
+    "category": "analitica",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["analitica", "finanzas"], "secondary_families": ["negocios"],
-    "skills": ["Power BI", "dashboards", "SQL", "KPIs", "análisis de datos", "Excel"],
-    "required_skills": ["Power BI", "Excel", "SQL"],
-    "experience_signals": ["reporte", "dashboard", "kpi", "practica", "tesis"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 3, "ejecucion": 2, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "analitica",
+      "finanzas"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "Power BI",
+      "dashboards",
+      "SQL",
+      "KPIs",
+      "análisis de datos",
+      "Excel"
+    ],
+    "required_skills": [
+      "Power BI",
+      "Excel",
+      "SQL"
+    ],
+    "experience_signals": [
+      "reporte",
+      "dashboard",
+      "kpi",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 2,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "analytics"
   },
   {
     "id": "analista-financiero-junior",
     "title": "Analista Financiero Junior",
     "pitch": "Modela flujos de caja, valora activos y analiza estados financieros.",
-    "area": "Finanzas", "subarea": "Análisis Financiero", "category": "finanzas",
+    "area": "Finanzas",
+    "subarea": "Análisis Financiero",
+    "category": "finanzas",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas", "negocios"], "secondary_families": ["analitica"],
-    "skills": ["análisis financiero", "estados financieros", "flujo de caja", "valorización", "Excel", "PowerPoint"],
-    "required_skills": ["Excel", "análisis financiero", "estados financieros"],
-    "experience_signals": ["finanza", "financier", "inversion", "practica", "tesis"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 3, "ejecucion": 2, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas",
+      "negocios"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "análisis financiero",
+      "estados financieros",
+      "flujo de caja",
+      "valorización",
+      "Excel",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "Excel",
+      "análisis financiero",
+      "estados financieros"
+    ],
+    "experience_signals": [
+      "finanza",
+      "financier",
+      "inversion",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 2,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "analista-control-gestion-junior",
     "title": "Analista Control de Gestión Junior",
     "pitch": "Controla presupuestos, mide desviaciones y reporta KPIs a la gerencia.",
-    "area": "Finanzas", "subarea": "Control de Gestión", "category": "control-gestion",
+    "area": "Finanzas",
+    "subarea": "Control de Gestión",
+    "category": "control-gestion",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas", "operaciones"], "secondary_families": ["negocios", "analitica"],
-    "skills": ["control de gestión", "presupuesto", "KPIs", "variaciones", "Power BI", "Excel"],
-    "required_skills": ["Excel", "Power BI", "control de gestión"],
-    "experience_signals": ["control", "presupuesto", "gestion", "practica", "tesis"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 3, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 0, "social": 0, "presion": 2, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas",
+      "operaciones"
+    ],
+    "secondary_families": [
+      "negocios",
+      "analitica"
+    ],
+    "skills": [
+      "control de gestión",
+      "presupuesto",
+      "KPIs",
+      "variaciones",
+      "Power BI",
+      "Excel"
+    ],
+    "required_skills": [
+      "Excel",
+      "Power BI",
+      "control de gestión"
+    ],
+    "experience_signals": [
+      "control",
+      "presupuesto",
+      "gestion",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "analista-comercial-junior",
     "title": "Analista Comercial Junior",
     "pitch": "Analiza el pipeline de ventas, comportamiento de clientes y oportunidades de mercado.",
-    "area": "Comercial", "subarea": "Análisis Comercial", "category": "comercial",
+    "area": "Comercial",
+    "subarea": "Análisis Comercial",
+    "category": "comercial",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": ["analitica", "operaciones"],
-    "skills": ["análisis comercial", "CRM", "pipeline de ventas", "Power BI", "Excel", "PowerPoint"],
-    "required_skills": ["Excel", "CRM"],
-    "experience_signals": ["ventas", "clientes", "comercial", "practica", "proyecto"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 1, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [
+      "analitica",
+      "operaciones"
+    ],
+    "skills": [
+      "análisis comercial",
+      "CRM",
+      "pipeline de ventas",
+      "Power BI",
+      "Excel",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "Excel",
+      "CRM"
+    ],
+    "experience_signals": [
+      "ventas",
+      "clientes",
+      "comercial",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "commercial"
   },
   {
     "id": "analista-marketing-junior",
     "title": "Analista de Marketing Junior",
     "pitch": "Gestiona campañas digitales, mide su impacto y analiza el comportamiento del consumidor.",
-    "area": "Comercial", "subarea": "Marketing Digital", "category": "comercial",
+    "area": "Comercial",
+    "subarea": "Marketing Digital",
+    "category": "comercial",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["comunicacion", "negocios"], "secondary_families": ["ciencias-sociales"],
-    "skills": ["Google Analytics", "marketing digital", "redes sociales", "campañas digitales", "CRM", "Excel"],
-    "required_skills": ["Google Analytics", "CRM", "Excel"],
-    "experience_signals": ["marketing", "redes sociales", "campana", "publicidad", "practica"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 1, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "comunicacion",
+      "negocios"
+    ],
+    "secondary_families": [
+      "ciencias-sociales"
+    ],
+    "skills": [
+      "Google Analytics",
+      "marketing digital",
+      "redes sociales",
+      "campañas digitales",
+      "CRM",
+      "Excel"
+    ],
+    "required_skills": [
+      "Google Analytics",
+      "CRM",
+      "Excel"
+    ],
+    "experience_signals": [
+      "marketing",
+      "redes sociales",
+      "campana",
+      "publicidad",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "marketing"
   },
   {
     "id": "coordinador-operaciones-junior",
     "title": "Coordinador de Operaciones Junior",
     "pitch": "Optimiza procesos, coordina equipos y asegura que las operaciones funcionen sin fricciones.",
-    "area": "Operaciones", "subarea": "Operaciones", "category": "operaciones",
+    "area": "Operaciones",
+    "subarea": "Operaciones",
+    "category": "operaciones",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["operaciones", "ingenieria"], "secondary_families": ["negocios"],
-    "skills": ["gestión de procesos", "indicadores operacionales", "análisis de datos", "coordinación", "Excel"],
-    "required_skills": ["Excel", "gestión de procesos"],
-    "experience_signals": ["operaciones", "procesos", "coordinacion", "practica", "proyecto"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 2, "coordinacion": 3, "contacto_cliente": 1, "social": 2, "presion": 2, "aprendizaje": 2, "movilidad": 1 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "operaciones",
+      "ingenieria"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "gestión de procesos",
+      "indicadores operacionales",
+      "análisis de datos",
+      "coordinación",
+      "Excel"
+    ],
+    "required_skills": [
+      "Excel",
+      "gestión de procesos"
+    ],
+    "experience_signals": [
+      "operaciones",
+      "procesos",
+      "coordinacion",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 2,
+      "coordinacion": 3,
+      "contacto_cliente": 1,
+      "social": 2,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 1
+    },
+    "domain": "operations"
   },
   {
     "id": "asistente-proyectos-junior",
     "title": "Asistente de Proyectos Junior",
     "pitch": "Apoya la planificación, seguimiento y cierre de proyectos en equipos multidisciplinarios.",
-    "area": "Proyectos", "subarea": "Gestión de Proyectos", "category": "proyectos",
+    "area": "Proyectos",
+    "subarea": "Gestión de Proyectos",
+    "category": "proyectos",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["operaciones", "negocios"], "secondary_families": ["ingenieria"],
-    "skills": ["gestión de proyectos", "planificación", "coordinación", "PowerPoint", "Excel"],
-    "required_skills": ["Excel", "PowerPoint"],
-    "experience_signals": ["proyecto", "ayudante", "practica", "coordinacion"],
-    "modalities": ["presencial", "híbrido", "remoto"],
-    "traits": { "analisis": 1, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 0, "social": 2, "presion": 1, "aprendizaje": 1, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "operaciones",
+      "negocios"
+    ],
+    "secondary_families": [
+      "ingenieria"
+    ],
+    "skills": [
+      "gestión de proyectos",
+      "planificación",
+      "coordinación",
+      "PowerPoint",
+      "Excel"
+    ],
+    "required_skills": [
+      "Excel",
+      "PowerPoint"
+    ],
+    "experience_signals": [
+      "proyecto",
+      "ayudante",
+      "practica",
+      "coordinacion"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 0,
+      "social": 2,
+      "presion": 1,
+      "aprendizaje": 1,
+      "movilidad": 0
+    },
+    "domain": "people_org"
   },
   {
     "id": "asistente-rrhh-junior",
     "title": "Asistente de RRHH Junior",
     "pitch": "Recluta, selecciona y acompaña procesos de gestión de personas en la organización.",
-    "area": "Personas", "subarea": "Recursos Humanos", "category": "personas",
+    "area": "Personas",
+    "subarea": "Recursos Humanos",
+    "category": "personas",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["personas"], "secondary_families": ["negocios", "ciencias-sociales"],
-    "skills": ["selección de personal", "reclutamiento", "gestión de personas", "entrevistas", "Excel"],
-    "required_skills": ["Excel", "selección de personal", "reclutamiento"],
-    "experience_signals": ["rrhh", "seleccion", "personas", "ayudante", "practica", "voluntariado"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 0, "social": 3, "presion": 0, "aprendizaje": 1, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "personas"
+    ],
+    "secondary_families": [
+      "negocios",
+      "ciencias-sociales"
+    ],
+    "skills": [
+      "selección de personal",
+      "reclutamiento",
+      "gestión de personas",
+      "entrevistas",
+      "Excel"
+    ],
+    "required_skills": [
+      "Excel",
+      "selección de personal",
+      "reclutamiento"
+    ],
+    "experience_signals": [
+      "rrhh",
+      "seleccion",
+      "personas",
+      "ayudante",
+      "practica",
+      "voluntariado"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 0,
+      "social": 3,
+      "presion": 0,
+      "aprendizaje": 1,
+      "movilidad": 0
+    },
+    "domain": "people_org"
   },
   {
     "id": "analista-gis-junior",
     "title": "Analista GIS Junior",
     "pitch": "Analiza datos espaciales y genera cartografía para decisiones territoriales y ambientales.",
-    "area": "Geociencias", "subarea": "Análisis Espacial", "category": "geociencias",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["geociencias"], "secondary_families": ["medioambiente", "ingenieria"],
-    "skills": ["QGIS", "ArcGIS", "análisis espacial", "cartografía", "Python"],
-    "required_skills": ["QGIS", "ArcGIS"],
-    "experience_signals": ["cartografia", "terreno", "gis", "tesis", "practica"],
-    "modalities": ["presencial", "híbrido", "remoto"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 2, "movilidad": 3 }
+    "area": "Geociencias",
+    "subarea": "Análisis Espacial",
+    "category": "geociencias",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "geociencias"
+    ],
+    "secondary_families": [
+      "medioambiente",
+      "ingenieria"
+    ],
+    "skills": [
+      "QGIS",
+      "ArcGIS",
+      "análisis espacial",
+      "cartografía",
+      "Python"
+    ],
+    "required_skills": [
+      "QGIS",
+      "ArcGIS"
+    ],
+    "experience_signals": [
+      "cartografia",
+      "terreno",
+      "gis",
+      "tesis",
+      "practica"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 3
+    },
+    "domain": "analytics"
   },
   {
     "id": "analista-ambiental-junior",
     "title": "Analista Ambiental Junior",
     "pitch": "Evalúa impactos ambientales, trabaja en terreno y vela por el cumplimiento normativo.",
-    "area": "Medioambiente", "subarea": "Gestión Ambiental", "category": "medioambiente",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["medioambiente", "geociencias"], "secondary_families": ["ingenieria", "ciencias"],
-    "skills": ["gestión ambiental", "normativa ambiental", "levantamiento de datos", "reportes técnicos", "Excel"],
-    "required_skills": ["Excel", "normativa ambiental"],
-    "experience_signals": ["terreno", "ambiental", "practica", "tesis", "proyecto"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 3 }
+    "area": "Medioambiente",
+    "subarea": "Gestión Ambiental",
+    "category": "medioambiente",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "medioambiente",
+      "geociencias"
+    ],
+    "secondary_families": [
+      "ingenieria",
+      "ciencias"
+    ],
+    "skills": [
+      "gestión ambiental",
+      "normativa ambiental",
+      "levantamiento de datos",
+      "reportes técnicos",
+      "Excel"
+    ],
+    "required_skills": [
+      "Excel",
+      "normativa ambiental"
+    ],
+    "experience_signals": [
+      "terreno",
+      "ambiental",
+      "practica",
+      "tesis",
+      "proyecto"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 0,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 3
+    },
+    "domain": "operations"
   },
   {
     "id": "desarrollador-web-junior",
     "title": "Desarrollador Web Junior",
     "pitch": "Construye y mantiene interfaces web y APIs, convirtiendo diseños en productos funcionales.",
-    "area": "Tecnología", "subarea": "Desarrollo Web", "category": "tecnologia",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["tecnologia"], "secondary_families": ["analitica"],
-    "skills": ["HTML", "CSS", "JavaScript", "React", "Git", "APIs REST", "Node.js"],
-    "required_skills": ["HTML", "CSS", "JavaScript", "Git"],
-    "experience_signals": ["desarrollo", "programacion", "web", "app", "github", "proyecto", "practica"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 1, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "area": "Tecnología",
+    "subarea": "Desarrollo Web",
+    "category": "tecnologia",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "tecnologia"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "React",
+      "Git",
+      "APIs REST",
+      "Node.js"
+    ],
+    "required_skills": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Git"
+    ],
+    "experience_signals": [
+      "desarrollo",
+      "programacion",
+      "web",
+      "app",
+      "github",
+      "proyecto",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 1,
+      "contacto_cliente": 0,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "tech"
   },
   {
     "id": "qa-tester-junior",
     "title": "QA Tester Junior",
     "pitch": "Diseña y ejecuta casos de prueba para garantizar que el software funciona sin errores.",
-    "area": "Tecnología", "subarea": "Calidad de Software", "category": "tecnologia",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["tecnologia"], "secondary_families": ["analitica"],
-    "skills": ["testing", "Selenium", "casos de prueba", "SQL", "Jira", "automatización de pruebas"],
-    "required_skills": ["testing", "casos de prueba", "bug reporting", "Jira"],
-    "experience_signals": ["testing", "prueba", "qa", "software", "proyecto", "practica"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 2, "ejecucion": 3, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "area": "Tecnología",
+    "subarea": "Calidad de Software",
+    "category": "tecnologia",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "tecnologia"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "testing",
+      "Selenium",
+      "casos de prueba",
+      "SQL",
+      "Jira",
+      "automatización de pruebas"
+    ],
+    "required_skills": [
+      "testing",
+      "casos de prueba",
+      "bug reporting",
+      "Jira"
+    ],
+    "experience_signals": [
+      "testing",
+      "prueba",
+      "qa",
+      "software",
+      "proyecto",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 3,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "tech"
   },
   {
     "id": "analista-soporte-ti-junior",
     "title": "Analista de Soporte TI Junior",
     "pitch": "Resuelve incidencias técnicas, administra sistemas y mantiene la infraestructura TI operativa.",
-    "area": "Tecnología", "subarea": "Soporte TI", "category": "tecnologia",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["tecnologia"], "secondary_families": ["operaciones"],
-    "skills": ["soporte técnico", "Active Directory", "redes", "Windows Server", "tickets", "diagnóstico de fallas"],
-    "required_skills": ["soporte técnico", "Windows Server"],
-    "experience_signals": ["soporte", "redes", "sistemas", "practica", "proyecto"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 1, "contacto_cliente": 2, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "area": "Tecnología",
+    "subarea": "Soporte TI",
+    "category": "tecnologia",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "tecnologia"
+    ],
+    "secondary_families": [
+      "operaciones"
+    ],
+    "skills": [
+      "soporte técnico",
+      "Active Directory",
+      "redes",
+      "Windows Server",
+      "tickets",
+      "diagnóstico de fallas"
+    ],
+    "required_skills": [
+      "soporte técnico",
+      "Windows Server"
+    ],
+    "experience_signals": [
+      "soporte",
+      "redes",
+      "sistemas",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 1,
+      "contacto_cliente": 2,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "tech"
   },
   {
     "id": "disenador-uxui-junior",
     "title": "Diseñador UX/UI Junior",
     "pitch": "Diseña interfaces centradas en el usuario, desde la investigación hasta el prototipo navegable.",
-    "area": "Diseño", "subarea": "UX/UI", "category": "diseno",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["diseno"], "secondary_families": ["tecnologia"],
-    "skills": ["Figma", "prototipado", "UX research", "usabilidad", "Adobe XD", "wireframes"],
-    "required_skills": ["Figma", "prototipado"],
-    "experience_signals": ["diseno", "ux", "ui", "figma", "prototipo", "proyecto", "practica"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 1, "social": 1, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "area": "Diseño",
+    "subarea": "UX/UI",
+    "category": "diseno",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "diseno"
+    ],
+    "secondary_families": [
+      "tecnologia"
+    ],
+    "skills": [
+      "Figma",
+      "prototipado",
+      "UX research",
+      "usabilidad",
+      "Adobe XD",
+      "wireframes"
+    ],
+    "required_skills": [
+      "Figma",
+      "prototipado"
+    ],
+    "experience_signals": [
+      "diseno",
+      "ux",
+      "ui",
+      "figma",
+      "prototipo",
+      "proyecto",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "tech"
   },
   {
     "id": "community-manager-junior",
     "title": "Community Manager Junior",
     "pitch": "Gestiona comunidades digitales, crea contenido y mide el impacto en redes sociales.",
-    "area": "Comunicación", "subarea": "Social Media", "category": "comunicacion",
+    "area": "Comunicación",
+    "subarea": "Social Media",
+    "category": "comunicacion",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["comunicacion"], "secondary_families": ["negocios"],
-    "skills": ["redes sociales", "Meta Ads", "contenido digital", "Canva", "analítica de redes", "copywriting"],
-    "required_skills": ["Meta Ads", "analítica de redes", "redes sociales", "Canva"],
-    "experience_signals": ["redes sociales", "contenido", "comunidad", "marketing", "practica"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 1, "contacto_cliente": 2, "social": 2, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "comunicacion"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "redes sociales",
+      "Meta Ads",
+      "contenido digital",
+      "Canva",
+      "analítica de redes",
+      "copywriting"
+    ],
+    "required_skills": [
+      "Meta Ads",
+      "analítica de redes",
+      "redes sociales",
+      "Canva"
+    ],
+    "experience_signals": [
+      "redes sociales",
+      "contenido",
+      "comunidad",
+      "marketing",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 1,
+      "contacto_cliente": 2,
+      "social": 2,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "communications"
   },
   {
     "id": "redactor-contenidos-junior",
     "title": "Redactor de Contenidos Junior",
     "pitch": "Produce artículos, blogs y piezas digitales que informan, posicionan y conectan con audiencias.",
-    "area": "Comunicación", "subarea": "Contenidos", "category": "comunicacion",
+    "area": "Comunicación",
+    "subarea": "Contenidos",
+    "category": "comunicacion",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["comunicacion"], "secondary_families": [],
-    "skills": ["redacción", "SEO", "WordPress", "storytelling", "edición de contenidos", "Canva"],
-    "required_skills": ["redacción", "WordPress"],
-    "experience_signals": ["redaccion", "contenido", "blog", "articulo", "nota", "practica"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 0, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "comunicacion"
+    ],
+    "secondary_families": [],
+    "skills": [
+      "redacción",
+      "SEO",
+      "WordPress",
+      "storytelling",
+      "edición de contenidos",
+      "Canva"
+    ],
+    "required_skills": [
+      "redacción",
+      "WordPress"
+    ],
+    "experience_signals": [
+      "redaccion",
+      "contenido",
+      "blog",
+      "articulo",
+      "nota",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "communications"
   },
   {
     "id": "relacionador-publico-junior",
     "title": "Relacionador Público Junior",
     "pitch": "Construye y cuida la imagen de organizaciones a través de medios, eventos y comunicación estratégica.",
-    "area": "Comunicación", "subarea": "Relaciones Públicas", "category": "comunicacion",
+    "area": "Comunicación",
+    "subarea": "Relaciones Públicas",
+    "category": "comunicacion",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["comunicacion"], "secondary_families": ["ciencias-sociales"],
-    "skills": ["comunicación corporativa", "relaciones con medios", "PR", "organización de eventos", "redacción"],
-    "required_skills": ["redacción", "comunicación corporativa"],
-    "experience_signals": ["relaciones publicas", "prensa", "medios", "evento", "practica"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 2, "social": 3, "presion": 1, "aprendizaje": 1, "movilidad": 1 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "comunicacion"
+    ],
+    "secondary_families": [
+      "ciencias-sociales"
+    ],
+    "skills": [
+      "comunicación corporativa",
+      "relaciones con medios",
+      "PR",
+      "organización de eventos",
+      "redacción"
+    ],
+    "required_skills": [
+      "redacción",
+      "comunicación corporativa"
+    ],
+    "experience_signals": [
+      "relaciones publicas",
+      "prensa",
+      "medios",
+      "evento",
+      "practica"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 2,
+      "social": 3,
+      "presion": 1,
+      "aprendizaje": 1,
+      "movilidad": 1
+    },
+    "domain": "communications"
   },
   {
     "id": "asistente-contable-junior",
     "title": "Asistente Contable Junior",
     "pitch": "Registra transacciones, concilia cuentas y apoya los procesos contables del área financiera.",
-    "area": "Finanzas", "subarea": "Contabilidad", "category": "finanzas",
+    "area": "Finanzas",
+    "subarea": "Contabilidad",
+    "category": "finanzas",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas"], "secondary_families": ["negocios"],
-    "skills": ["contabilidad", "SAP", "ERP", "Excel", "facturación", "conciliación bancaria"],
-    "required_skills": ["Excel", "contabilidad"],
-    "experience_signals": ["contabilidad", "factura", "balance", "practica", "tesis"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 1, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "contabilidad",
+      "SAP",
+      "ERP",
+      "Excel",
+      "facturación",
+      "conciliación bancaria"
+    ],
+    "required_skills": [
+      "Excel",
+      "contabilidad"
+    ],
+    "experience_signals": [
+      "contabilidad",
+      "factura",
+      "balance",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 1,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "analista-logistica-junior",
     "title": "Analista de Logística Junior",
     "pitch": "Coordina la cadena de suministro, controla inventarios y optimiza el flujo de mercancías.",
-    "area": "Operaciones", "subarea": "Logística", "category": "operaciones",
+    "area": "Operaciones",
+    "subarea": "Logística",
+    "category": "operaciones",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["operaciones"], "secondary_families": ["negocios"],
-    "skills": ["supply chain", "logística", "WMS", "control de inventario", "Excel", "coordinación de fletes"],
-    "required_skills": ["Excel", "supply chain"],
-    "experience_signals": ["logistica", "inventario", "bodega", "supply", "practica", "proyecto"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 1, "social": 1, "presion": 2, "aprendizaje": 2, "movilidad": 1 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "operaciones"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "supply chain",
+      "logística",
+      "WMS",
+      "control de inventario",
+      "Excel",
+      "coordinación de fletes"
+    ],
+    "required_skills": [
+      "Excel",
+      "supply chain"
+    ],
+    "experience_signals": [
+      "logistica",
+      "inventario",
+      "bodega",
+      "supply",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 1
+    },
+    "domain": "operations"
   },
   {
     "id": "asistente-legal-junior",
     "title": "Asistente Legal Junior",
     "pitch": "Apoya la gestión jurídica de contratos, normativa y procesos legales en organizaciones.",
-    "area": "Derecho", "subarea": "Derecho Corporativo", "category": "derecho",
-    "entry_type": "conditional", "requires_cv_gate": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["derecho"], "secondary_families": ["negocios"],
-    "skills": ["investigación jurídica", "redacción legal", "contratos", "normativa", "due diligence"],
-    "required_skills": ["investigación jurídica", "redacción legal"],
-    "experience_signals": ["practica", "juridico", "contrato", "normativa", "tesis"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "area": "Derecho",
+    "subarea": "Derecho Corporativo",
+    "category": "derecho",
+    "entry_type": "conditional",
+    "requires_cv_gate": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "derecho"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "investigación jurídica",
+      "redacción legal",
+      "contratos",
+      "normativa",
+      "due diligence"
+    ],
+    "required_skills": [
+      "investigación jurídica",
+      "redacción legal"
+    ],
+    "experience_signals": [
+      "practica",
+      "juridico",
+      "contrato",
+      "normativa",
+      "tesis"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "business_general"
   },
   {
     "id": "analista-compliance-junior",
     "title": "Analista de Compliance Junior",
     "pitch": "Vela por el cumplimiento de la normativa regulatoria y apoya la gestión de riesgos legales.",
-    "area": "Operaciones", "subarea": "Compliance", "category": "operaciones",
+    "area": "Operaciones",
+    "subarea": "Compliance",
+    "category": "operaciones",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios", "finanzas"], "secondary_families": ["operaciones"],
-    "skills": ["cumplimiento normativo", "riesgo legal", "regulatorio", "Excel", "reportes de compliance"],
-    "required_skills": ["Excel", "cumplimiento normativo"],
-    "experience_signals": ["compliance", "normativa", "riesgo", "auditoria", "practica"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios",
+      "finanzas"
+    ],
+    "secondary_families": [
+      "operaciones"
+    ],
+    "skills": [
+      "cumplimiento normativo",
+      "riesgo legal",
+      "regulatorio",
+      "Excel",
+      "reportes de compliance"
+    ],
+    "required_skills": [
+      "Excel",
+      "cumplimiento normativo"
+    ],
+    "experience_signals": [
+      "compliance",
+      "normativa",
+      "riesgo",
+      "auditoria",
+      "practica"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 0,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "coordinador-academico-junior",
     "title": "Coordinador Académico Junior",
     "pitch": "Gestiona procesos educativos, apoya a docentes y coordina la experiencia de aprendizaje.",
-    "area": "Educación", "subarea": "Gestión Académica", "category": "educacion",
+    "area": "Educación",
+    "subarea": "Gestión Académica",
+    "category": "educacion",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["educacion"], "secondary_families": ["personas"],
-    "skills": ["coordinación académica", "gestión curricular", "Excel", "atención a estudiantes", "PowerPoint"],
-    "required_skills": ["planificación curricular", "gestión educativa", "Excel"],
-    "experience_signals": ["academia", "educacion", "coordinacion", "practica", "ayudante", "docencia"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 2, "coordinacion": 3, "contacto_cliente": 1, "social": 3, "presion": 1, "aprendizaje": 1, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "educacion"
+    ],
+    "secondary_families": [
+      "personas"
+    ],
+    "skills": [
+      "coordinación académica",
+      "gestión curricular",
+      "Excel",
+      "atención a estudiantes",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "planificación curricular",
+      "gestión educativa",
+      "Excel"
+    ],
+    "experience_signals": [
+      "academia",
+      "educacion",
+      "coordinacion",
+      "practica",
+      "ayudante",
+      "docencia"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 2,
+      "coordinacion": 3,
+      "contacto_cliente": 1,
+      "social": 3,
+      "presion": 1,
+      "aprendizaje": 1,
+      "movilidad": 0
+    },
+    "domain": "education"
   },
   {
     "id": "analista-customer-success-junior",
     "title": "Analista de Customer Success Junior",
     "pitch": "Acompaña a los clientes en su adopción del producto, reduce churn y maximiza su satisfacción.",
-    "area": "Negocios", "subarea": "Customer Success", "category": "negocios",
+    "area": "Negocios",
+    "subarea": "Customer Success",
+    "category": "negocios",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": ["personas"],
-    "skills": ["atención al cliente", "CRM", "onboarding", "Net Promoter Score", "comunicación", "Excel"],
-    "required_skills": ["CRM", "Excel"],
-    "experience_signals": ["clientes", "atencion", "soporte", "satisfaccion", "practica", "proyecto"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 2, "social": 2, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [
+      "personas"
+    ],
+    "skills": [
+      "atención al cliente",
+      "CRM",
+      "onboarding",
+      "Net Promoter Score",
+      "comunicación",
+      "Excel"
+    ],
+    "required_skills": [
+      "CRM",
+      "Excel"
+    ],
+    "experience_signals": [
+      "clientes",
+      "atencion",
+      "soporte",
+      "satisfaccion",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 2,
+      "social": 2,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "commercial"
   },
   {
     "id": "analista-bi-junior",
     "title": "Analista BI Junior",
     "pitch": "Diseña modelos de datos y dashboards avanzados en Power BI para centralizar la inteligencia del negocio.",
-    "area": "Analítica", "subarea": "Business Intelligence", "category": "analitica",
+    "area": "Analítica",
+    "subarea": "Business Intelligence",
+    "category": "analitica",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["analitica"], "secondary_families": ["finanzas", "negocios"],
-    "skills": ["Power BI", "SQL", "modelado de datos", "DAX", "Excel", "ETL"],
-    "required_skills": ["Power BI", "SQL", "DAX"],
-    "experience_signals": ["bi", "power bi", "dashboard", "sql", "datos", "practica", "tesis"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 3, "ejecucion": 1, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "analitica"
+    ],
+    "secondary_families": [
+      "finanzas",
+      "negocios"
+    ],
+    "skills": [
+      "Power BI",
+      "SQL",
+      "modelado de datos",
+      "DAX",
+      "Excel",
+      "ETL"
+    ],
+    "required_skills": [
+      "Power BI",
+      "SQL",
+      "DAX"
+    ],
+    "experience_signals": [
+      "bi",
+      "power bi",
+      "dashboard",
+      "sql",
+      "datos",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 1,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "analytics"
   },
   {
     "id": "analista-inversiones-junior",
     "title": "Analista de Inversiones Junior",
     "pitch": "Evalúa oportunidades de inversión, modela valoraciones y apoya decisiones de portafolio.",
-    "area": "Finanzas", "subarea": "Inversiones", "category": "finanzas",
+    "area": "Finanzas",
+    "subarea": "Inversiones",
+    "category": "finanzas",
     "entry_type": "selective",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas"], "secondary_families": ["negocios", "analitica"],
-    "skills": ["valorización", "modelos financieros", "análisis de estados financieros", "Excel avanzado", "Bloomberg", "PowerPoint"],
-    "required_skills": ["Excel", "modelos financieros", "valorización"],
-    "experience_signals": ["inversion", "portafolio", "valoracion", "finanza", "tesis", "practica", "cfa"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 3, "ejecucion": 1, "coordinacion": 0, "contacto_cliente": 1, "social": 0, "presion": 2, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas"
+    ],
+    "secondary_families": [
+      "negocios",
+      "analitica"
+    ],
+    "skills": [
+      "valorización",
+      "modelos financieros",
+      "análisis de estados financieros",
+      "Excel avanzado",
+      "Bloomberg",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "Excel",
+      "modelos financieros",
+      "valorización"
+    ],
+    "experience_signals": [
+      "inversion",
+      "portafolio",
+      "valoracion",
+      "finanza",
+      "tesis",
+      "practica",
+      "cfa"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 1,
+      "coordinacion": 0,
+      "contacto_cliente": 1,
+      "social": 0,
+      "presion": 2,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "analista-tesoreria-junior",
     "title": "Analista de Tesorería Junior",
     "pitch": "Gestiona el flujo de caja diario, controla posiciones bancarias y apoya la gestión financiera operativa.",
-    "area": "Finanzas", "subarea": "Tesorería", "category": "finanzas",
+    "area": "Finanzas",
+    "subarea": "Tesorería",
+    "category": "finanzas",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas"], "secondary_families": ["operaciones"],
-    "skills": ["flujo de caja", "conciliación bancaria", "Excel", "SAP", "tesorería", "posiciones bancarias"],
-    "required_skills": ["Excel", "flujo de caja", "conciliación bancaria"],
-    "experience_signals": ["tesoreria", "caja", "banco", "practica", "finanza"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 3, "coordinacion": 1, "contacto_cliente": 1, "social": 0, "presion": 2, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas"
+    ],
+    "secondary_families": [
+      "operaciones"
+    ],
+    "skills": [
+      "flujo de caja",
+      "conciliación bancaria",
+      "Excel",
+      "SAP",
+      "tesorería",
+      "posiciones bancarias"
+    ],
+    "required_skills": [
+      "Excel",
+      "flujo de caja",
+      "conciliación bancaria"
+    ],
+    "experience_signals": [
+      "tesoreria",
+      "caja",
+      "banco",
+      "practica",
+      "finanza"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 3,
+      "coordinacion": 1,
+      "contacto_cliente": 1,
+      "social": 0,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "analista-riesgo-junior",
     "title": "Analista de Riesgo Junior",
     "pitch": "Identifica, modela y monitorea riesgos financieros y operacionales para proteger a la organización.",
-    "area": "Finanzas", "subarea": "Riesgo", "category": "finanzas",
+    "area": "Finanzas",
+    "subarea": "Riesgo",
+    "category": "finanzas",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas"], "secondary_families": ["analitica"],
-    "skills": ["gestión de riesgos", "análisis cuantitativo", "modelos estadísticos", "normativa financiera", "Excel", "PowerPoint"],
-    "required_skills": ["Excel", "análisis estadístico", "gestión de riesgos"],
-    "experience_signals": ["riesgo", "credito", "practica", "finanza", "tesis", "estadistica"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 3, "ejecucion": 1, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "gestión de riesgos",
+      "análisis cuantitativo",
+      "modelos estadísticos",
+      "normativa financiera",
+      "Excel",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "Excel",
+      "análisis estadístico",
+      "gestión de riesgos"
+    ],
+    "experience_signals": [
+      "riesgo",
+      "credito",
+      "practica",
+      "finanza",
+      "tesis",
+      "estadistica"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 1,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "analista-presupuestos-junior",
     "title": "Analista de Presupuestos Junior",
     "pitch": "Elabora y controla el presupuesto anual, analiza desviaciones y reporta avance a la gerencia.",
-    "area": "Finanzas", "subarea": "Presupuestos", "category": "finanzas",
+    "area": "Finanzas",
+    "subarea": "Presupuestos",
+    "category": "finanzas",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["finanzas", "operaciones"], "secondary_families": ["negocios", "analitica"],
-    "skills": ["presupuesto", "análisis de variaciones", "Power BI", "control de gestión", "Excel"],
-    "required_skills": ["Excel", "presupuesto", "análisis de variaciones"],
-    "experience_signals": ["presupuesto", "control", "variacion", "practica", "tesis"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 3, "ejecucion": 2, "coordinacion": 1, "contacto_cliente": 0, "social": 0, "presion": 2, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "finanzas",
+      "operaciones"
+    ],
+    "secondary_families": [
+      "negocios",
+      "analitica"
+    ],
+    "skills": [
+      "presupuesto",
+      "análisis de variaciones",
+      "Power BI",
+      "control de gestión",
+      "Excel"
+    ],
+    "required_skills": [
+      "Excel",
+      "presupuesto",
+      "análisis de variaciones"
+    ],
+    "experience_signals": [
+      "presupuesto",
+      "control",
+      "variacion",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 2,
+      "coordinacion": 1,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "finance"
   },
   {
     "id": "ejecutivo-comercial-junior",
     "title": "Ejecutivo Comercial Junior",
     "pitch": "Prospecta clientes B2B, genera reuniones y cierra negocios en una cartera nueva.",
-    "area": "Comercial", "subarea": "Ventas B2B", "category": "comercial",
-    "entry_type": "real", "has_commission": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": ["operaciones"],
-    "skills": ["prospección comercial", "CRM", "negociación", "pipeline de ventas", "presentaciones comerciales", "Excel"],
-    "required_skills": ["CRM", "presentaciones comerciales", "prospección"],
-    "experience_signals": ["ventas", "comercial", "clientes", "negociacion", "practica", "emprendimiento"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 1, "contacto_cliente": 3, "social": 1, "presion": 3, "aprendizaje": 1, "movilidad": 1 }
+    "area": "Comercial",
+    "subarea": "Ventas B2B",
+    "category": "comercial",
+    "entry_type": "real",
+    "has_commission": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [
+      "operaciones"
+    ],
+    "skills": [
+      "prospección comercial",
+      "CRM",
+      "negociación",
+      "pipeline de ventas",
+      "presentaciones comerciales",
+      "Excel"
+    ],
+    "required_skills": [
+      "CRM",
+      "presentaciones comerciales",
+      "prospección"
+    ],
+    "experience_signals": [
+      "ventas",
+      "comercial",
+      "clientes",
+      "negociacion",
+      "practica",
+      "emprendimiento"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 1,
+      "contacto_cliente": 3,
+      "social": 1,
+      "presion": 3,
+      "aprendizaje": 1,
+      "movilidad": 1
+    },
+    "domain": "commercial"
   },
   {
     "id": "ejecutivo-ventas-junior",
     "title": "Ejecutivo de Ventas Junior",
     "pitch": "Gestiona una cartera de clientes asignada, asegura la renovación y amplía el ticket promedio.",
-    "area": "Comercial", "subarea": "Ventas", "category": "comercial",
-    "entry_type": "real", "has_commission": true,
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": [],
-    "skills": ["gestión de cuentas", "CRM", "negociación", "fidelización de clientes", "presentaciones", "Excel"],
-    "required_skills": ["CRM", "gestión de cuentas", "negociación"],
-    "experience_signals": ["ventas", "clientes", "fidelizacion", "cartera", "practica", "comercial"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 1, "ejecucion": 3, "coordinacion": 1, "contacto_cliente": 3, "social": 1, "presion": 3, "aprendizaje": 1, "movilidad": 1 }
+    "area": "Comercial",
+    "subarea": "Ventas",
+    "category": "comercial",
+    "entry_type": "real",
+    "has_commission": true,
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [],
+    "skills": [
+      "gestión de cuentas",
+      "CRM",
+      "negociación",
+      "fidelización de clientes",
+      "presentaciones",
+      "Excel"
+    ],
+    "required_skills": [
+      "CRM",
+      "gestión de cuentas",
+      "negociación"
+    ],
+    "experience_signals": [
+      "ventas",
+      "clientes",
+      "fidelizacion",
+      "cartera",
+      "practica",
+      "comercial"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 3,
+      "coordinacion": 1,
+      "contacto_cliente": 3,
+      "social": 1,
+      "presion": 3,
+      "aprendizaje": 1,
+      "movilidad": 1
+    },
+    "domain": "commercial"
   },
   {
     "id": "key-account-manager-junior",
     "title": "Key Account Manager Junior",
     "pitch": "Administra las cuentas clave del negocio, desarrolla relaciones estratégicas y maximiza el valor de cada cliente.",
-    "area": "Comercial", "subarea": "Cuentas Clave", "category": "comercial",
+    "area": "Comercial",
+    "subarea": "Cuentas Clave",
+    "category": "comercial",
     "entry_type": "selective",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": ["operaciones"],
-    "skills": ["gestión de cuentas clave", "CRM", "negociación avanzada", "análisis de negocio", "presentaciones ejecutivas", "Excel"],
-    "required_skills": ["CRM", "gestión de cuentas clave", "negociación"],
-    "experience_signals": ["key account", "cuentas", "clientes", "negociacion", "practica", "comercial"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 3, "social": 2, "presion": 2, "aprendizaje": 2, "movilidad": 1 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [
+      "operaciones"
+    ],
+    "skills": [
+      "gestión de cuentas clave",
+      "CRM",
+      "negociación avanzada",
+      "análisis de negocio",
+      "presentaciones ejecutivas",
+      "Excel"
+    ],
+    "required_skills": [
+      "CRM",
+      "gestión de cuentas clave",
+      "negociación"
+    ],
+    "experience_signals": [
+      "key account",
+      "cuentas",
+      "clientes",
+      "negociacion",
+      "practica",
+      "comercial"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 3,
+      "social": 2,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 1
+    },
+    "domain": "commercial"
   },
   {
     "id": "analista-marketing-digital-junior",
     "title": "Analista de Marketing Digital Junior",
     "pitch": "Planifica y ejecuta campañas en canales digitales, mide su rendimiento y optimiza el gasto publicitario.",
-    "area": "Marketing", "subarea": "Marketing Digital", "category": "marketing",
+    "area": "Marketing",
+    "subarea": "Marketing Digital",
+    "category": "marketing",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["comunicacion", "negocios"], "secondary_families": ["analitica"],
-    "skills": ["Google Ads", "Meta Ads", "Google Analytics", "pauta digital", "campañas digitales", "Excel"],
-    "required_skills": ["Google Ads", "Meta Ads", "Google Analytics"],
-    "experience_signals": ["marketing", "digital", "campana", "pauta", "ads", "practica"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 0, "contacto_cliente": 1, "social": 0, "presion": 2, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "comunicacion",
+      "negocios"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "Google Ads",
+      "Meta Ads",
+      "Google Analytics",
+      "pauta digital",
+      "campañas digitales",
+      "Excel"
+    ],
+    "required_skills": [
+      "Google Ads",
+      "Meta Ads",
+      "Google Analytics"
+    ],
+    "experience_signals": [
+      "marketing",
+      "digital",
+      "campana",
+      "pauta",
+      "ads",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 0,
+      "contacto_cliente": 1,
+      "social": 0,
+      "presion": 2,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "marketing"
   },
   {
     "id": "analista-performance-junior",
     "title": "Analista de Performance Junior",
     "pitch": "Mide el retorno de las campañas de marketing, optimiza métricas clave y reporta resultados al equipo.",
-    "area": "Marketing", "subarea": "Performance", "category": "marketing",
+    "area": "Marketing",
+    "subarea": "Performance",
+    "category": "marketing",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["analitica", "comunicacion"], "secondary_families": ["negocios"],
-    "skills": ["Google Analytics", "Meta Ads", "análisis de datos", "KPIs de marketing", "Excel", "Power BI"],
-    "required_skills": ["Google Analytics", "análisis de KPIs", "Excel"],
-    "experience_signals": ["performance", "marketing", "analytics", "kpi", "practica", "tesis"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 3, "ejecucion": 2, "coordinacion": 0, "contacto_cliente": 0, "social": 0, "presion": 2, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "analitica",
+      "comunicacion"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "Google Analytics",
+      "Meta Ads",
+      "análisis de datos",
+      "KPIs de marketing",
+      "Excel",
+      "Power BI"
+    ],
+    "required_skills": [
+      "Google Analytics",
+      "análisis de KPIs",
+      "Excel"
+    ],
+    "experience_signals": [
+      "performance",
+      "marketing",
+      "analytics",
+      "kpi",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 2,
+      "coordinacion": 0,
+      "contacto_cliente": 0,
+      "social": 0,
+      "presion": 2,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "marketing"
   },
   {
     "id": "analista-operaciones-junior",
     "title": "Analista de Operaciones Junior",
     "pitch": "Analiza procesos operativos, detecta ineficiencias y propone mejoras con base en datos.",
-    "area": "Operaciones", "subarea": "Análisis Operacional", "category": "operaciones",
+    "area": "Operaciones",
+    "subarea": "Análisis Operacional",
+    "category": "operaciones",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["operaciones"], "secondary_families": ["analitica", "negocios"],
-    "skills": ["mejora de procesos", "análisis de datos", "Excel", "Power BI", "Lean", "gestión de indicadores"],
-    "required_skills": ["Excel", "mejora de procesos", "análisis de indicadores"],
-    "experience_signals": ["operaciones", "procesos", "mejora", "indicadores", "practica", "proyecto"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 0, "social": 1, "presion": 1, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "operaciones"
+    ],
+    "secondary_families": [
+      "analitica",
+      "negocios"
+    ],
+    "skills": [
+      "mejora de procesos",
+      "análisis de datos",
+      "Excel",
+      "Power BI",
+      "Lean",
+      "gestión de indicadores"
+    ],
+    "required_skills": [
+      "Excel",
+      "mejora de procesos",
+      "análisis de indicadores"
+    ],
+    "experience_signals": [
+      "operaciones",
+      "procesos",
+      "mejora",
+      "indicadores",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 0,
+      "social": 1,
+      "presion": 1,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "operations"
   },
   {
     "id": "analista-supply-chain-junior",
     "title": "Analista de Supply Chain Junior",
     "pitch": "Planifica el flujo de materiales y productos, coordina proveedores y optimiza el inventario.",
-    "area": "Operaciones", "subarea": "Supply Chain", "category": "operaciones",
+    "area": "Operaciones",
+    "subarea": "Supply Chain",
+    "category": "operaciones",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["operaciones"], "secondary_families": ["ingenieria"],
-    "skills": ["supply chain", "planificación de demanda", "inventario", "ERP", "Excel", "logística"],
-    "required_skills": ["Excel", "supply chain", "planificación de demanda"],
-    "experience_signals": ["supply chain", "inventario", "logistica", "proveedor", "practica", "proyecto"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 1, "social": 1, "presion": 2, "aprendizaje": 2, "movilidad": 1 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "operaciones"
+    ],
+    "secondary_families": [
+      "ingenieria"
+    ],
+    "skills": [
+      "supply chain",
+      "planificación de demanda",
+      "inventario",
+      "ERP",
+      "Excel",
+      "logística"
+    ],
+    "required_skills": [
+      "Excel",
+      "supply chain",
+      "planificación de demanda"
+    ],
+    "experience_signals": [
+      "supply chain",
+      "inventario",
+      "logistica",
+      "proveedor",
+      "practica",
+      "proyecto"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 1
+    },
+    "domain": "operations"
   },
   {
     "id": "analista-reclutamiento-seleccion-junior",
     "title": "Analista de Reclutamiento y Selección Junior",
     "pitch": "Gestiona procesos de selección end-to-end: publica vacantes, entrevista candidatos y coordina ofertas.",
-    "area": "Personas", "subarea": "Reclutamiento", "category": "personas",
+    "area": "Personas",
+    "subarea": "Reclutamiento",
+    "category": "personas",
     "entry_type": "real",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["personas"], "secondary_families": ["negocios"],
-    "skills": ["reclutamiento", "entrevistas por competencias", "plataformas de empleo", "Excel", "ATS", "comunicación"],
-    "required_skills": ["reclutamiento", "entrevistas", "Excel"],
-    "experience_signals": ["reclutamiento", "seleccion", "rrhh", "personas", "practica", "voluntariado"],
-    "modalities": ["híbrido", "presencial"],
-    "traits": { "analisis": 1, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 1, "social": 3, "presion": 1, "aprendizaje": 1, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "personas"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "reclutamiento",
+      "entrevistas por competencias",
+      "plataformas de empleo",
+      "Excel",
+      "ATS",
+      "comunicación"
+    ],
+    "required_skills": [
+      "reclutamiento",
+      "entrevistas",
+      "Excel"
+    ],
+    "experience_signals": [
+      "reclutamiento",
+      "seleccion",
+      "rrhh",
+      "personas",
+      "practica",
+      "voluntariado"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 1,
+      "social": 3,
+      "presion": 1,
+      "aprendizaje": 1,
+      "movilidad": 0
+    },
+    "domain": "people_org"
   },
   {
     "id": "analista-desarrollo-organizacional-junior",
     "title": "Analista de Desarrollo Organizacional Junior",
     "pitch": "Diseña e implementa programas de desarrollo de talento, clima laboral y cultura organizacional.",
-    "area": "Personas", "subarea": "Desarrollo Organizacional", "category": "personas",
+    "area": "Personas",
+    "subarea": "Desarrollo Organizacional",
+    "category": "personas",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["personas"], "secondary_families": ["ciencias-sociales"],
-    "skills": ["desarrollo organizacional", "clima laboral", "capacitación", "Excel", "encuestas", "comunicación interna"],
-    "required_skills": ["Excel", "desarrollo organizacional", "gestión de encuestas"],
-    "experience_signals": ["desarrollo organizacional", "talento", "cultura", "clima", "practica", "tesis"],
-    "modalities": ["presencial", "híbrido"],
-    "traits": { "analisis": 2, "ejecucion": 1, "coordinacion": 2, "contacto_cliente": 0, "social": 3, "presion": 0, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "personas"
+    ],
+    "secondary_families": [
+      "ciencias-sociales"
+    ],
+    "skills": [
+      "desarrollo organizacional",
+      "clima laboral",
+      "capacitación",
+      "Excel",
+      "encuestas",
+      "comunicación interna"
+    ],
+    "required_skills": [
+      "Excel",
+      "desarrollo organizacional",
+      "gestión de encuestas"
+    ],
+    "experience_signals": [
+      "desarrollo organizacional",
+      "talento",
+      "cultura",
+      "clima",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "presencial",
+      "híbrido"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 1,
+      "coordinacion": 2,
+      "contacto_cliente": 0,
+      "social": 3,
+      "presion": 0,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "people_org"
   },
   {
     "id": "project-manager-junior",
     "title": "Project Manager Junior",
     "pitch": "Lidera proyectos de baja a mediana complejidad: define alcance, gestiona plazos y coordina al equipo.",
-    "area": "Proyectos", "subarea": "Gestión de Proyectos", "category": "proyectos",
+    "area": "Proyectos",
+    "subarea": "Gestión de Proyectos",
+    "category": "proyectos",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["operaciones", "negocios"], "secondary_families": ["ingenieria"],
-    "skills": ["gestión de proyectos", "planificación", "Jira", "Trello", "metodologías ágiles", "PowerPoint", "Excel"],
-    "required_skills": ["gestión de proyectos", "planificación", "Excel"],
-    "experience_signals": ["proyecto", "lider", "agile", "scrum", "practica", "tesis", "coordinacion"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 1, "ejecucion": 1, "coordinacion": 3, "contacto_cliente": 1, "social": 2, "presion": 2, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "operaciones",
+      "negocios"
+    ],
+    "secondary_families": [
+      "ingenieria"
+    ],
+    "skills": [
+      "gestión de proyectos",
+      "planificación",
+      "Jira",
+      "Trello",
+      "metodologías ágiles",
+      "PowerPoint",
+      "Excel"
+    ],
+    "required_skills": [
+      "gestión de proyectos",
+      "planificación",
+      "Excel"
+    ],
+    "experience_signals": [
+      "proyecto",
+      "lider",
+      "agile",
+      "scrum",
+      "practica",
+      "tesis",
+      "coordinacion"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 1,
+      "ejecucion": 1,
+      "coordinacion": 3,
+      "contacto_cliente": 1,
+      "social": 2,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "people_org"
   },
   {
     "id": "business-analyst-junior",
     "title": "Business Analyst Junior",
     "pitch": "Levanta requerimientos de negocio, los traduce a especificaciones técnicas y coordina entre stakeholders y equipos tech.",
-    "area": "Tecnología", "subarea": "Análisis de Negocio", "category": "tecnologia",
+    "area": "Tecnología",
+    "subarea": "Análisis de Negocio",
+    "category": "tecnologia",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios", "tecnologia"], "secondary_families": ["analitica"],
-    "skills": ["análisis de requerimientos", "modelado de procesos", "BPMN", "SQL", "Jira", "Excel", "comunicación con stakeholders"],
-    "required_skills": ["análisis de requerimientos", "modelado de procesos", "Excel"],
-    "experience_signals": ["requerimientos", "procesos", "bpmn", "analisis", "proyecto", "practica", "tesis"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 1, "social": 2, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios",
+      "tecnologia"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "análisis de requerimientos",
+      "modelado de procesos",
+      "BPMN",
+      "SQL",
+      "Jira",
+      "Excel",
+      "comunicación con stakeholders"
+    ],
+    "required_skills": [
+      "análisis de requerimientos",
+      "modelado de procesos",
+      "Excel"
+    ],
+    "experience_signals": [
+      "requerimientos",
+      "procesos",
+      "bpmn",
+      "analisis",
+      "proyecto",
+      "practica",
+      "tesis"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 1,
+      "social": 2,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "tech"
   },
   {
     "id": "product-analyst-junior",
     "title": "Product Analyst Junior",
     "pitch": "Analiza el comportamiento de usuarios en el producto digital, define métricas y apoya decisiones de roadmap.",
-    "area": "Tecnología", "subarea": "Producto Digital", "category": "tecnologia",
+    "area": "Tecnología",
+    "subarea": "Producto Digital",
+    "category": "tecnologia",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["tecnologia", "analitica"], "secondary_families": ["negocios"],
-    "skills": ["análisis de producto", "Google Analytics", "Mixpanel", "SQL", "user research", "Excel", "A/B testing"],
-    "required_skills": ["análisis de producto", "Google Analytics", "SQL"],
-    "experience_signals": ["producto", "analytics", "usuario", "metrics", "practica", "tesis", "app"],
-    "modalities": ["híbrido", "remoto", "presencial"],
-    "traits": { "analisis": 3, "ejecucion": 1, "coordinacion": 1, "contacto_cliente": 1, "social": 1, "presion": 2, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "tecnologia",
+      "analitica"
+    ],
+    "secondary_families": [
+      "negocios"
+    ],
+    "skills": [
+      "análisis de producto",
+      "Google Analytics",
+      "Mixpanel",
+      "SQL",
+      "user research",
+      "Excel",
+      "A/B testing"
+    ],
+    "required_skills": [
+      "análisis de producto",
+      "Google Analytics",
+      "SQL"
+    ],
+    "experience_signals": [
+      "producto",
+      "analytics",
+      "usuario",
+      "metrics",
+      "practica",
+      "tesis",
+      "app"
+    ],
+    "modalities": [
+      "híbrido",
+      "remoto",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 1,
+      "coordinacion": 1,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 2,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "analytics"
   },
   {
     "id": "analista-innovacion-junior",
     "title": "Analista de Innovación Junior",
     "pitch": "Investiga tendencias, desarrolla propuestas de nuevos modelos de negocio y facilita metodologías de innovación.",
-    "area": "Emprendimiento", "subarea": "Innovación", "category": "emprendimiento",
+    "area": "Emprendimiento",
+    "subarea": "Innovación",
+    "category": "emprendimiento",
     "entry_type": "selective",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": ["ciencias-sociales"],
-    "skills": ["design thinking", "investigación de mercado", "innovación", "PowerPoint", "facilitación", "Excel"],
-    "required_skills": ["design thinking", "investigación de mercado", "presentaciones"],
-    "experience_signals": ["innovacion", "emprendimiento", "startup", "design thinking", "practica", "tesis", "voluntariado"],
-    "modalities": ["híbrido", "presencial"],
-    "traits": { "analisis": 2, "ejecucion": 1, "coordinacion": 2, "contacto_cliente": 1, "social": 2, "presion": 1, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [
+      "ciencias-sociales"
+    ],
+    "skills": [
+      "design thinking",
+      "investigación de mercado",
+      "innovación",
+      "PowerPoint",
+      "facilitación",
+      "Excel"
+    ],
+    "required_skills": [
+      "design thinking",
+      "investigación de mercado",
+      "presentaciones"
+    ],
+    "experience_signals": [
+      "innovacion",
+      "emprendimiento",
+      "startup",
+      "design thinking",
+      "practica",
+      "tesis",
+      "voluntariado"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 1,
+      "coordinacion": 2,
+      "contacto_cliente": 1,
+      "social": 2,
+      "presion": 1,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "business_general"
   },
   {
     "id": "analista-nuevos-negocios-junior",
     "title": "Analista de Nuevos Negocios Junior",
     "pitch": "Identifica oportunidades de expansión, evalúa alianzas y apoya el desarrollo de propuestas comerciales estratégicas.",
-    "area": "Emprendimiento", "subarea": "Desarrollo de Negocios", "category": "emprendimiento",
+    "area": "Emprendimiento",
+    "subarea": "Desarrollo de Negocios",
+    "category": "emprendimiento",
     "entry_type": "conditional",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios"], "secondary_families": ["analitica"],
-    "skills": ["análisis de mercado", "modelado de negocio", "investigación de mercado", "presentaciones ejecutivas", "Excel", "PowerPoint"],
-    "required_skills": ["análisis de mercado", "Excel", "PowerPoint"],
-    "experience_signals": ["negocios", "expansion", "mercado", "propuesta", "practica", "emprendimiento"],
-    "modalities": ["híbrido", "presencial"],
-    "traits": { "analisis": 2, "ejecucion": 2, "coordinacion": 2, "contacto_cliente": 2, "social": 1, "presion": 2, "aprendizaje": 2, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "análisis de mercado",
+      "modelado de negocio",
+      "investigación de mercado",
+      "presentaciones ejecutivas",
+      "Excel",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "análisis de mercado",
+      "Excel",
+      "PowerPoint"
+    ],
+    "experience_signals": [
+      "negocios",
+      "expansion",
+      "mercado",
+      "propuesta",
+      "practica",
+      "emprendimiento"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial"
+    ],
+    "traits": {
+      "analisis": 2,
+      "ejecucion": 2,
+      "coordinacion": 2,
+      "contacto_cliente": 2,
+      "social": 1,
+      "presion": 2,
+      "aprendizaje": 2,
+      "movilidad": 0
+    },
+    "domain": "business_general"
   },
   {
     "id": "venture-analyst",
     "title": "Venture Analyst",
     "pitch": "Evalúa startups para inversión o aceleración: analiza modelos de negocio, mercados y métricas de crecimiento.",
-    "area": "Emprendimiento", "subarea": "Venture Capital", "category": "emprendimiento",
+    "area": "Emprendimiento",
+    "subarea": "Venture Capital",
+    "category": "emprendimiento",
     "entry_type": "selective",
-    "related_degrees": ["Ingeniería Comercial"],
-    "primary_families": ["negocios", "finanzas"], "secondary_families": ["analitica"],
-    "skills": ["due diligence", "modelos de negocio", "análisis financiero", "investigación de mercado", "Excel", "PowerPoint"],
-    "required_skills": ["due diligence", "análisis financiero", "modelos de negocio"],
-    "experience_signals": ["startup", "venture", "inversion", "aceleradora", "emprendimiento", "tesis", "practica"],
-    "modalities": ["híbrido", "presencial", "remoto"],
-    "traits": { "analisis": 3, "ejecucion": 1, "coordinacion": 1, "contacto_cliente": 1, "social": 1, "presion": 2, "aprendizaje": 3, "movilidad": 0 }
+    "related_degrees": [
+      "Ingeniería Comercial"
+    ],
+    "primary_families": [
+      "negocios",
+      "finanzas"
+    ],
+    "secondary_families": [
+      "analitica"
+    ],
+    "skills": [
+      "due diligence",
+      "modelos de negocio",
+      "análisis financiero",
+      "investigación de mercado",
+      "Excel",
+      "PowerPoint"
+    ],
+    "required_skills": [
+      "due diligence",
+      "análisis financiero",
+      "modelos de negocio"
+    ],
+    "experience_signals": [
+      "startup",
+      "venture",
+      "inversion",
+      "aceleradora",
+      "emprendimiento",
+      "tesis",
+      "practica"
+    ],
+    "modalities": [
+      "híbrido",
+      "presencial",
+      "remoto"
+    ],
+    "traits": {
+      "analisis": 3,
+      "ejecucion": 1,
+      "coordinacion": 1,
+      "contacto_cliente": 1,
+      "social": 1,
+      "presion": 2,
+      "aprendizaje": 3,
+      "movilidad": 0
+    },
+    "domain": "business_general"
   }
 ]
