@@ -688,9 +688,156 @@ finalScore = degreePts(estable) + (cvSignal × cv_weight) + behavioralScore - pe
 
 ### Prioridades actuales (2026-04-07)
 1. ~~Sprints 1-21~~ — todos completados
-22. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
-23. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
-24. **Tests end-to-end en Render** — verificar flujo completo post sprint cv_weight
+22. ~~Sprint domain fit~~ — completado (2026-04-08)
+23. **Mejorar ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+24. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
+25. **Tests end-to-end en Render** — verificar flujo completo post sprint domain fit
+
+---
+
+## Estado actual (2026-04-08) — post sprint domain fit
+
+### Completado — Sprint domain fit (2026-04-08)
+
+**Problema resuelto:**
+El motor detectaba bien señales conductuales pero no filtraba por contexto profesional base. Roles como Coordinador Académico o Relacionador Público podían aparecer en el top 5 para perfiles IC si sus traits calzaban, aunque el dominio profesional no correspondiera.
+
+**Principio aplicado:**
+> Domain fit es ajuste de contexto, no redefinición del perfil. behavioralScore sigue siendo el driver principal.
+
+**Nueva fórmula explore (post sprint):**
+```
+score_base = cvScore + behavioralScore - avoidPenalty - pgPenalty
+→ top 20 ordenados por score_base
+→ domain_fit_modifier aplicado a cada uno de los 20
+→ re-sort por score_ajustado
+→ diversifyResults() → top 5
+```
+
+**Cambios en `data/junior_roles.json`:**
+- Campo `domain` agregado a los 44 roles (string, un dominio por rol)
+- Taxonomía: `finance | commercial | marketing | analytics | business_general | operations | people_org | tech | education | communications`
+
+**Cambios en `server/services/roleMatcher.js`:**
+- `DOMAIN_FIT_MAP`: mapa `carrera → { natural, nearby, distant }` — solo IC implementado
+- `DOMAIN_MODIFIERS`: `{ natural: +5, nearby: 0, distant: -4 }`
+- `getDomainFitModifier(userCareer, roleDomain)`: lookup simple, default 0 si carrera/dominio no en mapa
+- Pipeline explore: aplica modifier al top 20 post-sort, re-sort, luego `diversifyResults()`
+- `score_breakdown.domain_fit` incluido para trazabilidad
+
+**Clasificación IC:**
+| Clasificación | Dominios | Modificador |
+|---|---|---|
+| natural | finance, commercial, marketing, analytics, business_general | +5 |
+| nearby | operations, people_org, tech | 0 |
+| distant | education, communications | -4 |
+
+**Mapeo roles → domain (resumen):**
+- finance: Analista Financiero, CdG, Tesorería, Riesgo, Presupuestos, Inversiones, Asistente Contable
+- commercial: Ej. Comercial, Ej. Ventas, KAM, Analista Comercial, Customer Success
+- marketing: Analista Marketing, Mktg Digital, Performance
+- analytics: Datos, Reporting, BI, Product Analyst
+- business_general: Nuevos Negocios, Innovación, Venture Analyst, Asistente Legal
+- operations: Coord. Operaciones, Logística, Supply Chain, Analista Ops, Compliance
+- people_org: RRHH, Reclutamiento, DO, Asistente Proyectos, PM Junior
+- tech: Dev Web, QA, Soporte TI, Business Analyst
+- education: Coordinador Académico (−4 para IC)
+- communications: Community Manager, Redactor, Relacionador Público (−4 para IC)
+
+**Resultados verificados:**
+- Control de Gestión (finance, +5): aparece top 5 para IC analítico ✅
+- Coordinador Académico (education, −4): NO aparece en top visible ✅
+- Customer Success (commercial, +5): aparece #1 cuando behavioral lo justifica ✅
+- Relacionador Público (communications, −4): penalizado, fuera del top 5 ✅
+
+**Invariantes:**
+- `behavioralScore` sin cambios
+- `cvScore`, `cv_weight` sin cambios
+- `diversifyResults()` sin cambios (opera sobre scores ya ajustados)
+- Guided mode sin cambios
+- Un rol distant con behavioral muy alto puede aún aparecer si supera 4 pts de ventaja
+
+### Regla 16. domain_fit: aplicar solo al top 20, nunca al catálogo completo
+La capa domain fit actúa sobre `allScored.slice(0, 20)` — roles ya rankeados por score base.
+No aplicar domain fit antes del scoring base ni sobre el catálogo completo.
+Si se agrega soporte para otra carrera, agregar un nuevo key en `DOMAIN_FIT_MAP` sin modificar los existentes.
+`score_breakdown.domain_fit` solo existe en los primeros 20 roles; ausente (undefined) en el resto.
+
+---
+
+## Estado actual (2026-04-10) — post sprint scoring refinement + UX labels
+
+### Completado — Sprint scoring refinement (2026-04-10, commits 863ccad → 10b1d49)
+
+**Problemas resueltos:**
+1. Mutación de `allScored` en domain fit → reemplazado por `.map()` con spread
+2. Compliance sobre-representado para perfiles genéricos analíticos/ordenados
+3. Penalizaciones comerciales no cubrían roles con bajo `contacto_cliente`
+4. CV weight poco gradual (rango 0.2–1.0 demasiado amplio)
+
+**Cambios en `server/services/roleMatcher.js`:**
+
+**`ROLE_INTENT_GATE` (nuevo):**
+- Compliance (`analista-compliance-junior`): requiere `numeros-negocio` en interests. Absent penalty: 28. Sin esta señal, compliance score ~7 → filtrado (EXPLORE_STRETCH=12).
+- CdG (`analista-control-gestion-junior`): requiere `numeros-negocio`, `procesos-ordenados`, `mejorar-organizacion` (interests) o `organizar-procesos`, `crear-estrategias` (tasks). Absent penalty: 15.
+- Comentario explícito en compliance: proxy temporal hasta que exista señal regulatoria real.
+- `score_breakdown.intent_gate_penalty` para trazabilidad.
+
+**`AVOID_PENALTY_RULES` reforzado:**
+- `atencion-clientes`: nueva regla `contacto_cliente >= 1 → -8` (cobertura suave)
+- Eliminada regla `ventas-metas, contacto_cliente >= 1 && presion >= 2 → -10` (falsos positivos en Product Analyst, BA, Ops)
+
+**Domain fit inmutable:**
+- `.slice(0,20).forEach(r => r.score = ...)` → `.map()` con spread. `allScored` original intacto.
+- `reRanked = [...topN.sort(), ...rest]` pasa a `diversifyResults`.
+
+**Cambios en `server/routes/analyze.js`:**
+- cv_weight: `{ low: 0.2, medium: 0.6, high: 1.0 }` → `{ low: 0.35, medium: 0.65, high: 0.85 }`. Rango efectivo: 16.8 pts → 10.5 pts.
+
+**Cambios en `data/junior_roles.json`:**
+- Compliance: `domain: "operations"` → `"finance"` (rigor financiero-regulatorio, natural +5 para IC)
+
+**Comportamiento verificado:**
+- Ops puro sin `numeros-negocio`: compliance filtrado (score 7) ✅
+- Data puro: compliance filtrado, top = Datos/BI ✅
+- Finance con `numeros-negocio`: compliance habilitado, no domina (Inversiones lo desplaza en cluster) ✅
+- Product Analyst, BA: avoid_penalty=0 con penalizaciones comerciales ✅
+
+### Completado — Sprint UX labels (2026-04-10, commit f58313a)
+
+**Problema resuelto:**
+Labels de BEHAVIORAL_INTERESTS eran semánticamente redundantes y no discriminaban DATA vs NEGOCIO vs OPS. Perfiles de ops/estructura seleccionaban opciones que empujaban señales financieras sin intención.
+
+**Cambios en `public/app.js` (solo labels, IDs y traits sin cambios):**
+
+| ID | Label anterior | Label nuevo |
+|---|---|---|
+| `entender-datos` | "Entender qué hay detrás de la información..." | "Explorar datos, encontrar patrones y convertir eso en algo que sirva para decidir" |
+| `numeros-negocio` | "Trabajar con los números de un negocio para saber si va bien o mal" | "Analizar cómo le va al negocio — ventas, costos, resultados — y apoyar decisiones con esa información" |
+| `procesos-ordenados` | "Hacer que las cosas se hagan bien, de forma ordenada y consistente" | "Asegurar que los procesos del día a día funcionen de forma eficiente" |
+| `coordinar-avanzar` | "Coordinar personas o proyectos..." | "Coordinar equipos o proyectos y hacer que las cosas avancen hacia un objetivo concreto" |
+| `cerca-personas` | "Estar en contacto con personas y ayudar..." | "Trabajar directamente con personas — clientes, usuarios, equipos — y ayudarlas a resolver lo que necesitan" |
+| `mejorar-organizacion` | "Entender cómo funciona una organización por dentro..." | "Diagnosticar cómo funciona un equipo u organización y proponer mejoras concretas" |
+| `aprender-profundo` | "Investigar cómo funcionan las cosas, aprender en profundidad..." | "Profundizar en temas hasta entenderlos de raíz, aunque tome tiempo" |
+| `crear-impacto` | "Pensar en cómo crear algo nuevo, hacer crecer un negocio..." | "Crear o hacer crecer algo desde cero — un proyecto o negocio propio" |
+| `analizar-datos` (task) | "Analizo antes de actuar y entiendo bien el problema" | "Analizo el problema a fondo antes de proponer o actuar" |
+| `trabajar-personas` (task) | "Colaboro con otros y hago que las cosas avancen" | "Trabajo codo a codo con otros para que las cosas avancen" |
+
+**Pendiente de validación:** si ops puro sigue cayendo en finance con los nuevos labels, el problema está en trait mapping (`ejecucion + coordinacion` compartidos entre ops y finanzas estructuradas), no en UX. Testeo en curso.
+
+### Regla 17. ROLE_INTENT_GATE: proxy temporal para compliance
+Compliance usa `numeros-negocio` como único habilitador porque no existe señal de regulación/normativa en el sistema. NO implica que compliance = finanzas. Cuando se agregue una dimensión regulatoria al cuestionario, actualizar `ROLE_INTENT_GATE["analista-compliance-junior"].required_signals`.
+
+### Regla 18. Domain fit: usar map, no forEach
+`allScored.slice(0,20)` se convierte en `topN` vía `.map()` con spread. Nunca mutar objetos de `allScored` directamente. `reRanked = [...topN.sort(), ...rest]`.
+
+### Prioridades actuales (2026-04-10)
+1-25: todos completados
+26. **Validar P3 ops puro** — testeo en curso, posible ajuste a INTEREST_TO_TRAITS si sesgo finance persiste
+27. **Señal "estructura operativa vs rigor financiero"** — diferenciar ops de finanzas en behavioral
+28. **Señal de regulación/normativa** — reemplazar proxy en ROLE_INTENT_GATE de compliance
+29. **ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+30. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
 
 ---
 

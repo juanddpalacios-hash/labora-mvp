@@ -1,5 +1,54 @@
 # Labora MVP — Notas del proyecto
 
+---
+
+## Sesión 2026-04-08 — Sprint domain fit
+
+### Objetivo
+Reducir ruido de dominio profesional en explore mode. Roles con traits compatibles pero dominio alejado (ej: Coordinador Académico para IC) ya no deben aparecer en el top visible.
+
+### Cambios implementados
+
+**`data/junior_roles.json`:**
+- Campo `domain` agregado a los 44 roles
+- Taxonomía usada: `finance | commercial | marketing | analytics | business_general | operations | people_org | tech | education | communications`
+- Todos los 44 roles mapeados sin fallback
+
+**`server/services/roleMatcher.js`:**
+- `DOMAIN_FIT_MAP`: mapa IC → natural/nearby/distant
+- `DOMAIN_MODIFIERS`: natural +5, nearby 0, distant −4
+- `getDomainFitModifier(userCareer, roleDomain)`: lookup simple
+- Inserción en pipeline explore: después del sort base, antes de `diversifyResults()`
+- `score_breakdown.domain_fit` para trazabilidad
+
+### Arquitectura de la capa
+
+```
+score_base → sort → slice(0,20) → +domain_fit_modifier → re-sort → diversifyResults()
+```
+
+### Resultados de prueba
+
+| Perfil | Rol | Domain | Score base | Score adj | Resultado |
+|---|---|---|---|---|---|
+| IC analítico | Analista CdG | finance | 35 | 40 (+5) | top 5 ✅ |
+| IC analítico | Analista Datos | analytics | 36 | 41 (+5) | top 5 ✅ |
+| IC social | Customer Success | commercial | 36 | 41 (+5) | #1 ✅ |
+| IC social | Coord. Académico | education | 36 | 32 (−4) | NO aparece ✅ |
+| IC social | Relacionador Público | communications | 35 | 31 (−4) | NO aparece ✅ |
+
+### Estado del deploy
+- Cambios implementados localmente y verificados con PM2
+- Pendiente: commit + push a Render
+
+### Pendientes
+- [ ] Commit + push a Render (domain fit sprint)
+- [ ] Tests end-to-end en Render post sprint
+- [ ] Mejorar ROLE_PRACTICE_CONTENT para los 44 roles
+- [ ] Refactorizar public/app.js (~2500 líneas)
+
+---
+
 Directorio de notas técnicas. Actualizar tras cada sesión significativa.
 Vinculado desde `CLAUDE.md` en la raíz del proyecto.
 
