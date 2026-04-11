@@ -831,11 +831,89 @@ Compliance usa `numeros-negocio` como único habilitador porque no existe señal
 ### Regla 18. Domain fit: usar map, no forEach
 `allScored.slice(0,20)` se convierte en `topN` vía `.map()` con spread. Nunca mutar objetos de `allScored` directamente. `reRanked = [...topN.sort(), ...rest]`.
 
+---
+
+## Estado actual (2026-04-10) — post sprint signal-aware domain modifier
+
+### Completado — Sprint signal-aware domain modifier (2026-04-10, commit a6171ce)
+
+**Problema resuelto:**
+El domain fit daba +5 a todos los roles "natural" para IC de forma uniforme, sin importar si el usuario declaró señales de interés hacia ese dominio. Esto producía tres falsos positivos estructurales:
+1. **DATA puro → Riesgo**: Riesgo tiene traits idénticos a Datos (ana:3, apr:3) + domain finance (+5), igualaba el score.
+2. **NEGOCIO puro → Datos/BI**: analytics domain recibía +5 aunque el usuario no tenía señal analítica.
+3. **OPS puro → Contable/Tesorería**: finance domain +5 superaba ops domain 0, roles financieros ganaban a roles operacionales.
+
+**Principio aplicado:**
+> El domain fit no es fijo por carrera. Depende de si el usuario declaró señales de interés hacia ese dominio.
+
+**Cambios en `server/services/roleMatcher.js`:**
+
+**`DOMAIN_SIGNAL_MAP` (nuevo):**
+```js
+const DOMAIN_SIGNAL_MAP = {
+  analytics:       ["entender-datos", "aprender-profundo"],
+  finance:         ["numeros-negocio"],
+  operations:      ["procesos-ordenados"],
+  commercial:      ["cerca-personas"],
+  marketing:       ["cerca-personas", "crear-impacto"],
+  people_org:      ["coordinar-avanzar", "cerca-personas", "mejorar-organizacion"],
+  projects:        ["coordinar-avanzar"],
+  tech:            [],
+  business_general:["crear-impacto"],
+  education:       [],
+  communications:  ["cerca-personas"]
+};
+```
+
+**`DOMAIN_MODIFIERS` actualizado (3 → 5 valores):**
+```js
+const DOMAIN_MODIFIERS = {
+  natural:       5,   // natural + señal declarada
+  natural_weak:  2,   // natural + sin señal
+  nearby_strong: 4,   // nearby + señal declarada
+  nearby:        0,   // nearby + sin señal
+  distant:      -4    // sin cambios
+};
+```
+
+**`getDomainFitModifier` (firma actualizada + lógica signal-aware):**
+```js
+function getDomainFitModifier(userCareer, roleDomain, userInterests = []) {
+  const norm = normalizeText(userCareer || "");
+  const careerMap = DOMAIN_FIT_MAP[norm];
+  if (!careerMap || !roleDomain) return 0;
+  const domainSignals = DOMAIN_SIGNAL_MAP[roleDomain] || [];
+  const hasSignal = domainSignals.length > 0 && domainSignals.some(s => userInterests.includes(s));
+  if (careerMap.natural.includes(roleDomain))
+    return hasSignal ? DOMAIN_MODIFIERS.natural : DOMAIN_MODIFIERS.natural_weak;
+  if (careerMap.nearby.includes(roleDomain))
+    return hasSignal ? DOMAIN_MODIFIERS.nearby_strong : DOMAIN_MODIFIERS.nearby;
+  if (careerMap.distant.includes(roleDomain))
+    return DOMAIN_MODIFIERS.distant;
+  return 0;
+}
+```
+
+**Pipeline:** se pasa `interestPrefs` a `getDomainFitModifier()` en el loop del top 20.
+
+**Comportamiento verificado:**
+- DATA puro (`entender-datos`, `aprender-profundo`): Datos/BI +5, Riesgo (finance, sin señal) +2. Datos gana por 3 pts. ✅
+- NEGOCIO puro (`numeros-negocio`): Riesgo/Inversiones +5, Datos/BI (analytics, sin señal) +2. Finance domina. ✅
+- OPS puro (`procesos-ordenados`): Analista Ops (operations, +4 nearby+signal) > Contable/Tesorería (finance, +2 natural_weak). OPS gana. ✅
+- Compliance (finance, +5): solo habilitado con `numeros-negocio` (ROLE_INTENT_GATE). ✅
+
+### Regla 19. DOMAIN_SIGNAL_MAP: solo interests, no tasks
+`DOMAIN_SIGNAL_MAP` usa IDs de BEHAVIORAL_INTERESTS (interests), NO de EXPLORE_TASKS (tasks).
+Las tasks describen el estilo de trabajo (cómo), no el dominio de interés (qué). No agregar task IDs a DOMAIN_SIGNAL_MAP.
+
+### Regla 20. domain_fit_modifier: 5 valores, no 3
+`getDomainFitModifier` devuelve uno de: +5 (natural+señal), +2 (natural_weak), +4 (nearby_strong), 0 (nearby), -4 (distant).
+No asumir que "natural siempre da +5". Depende de `userInterests`. Verificar con `score_breakdown.domain_fit`.
+
 ### Prioridades actuales (2026-04-10)
-1-25: todos completados
-26. **Validar P3 ops puro** — testeo en curso, posible ajuste a INTEREST_TO_TRAITS si sesgo finance persiste
-27. **Señal "estructura operativa vs rigor financiero"** — diferenciar ops de finanzas en behavioral
-28. **Señal de regulación/normativa** — reemplazar proxy en ROLE_INTENT_GATE de compliance
+1-26: todos completados (último: sprint signal-aware domain modifier)
+27. **Señal "estructura operativa vs rigor financiero"** — diferenciar ops de finanzas en behavioral (no urgente: domain_fit ya resuelve la mayoría de casos)
+28. **Señal de regulación/normativa** — reemplazar proxy `numeros-negocio` en ROLE_INTENT_GATE de compliance
 29. **ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
 30. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
 
