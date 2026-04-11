@@ -526,14 +526,6 @@ function scoreInterpretation(score) {
   return "Hay potencial, pero necesitas reforzar áreas clave";
 }
 
-/** Texto del CTA del CV builder con nombre del rol (fallback si es muy largo) */
-function cvBuilderLabel(roleTitle, hasCv) {
-  const verb = hasCv ? "Optimizar CV para" : "Crear CV para";
-  const fallback = hasCv ? "Optimizar mi CV para este rol" : "Crear CV para este rol";
-  // Si el texto completo supera 44 chars, usar fallback genérico
-  const full = `${verb} ${roleTitle}`;
-  return full.length > 44 ? fallback : full;
-}
 
 // ------------------------------------------------------------------ //
 // Nivel de ajuste cualitativo (reemplaza score numérico)
@@ -835,15 +827,6 @@ function renderRoleCard(role, isExplore = false) {
           <p>${howItLooks}</p>
         </div>
 
-        <div class="role-cv-builder-action">
-          <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary" style="text-align:center;">
-            Ver ofertas de este tipo
-          </a>
-          <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
-             class="button primary">
-            ${cvBuilderLabel(role.title, currentHasCv)}
-          </a>
-        </div>
       </article>`;
   }
 
@@ -894,15 +877,6 @@ function renderRoleCard(role, isExplore = false) {
         <p>${nextStep}</p>
       </div>
 
-      <div class="role-cv-builder-action">
-        <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary" style="text-align:center;">
-          Ver ofertas de este tipo
-        </a>
-        <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
-           class="button primary">
-          ${cvBuilderLabel(role.title, currentHasCv)}
-        </a>
-      </div>
     </article>`;
 }
 
@@ -927,13 +901,6 @@ function renderCompactRoleCard(role, isExplore = false) {
           </div>
         </div>
         <p class="muted" style="margin-top:8px; font-size:14px;">${shortPractice}</p>
-        <div class="role-compact-actions">
-          <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary">Ver ofertas</a>
-          <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
-             class="button primary">
-            ${cvBuilderLabel(role.title, currentHasCv)}
-          </a>
-        </div>
       </article>`;
   }
 
@@ -961,13 +928,6 @@ function renderCompactRoleCard(role, isExplore = false) {
         </ul>
       </div>` : ""}
 
-      <div class="role-compact-actions">
-        <a href="/vacantes.html?role=${encodeURIComponent(role.title)}" class="button secondary">Ver ofertas</a>
-        <a href="/cv-builder.html?mode=${currentHasCv ? "optimize" : "generate"}&role=${encodeURIComponent(role.title)}"
-           class="button primary">
-          ${cvBuilderLabel(role.title, currentHasCv)}
-        </a>
-      </div>
     </article>`;
 }
 
