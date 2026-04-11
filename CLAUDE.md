@@ -912,10 +912,16 @@ No asumir que "natural siempre da +5". Depende de `userInterests`. Verificar con
 
 ### Prioridades actuales (2026-04-10)
 1-26: todos completados (último: sprint signal-aware domain modifier)
-27. **Señal "estructura operativa vs rigor financiero"** — diferenciar ops de finanzas en behavioral (no urgente: domain_fit ya resuelve la mayoría de casos)
+27. ~~Eliminar botones "Ver ofertas" y "Crear CV" de cards~~ — completado (2026-04-11, commit 533b256)
 28. **Señal de regulación/normativa** — reemplazar proxy `numeros-negocio` en ROLE_INTENT_GATE de compliance
 29. **ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
 30. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
+
+### Decisiones de scope MVP (2026-04-11)
+- **Vacantes (`/vacantes.html`)**: no implementado en MVP. Botón "Ver ofertas de este tipo" eliminado de todas las cards de resultado.
+- **CV builder (`/cv-builder.html`)**: no implementado en MVP. Botón "Crear/Optimizar CV para este rol" eliminado de todas las cards de resultado.
+- Afecta 4 variantes de card: explore principal, guided principal, explore compacta, guided compacta.
+- Función `cvBuilderLabel()` eliminada (dead code).
 
 ---
 
