@@ -173,21 +173,60 @@ const DOMAIN_FIT_MAP = {
   }
 };
 
-const DOMAIN_MODIFIERS = { natural: 5, nearby: 0, distant: -4 };
+// Interest signals that activate each domain.
+// Only BEHAVIORAL_INTERESTS ids — tasks describe working style, not domain intent.
+// tech and education have no signals intentionally: they require explicit CV evidence.
+const DOMAIN_SIGNAL_MAP = {
+  analytics:       ["entender-datos", "aprender-profundo"],
+  finance:         ["numeros-negocio"],
+  operations:      ["procesos-ordenados"],
+  commercial:      ["cerca-personas"],
+  marketing:       ["cerca-personas", "crear-impacto"],
+  people_org:      ["coordinar-avanzar", "cerca-personas", "mejorar-organizacion"],
+  projects:        ["coordinar-avanzar"],
+  tech:            [],
+  business_general:["crear-impacto"],
+  education:       [],
+  communications:  ["cerca-personas"]
+};
+
+// natural        → career-natural domain AND user has a signal → +5 (unchanged)
+// natural_weak   → career-natural domain but no user signal   → +2 (was +5)
+// nearby_strong  → career-nearby domain AND user has a signal → +4 (was 0)
+// nearby         → career-nearby domain, no user signal       →  0 (unchanged)
+// distant        → distant domain for this career             → -4 (unchanged)
+const DOMAIN_MODIFIERS = {
+  natural:       5,
+  natural_weak:  2,
+  nearby_strong: 4,
+  nearby:        0,
+  distant:      -4
+};
 
 /**
- * Returns domain fit score modifier for a role given the user's career.
- *   +5 → natural domain for this career
- *    0 → nearby domain (or career/domain not in map)
- *   -4 → distant domain for this career
+ * Returns domain fit score modifier for a role given the user's career and interests.
+ * Signal-aware: modifier depends on whether the user has declared interest signals
+ * pointing to the role's domain. This prevents "natural" domains from scoring equally
+ * when the user has no intent toward them.
+ *
+ *   natural  + signal → +5   natural  + no signal → +2
+ *   nearby   + signal → +4   nearby   + no signal →  0
+ *   distant            → -4
  */
-function getDomainFitModifier(userCareer, roleDomain) {
+function getDomainFitModifier(userCareer, roleDomain, userInterests = []) {
   const norm = normalizeText(userCareer || "");
   const careerMap = DOMAIN_FIT_MAP[norm];
   if (!careerMap || !roleDomain) return 0;
-  if (careerMap.natural.includes(roleDomain))  return DOMAIN_MODIFIERS.natural;
-  if (careerMap.nearby.includes(roleDomain))   return DOMAIN_MODIFIERS.nearby;
-  if (careerMap.distant.includes(roleDomain))  return DOMAIN_MODIFIERS.distant;
+
+  const domainSignals = DOMAIN_SIGNAL_MAP[roleDomain] || [];
+  const hasSignal = domainSignals.length > 0 && domainSignals.some(s => userInterests.includes(s));
+
+  if (careerMap.natural.includes(roleDomain))
+    return hasSignal ? DOMAIN_MODIFIERS.natural : DOMAIN_MODIFIERS.natural_weak;
+  if (careerMap.nearby.includes(roleDomain))
+    return hasSignal ? DOMAIN_MODIFIERS.nearby_strong : DOMAIN_MODIFIERS.nearby;
+  if (careerMap.distant.includes(roleDomain))
+    return DOMAIN_MODIFIERS.distant;
   return 0;
 }
 
@@ -1281,7 +1320,7 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
     // Uses map (not forEach) to avoid mutating allScored objects.
     const userCareer = enrichedProfile.degree || "";
     const topN = allScored.slice(0, 20).map(r => {
-      const modifier = getDomainFitModifier(userCareer, r.domain);
+      const modifier = getDomainFitModifier(userCareer, r.domain, interestPrefs);
       return {
         ...r,
         score: modifier !== 0 ? Math.max(0, Math.min(75, r.score + modifier)) : r.score,
