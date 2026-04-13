@@ -1665,14 +1665,14 @@ function initPreferences() {
 let exploreTaskPrefs      = [];  // máx 2
 let exploreAvoid          = [];  // min 1, sin límite superior
 let exploreMotivations    = [];  // min 1, máx 2
-let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 3)
+let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 2)
 
 const EXPLORE_TASKS = [
-  { value: "analizar-datos",    label: "Analizo el problema a fondo antes de proponer o actuar" },
-  { value: "resolver-problemas",label: "Avanzo probando, iterando y ajustando en el camino" },
-  { value: "trabajar-personas", label: "Trabajo codo a codo con otros para que las cosas avancen" },
-  { value: "organizar-procesos",label: "Organizo y estructuro para que todo funcione bien" },
-  { value: "crear-estrategias", label: "Tomo decisiones y priorizo con una mirada estratégica" }
+  { value: "analizar-datos",    label: "Me meto a fondo en un tema, organizo lo que encuentro y solo entonces propongo algo" },
+  { value: "resolver-problemas",label: "Empiezo con una versión rápida de una idea, la pruebo y la ajusto con lo que voy aprendiendo" },
+  { value: "trabajar-personas", label: "Me muevo entre personas y equipos para coordinar lo que hace falta y que el trabajo siga avanzando" },
+  { value: "organizar-procesos",label: "Ordeno el trabajo: defino qué hay que hacer, en qué orden va cada cosa y quién se encarga de qué" },
+  { value: "crear-estrategias", label: "Veo lo que hay que hacer, identifico qué es más importante y decido por dónde empezar" }
 ];
 
 // Flat list — sin grupos, sin "industrias-no-van"
@@ -1693,19 +1693,19 @@ const EXPLORE_MOTIVATIONS = [
   { value: "impacto",        label: "Trabajar en algo con impacto o propósito, aunque no sea lo más rentable" }
 ];
 
-// Behavioral interests — reemplazan la selección explícita de áreas.
-// Cada opción mapea internamente a áreas (para areaBoost) y traits (para behavioralScore).
-// El usuario ve solo el label; áreas y traits son invisibles.
+// Behavioral interests — bloque macro "tipo de trabajo".
+// Cada opción es monodominio: el usuario ve solo el label; áreas y traits son invisibles.
+// Máx 2 selecciones (atMax check en renderBehavioralInterestsGrid).
 // IMPORTANTE: traits debe mantenerse sincronizado con INTEREST_TO_TRAITS en roleMatcher.js.
+// IDs reutilizados de versión anterior para mantener compatibilidad con ROLE_INTENT_GATE y DOMAIN_SIGNAL_MAP.
 const BEHAVIORAL_INTERESTS = [
-  { id: "entender-datos",       label: "Explorar datos, encontrar patrones y convertir eso en algo que sirva para decidir",                         areas: ["analitica", "finanzas"],                          traits: { analisis: 2, aprendizaje: 1 } },
-  { id: "numeros-negocio",      label: "Analizar cómo le va al negocio — ventas, costos, resultados — y apoyar decisiones con esa información",     areas: ["finanzas", "control-gestion"],                    traits: { analisis: 2 } },
-  { id: "procesos-ordenados",   label: "Asegurar que los procesos del día a día funcionen de forma eficiente",                                       areas: ["operaciones", "control-gestion"],                 traits: { ejecucion: 2, coordinacion: 1 } },
-  { id: "coordinar-avanzar",    label: "Coordinar equipos o proyectos y hacer que las cosas avancen hacia un objetivo concreto",                     areas: ["proyectos", "personas"],                          traits: { coordinacion: 2, social: 1 } },
-  { id: "cerca-personas",       label: "Trabajar directamente con personas — clientes, usuarios, equipos — y ayudarlas a resolver lo que necesitan", areas: ["comercial", "personas"],                          traits: { social: 2, contacto_cliente: 1, coordinacion: 1 } },
-  { id: "mejorar-organizacion", label: "Diagnosticar cómo funciona un equipo u organización y proponer mejoras concretas",                          areas: ["control-gestion", "proyectos", "personas"],       traits: { coordinacion: 1, ejecucion: 1, aprendizaje: 1 } },
-  { id: "aprender-profundo",    label: "Profundizar en temas hasta entenderlos de raíz, aunque tome tiempo",                                         areas: ["analitica", "tecnologia", "emprendimiento"],      traits: { aprendizaje: 3 } },
-  { id: "crear-impacto",        label: "Crear o hacer crecer algo desde cero — un proyecto o negocio propio",                                        areas: ["emprendimiento", "proyectos", "control-gestion"], traits: { analisis: 1, coordinacion: 1, aprendizaje: 1 } }
+  { id: "entender-datos",       label: "Trabajar con datos para encontrar patrones y convertirlos en decisiones útiles",                                                           areas: ["analitica"],                    traits: { analisis: 2, aprendizaje: 1 } },
+  { id: "numeros-negocio",      label: "Trabajar con los números del negocio — ingresos, costos y resultados — para entender si está funcionando bien y dónde se puede mejorar",  areas: ["finanzas", "control-gestion"],  traits: { analisis: 2 } },
+  { id: "procesos-ordenados",   label: "Mejorar cómo funcionan las cosas en el día a día, detectando problemas y haciendo que todo sea más eficiente",                             areas: ["operaciones"],                  traits: { ejecucion: 2, coordinacion: 1 } },
+  { id: "coordinar-avanzar",    label: "Sacar adelante proyectos con un objetivo claro y una fecha determinada, organizando tareas y equipos para lograrlo",                       areas: ["proyectos"],                    traits: { coordinacion: 2, aprendizaje: 1 } },
+  { id: "mejorar-organizacion", label: "Atraer, seleccionar y ayudar a integrar personas en una organización",                                                                    areas: ["personas"],                     traits: { social: 2, coordinacion: 1 } },
+  { id: "cerca-personas",       label: "Trabajar directamente con clientes, entendiendo lo que necesitan y ayudando a concretar ventas o acuerdos",                               areas: ["comercial"],                    traits: { contacto_cliente: 2, social: 1 } },
+  { id: "crear-impacto",        label: "Crear campañas o acciones para atraer clientes y aumentar el interés por un producto o servicio",                                         areas: ["marketing"],                    traits: { analisis: 1, coordinacion: 1, social: 1 } },
 ];
 
 // Contenido específico por rol para el flujo explore.
@@ -1969,7 +1969,7 @@ function renderBehavioralInterestsGrid(containerId, onChangeCallback) {
 
   BEHAVIORAL_INTERESTS.forEach(({ id, label }) => {
     const isSelected = exploreInterests.includes(id);
-    const atMax      = !isSelected && exploreInterests.length >= 3;
+    const atMax      = !isSelected && exploreInterests.length >= 2;
 
     const card = document.createElement("div");
     card.className = "explore-option" +
@@ -2043,12 +2043,12 @@ function buildConfirmExplanation() {
   const wantsStability = motivs.includes("estabilidad");
   const wantsImpact    = motivs.includes("impacto");
 
-  // Señales de behavioral interests (refuerzo)
+  // Señales de behavioral interests (refuerzo) — alineado con nuevo bloque macro (2026-04-13)
   const hasAnalyticInterest = interests.some(i => ["entender-datos","numeros-negocio"].includes(i));
-  const hasPeopleInterest   = interests.some(i => ["cerca-personas","coordinar-avanzar"].includes(i));
-  const hasOpsInterest      = interests.some(i => ["procesos-ordenados","mejorar-organizacion"].includes(i));
-  const hasLearningInterest = interests.includes("aprender-profundo");
-  const hasStrategyInterest = interests.includes("crear-impacto");
+  const hasPeopleInterest   = interests.includes("mejorar-organizacion");                            // option 5: people/HR
+  const hasOpsInterest      = interests.some(i => ["procesos-ordenados","coordinar-avanzar"].includes(i)); // option 3: ops + option 4: projects
+  const hasLearningInterest = false;                                                                  // aprender-profundo eliminado del selector
+  const hasStrategyInterest = interests.includes("crear-impacto");                                   // option 7: marketing/growth
 
   // Clasificar perfil predominante
   let profile = "mixto";

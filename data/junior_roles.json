@@ -430,7 +430,7 @@
       "aprendizaje": 1,
       "movilidad": 0
     },
-    "domain": "people_org"
+    "domain": "projects"
   },
   {
     "id": "asistente-rrhh-junior",
@@ -2114,7 +2114,7 @@
       "aprendizaje": 2,
       "movilidad": 0
     },
-    "domain": "people_org"
+    "domain": "projects"
   },
   {
     "id": "business-analyst-junior",

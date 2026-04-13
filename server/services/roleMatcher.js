@@ -127,12 +127,14 @@ const AREA_ADJACENCY = {
 };
 
 // Task preferences → behavioral trait deltas
+// Rediseño bloque 2 (2026-04-13): work style como modulador de dominio.
+// IDs sin cambio (compatibilidad con ROLE_INTENT_GATE de CdG).
 const TASK_TO_TRAITS = {
-  "analizar-datos":     { analisis: 2, aprendizaje: 1 },
-  "resolver-problemas": { analisis: 1, ejecucion: 1 },
-  "trabajar-personas":  { social: 2, coordinacion: 1, contacto_cliente: 1 },
-  "organizar-procesos": { ejecucion: 2, coordinacion: 1 },
-  "crear-estrategias":  { analisis: 1, coordinacion: 1, aprendizaje: 1 }
+  "analizar-datos":     { analisis: 2, aprendizaje: 1 },          // profundizar — sin cambio
+  "resolver-problemas": { ejecucion: 1, aprendizaje: 2 },         // iterar — quita analisis, sube aprendizaje
+  "trabajar-personas":  { coordinacion: 2, social: 1 },           // coordinar — quita contacto_cliente, invierte pesos
+  "organizar-procesos": { ejecucion: 2, coordinacion: 1 },        // organizar — sin cambio
+  "crear-estrategias":  { analisis: 1, coordinacion: 1, aprendizaje: 1 } // priorizar — sin cambio
 };
 
 // Motivation preferences → behavioral trait deltas (can be negative)
@@ -147,15 +149,16 @@ const MOTIVATION_TO_TRAITS = {
 
 // Behavioral interest preferences → trait deltas.
 // Mirrors BEHAVIORAL_INTERESTS in public/app.js — keep in sync if options change.
+// IDs reutilizados; semántica actualizada al rediseño macro del bloque (2026-04-13).
 const INTEREST_TO_TRAITS = {
-  "entender-datos":      { analisis: 2, aprendizaje: 1 },
-  "numeros-negocio":     { analisis: 2 },
-  "procesos-ordenados":  { ejecucion: 2, coordinacion: 1 },
-  "coordinar-avanzar":   { coordinacion: 2, social: 1 },
-  "cerca-personas":      { social: 2, contacto_cliente: 1, coordinacion: 1 },
-  "mejorar-organizacion":{ coordinacion: 1, ejecucion: 1, aprendizaje: 1 },
-  "aprender-profundo":   { aprendizaje: 3 },
-  "crear-impacto":       { analisis: 1, coordinacion: 1, aprendizaje: 1 }
+  "entender-datos":       { analisis: 2, aprendizaje: 1 }, // option 1: analytics — sin cambios
+  "numeros-negocio":      { analisis: 2 },                 // option 2: finance/CdG — sin cambios
+  "procesos-ordenados":   { ejecucion: 2, coordinacion: 1 },// option 3: operations — sin cambios
+  "coordinar-avanzar":    { coordinacion: 2, aprendizaje: 1 },// option 4: projects — social→aprendizaje
+  "mejorar-organizacion": { social: 2, coordinacion: 1 },  // option 5: people/HR — rediseño completo
+  "cerca-personas":       { contacto_cliente: 2, social: 1 },// option 6: commercial — contacto_cliente prioritario
+  "crear-impacto":        { analisis: 1, coordinacion: 1, social: 1 } // option 7: marketing — aprendizaje→social
+  // "aprender-profundo" eliminado del selector — ya no activa señal de traits
 };
 
 // -------------------------------------------------------------------
@@ -168,7 +171,7 @@ const DOMAIN_FIT_MAP = {
   "ingenieria comercial": {
     // "business_general" es temporal y debería reducirse en el tiempo moviendo roles a dominios más específicos
     natural:  ["finance", "commercial", "marketing", "analytics", "business_general"],
-    nearby:   ["operations", "people_org", "tech"],
+    nearby:   ["operations", "people_org", "projects", "tech"],
     distant:  ["education", "communications"]
   }
 };
@@ -176,18 +179,19 @@ const DOMAIN_FIT_MAP = {
 // Interest signals that activate each domain.
 // Only BEHAVIORAL_INTERESTS ids — tasks describe working style, not domain intent.
 // tech and education have no signals intentionally: they require explicit CV evidence.
+// Actualizado al rediseño macro del bloque (2026-04-13): IDs reutilizados con nueva semántica.
 const DOMAIN_SIGNAL_MAP = {
-  analytics:       ["entender-datos", "aprender-profundo"],
-  finance:         ["numeros-negocio"],
-  operations:      ["procesos-ordenados"],
-  commercial:      ["cerca-personas"],
-  marketing:       ["cerca-personas", "crear-impacto"],
-  people_org:      ["coordinar-avanzar", "cerca-personas", "mejorar-organizacion"],
-  projects:        ["coordinar-avanzar"],
-  tech:            [],
-  business_general:["crear-impacto"],
-  education:       [],
-  communications:  ["cerca-personas"]
+  analytics:       ["entender-datos"],        // aprender-profundo eliminado del selector
+  finance:         ["numeros-negocio"],        // sin cambios
+  operations:      ["procesos-ordenados"],     // sin cambios
+  commercial:      ["cerca-personas"],         // cerca-personas ahora = commercial explícito
+  marketing:       ["crear-impacto"],          // crear-impacto ahora = marketing; cerca-personas movido a commercial
+  people_org:      ["mejorar-organizacion"],   // mejorar-organizacion ahora = people/HR; coordinar-avanzar y cerca-personas movidos
+  projects:        ["coordinar-avanzar"],      // sin cambios
+  tech:            [],                         // sin cambios — requiere señal CV
+  business_general:[],                         // crear-impacto movido a marketing; roles de innovación reciben natural_weak (+2) sin señal
+  education:       [],                         // sin cambios
+  communications:  []                          // cerca-personas movido a commercial
 };
 
 // natural        → career-natural domain AND user has a signal → +5 (unchanged)
@@ -267,8 +271,10 @@ const ROLE_INTENT_GATE = {
   "analista-control-gestion-junior": {
     // CdG requiere señal de seguimiento de negocio. Un perfil puramente analítico
     // (entender-datos + analizar-datos) apunta a data/analytics, no a control/reporting.
+    // "mejorar-organizacion" eliminado de required_signals: desde 2026-04-13 ese ID
+    // representa people/HR (reclutamiento), no diagnóstico organizacional.
     required_signals: {
-      interests: ["numeros-negocio", "procesos-ordenados", "mejorar-organizacion"],
+      interests: ["numeros-negocio", "procesos-ordenados"],
       tasks:     ["organizar-procesos", "crear-estrategias"]
     },
     absent_penalty: 15
