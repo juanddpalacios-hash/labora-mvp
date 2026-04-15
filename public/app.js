@@ -256,9 +256,11 @@ function buildExploreResultsHook() {
   const isStrategic = tasks.includes("crear-estrategias");
   const isPeople    = tasks.includes("trabajar-personas");
 
-  const avoidsClients = avoid.includes("atencion-clientes") || avoid.includes("ventas-metas");
-  const avoidsTerrain = avoid.includes("trabajo-terreno");
-  const avoidsCompete = avoid.includes("ambientes-competitivos");
+  const avoidsVentas       = avoid.includes("evitar-ventas");
+  const avoidsAnalitica    = avoid.includes("evitar-analitica");
+  const avoidsFinanzas     = avoid.includes("evitar-finanzas");
+  const avoidsCoordinacion = avoid.includes("evitar-coordinacion");
+  const avoidsProcesos     = avoid.includes("evitar-procesos");
 
   const wantsLearning  = motivs.includes("aprender");
   const wantsGrowth    = motivs.includes("crecer-rapido");
@@ -266,17 +268,13 @@ function buildExploreResultsHook() {
   const wantsImpact    = motivs.includes("impacto");
 
   let primary = "";
-  if (isAnalytic && avoidsClients && avoidsTerrain) {
-    primary = "Se ve una afinidad por roles analíticos y de oficina, más que en trabajos con contacto constante con clientes o con mucho movimiento en terreno.";
-  } else if (isAnalytic && avoidsClients) {
-    primary = "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de contacto constante con clientes.";
-  } else if (isAnalytic && avoidsTerrain) {
-    primary = "Se ve una preferencia por roles de análisis y trabajo estructurado, más que por roles con mucho movimiento o trabajo fuera de oficina.";
+  if (isAnalytic && avoidsVentas) {
+    primary = "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de venta o contacto comercial directo.";
   } else if (isAnalytic && isStrategic) {
     primary = "Hay señales de un perfil que mezcla análisis con visión: leer información, encontrar sentido y usarla para decidir mejor, más que ejecutar desde un guión fijo.";
   } else if (isAnalytic) {
     primary = "Se ve una preferencia por roles donde puedas trabajar con información, resolver problemas concretos y comunicar hallazgos que sirvan.";
-  } else if (isPeople && !avoidsClients) {
+  } else if (isPeople && !avoidsVentas) {
     primary = "Se ve una preferencia por roles donde las personas estén en el centro: trabajar en equipo, acompañar procesos y construir desde las relaciones.";
   } else if (isOrderly && !isStrategic) {
     primary = "Hay señales de una preferencia por roles operativos: coordinar, ordenar procesos y asegurarse de que las cosas funcionen bien.";
@@ -1677,11 +1675,11 @@ const EXPLORE_TASKS = [
 
 // Flat list — sin grupos, sin "industrias-no-van"
 const EXPLORE_AVOID = [
-  { value: "ventas-metas",          label: "Tener que cumplir metas comerciales o vender constantemente" },
-  { value: "atencion-clientes",     label: "Estar en contacto constante con clientes o resolviendo sus requerimientos" },
-  { value: "trabajo-repetitivo",    label: "Hacer tareas muy repetitivas, con poca variación" },
-  { value: "trabajo-terreno",       label: "Trabajar moviéndome constantemente o fuera de oficina" },
-  { value: "ambientes-competitivos",label: "Estar en ambientes muy competitivos o de presión permanente" }
+  { value: "evitar-ventas",       label: "Trabajos donde hay que vender directamente o cumplir metas comerciales" },
+  { value: "evitar-analitica",    label: "Trabajos donde el foco principal es analizar datos para encontrar patrones o tendencias" },
+  { value: "evitar-finanzas",     label: "Trabajos donde hay que revisar números del negocio, presupuestos o indicadores financieros" },
+  { value: "evitar-coordinacion", label: "Trabajos donde el rol principal es coordinar personas, hacer seguimiento de equipos o llevar proyectos" },
+  { value: "evitar-procesos",     label: "Trabajos estructurados donde la mayor parte del tiempo se ejecutan tareas definidas dentro de procesos establecidos" },
 ];
 
 const EXPLORE_MOTIVATIONS = [
@@ -2011,12 +2009,11 @@ const TASK_NATURAL = {
 };
 
 const AVOID_NATURAL = {
-  "ventas-metas":           "lo comercial",
-  "atencion-clientes":      "la atención a clientes",
-  "trabajo-repetitivo":     "lo repetitivo",
-  "trabajo-terreno":        "el trabajo en terreno",
-  "ambientes-competitivos": "ambientes muy competitivos",
-  "industrias-no-van":      "industrias que no van contigo"
+  "evitar-ventas":       "lo comercial",
+  "evitar-analitica":    "el trabajo de análisis de datos",
+  "evitar-finanzas":     "los números del negocio",
+  "evitar-coordinacion": "la coordinación de equipos y proyectos",
+  "evitar-procesos":     "el trabajo operativo y procedimental"
 };
 
 function buildConfirmExplanation() {
@@ -2032,10 +2029,11 @@ function buildConfirmExplanation() {
   const isPeople    = tasks.includes("trabajar-personas");
 
   // Señales de evitar
-  const avoidsClients = avoids.includes("atencion-clientes") || avoids.includes("ventas-metas");
-  const avoidsRepeat  = avoids.includes("trabajo-repetitivo");
-  const avoidsCompete = avoids.includes("ambientes-competitivos");
-  const avoidsTerrain = avoids.includes("trabajo-terreno");
+  const avoidsVentas       = avoids.includes("evitar-ventas");
+  const avoidsAnalitica    = avoids.includes("evitar-analitica");
+  const avoidsFinanzas     = avoids.includes("evitar-finanzas");
+  const avoidsCoordinacion = avoids.includes("evitar-coordinacion");
+  const avoidsProcesos     = avoids.includes("evitar-procesos");
 
   // Señales de motivación
   const wantsLearning  = motivs.includes("aprender");
@@ -2052,37 +2050,35 @@ function buildConfirmExplanation() {
 
   // Clasificar perfil predominante
   let profile = "mixto";
-  if ((isAnalytic || isOrderly || hasAnalyticInterest) && avoidsClients) profile = "analitico";
+  if ((isAnalytic || isOrderly || hasAnalyticInterest) && avoidsVentas) profile = "analitico";
   else if (isAnalytic && (isOrderly || hasAnalyticInterest))             profile = "analitico";
   else if (isAnalytic || hasAnalyticInterest)                            profile = "analitico";
-  else if ((isPeople || hasPeopleInterest) && !avoidsClients)            profile = "relacional";
+  else if ((isPeople || hasPeopleInterest) && !avoidsVentas)             profile = "relacional";
   else if (isOrderly || hasOpsInterest)                                  profile = "operativo";
-  else if ((isStrategic || hasStrategyInterest) && avoidsClients)        profile = "estrategico";
+  else if ((isStrategic || hasStrategyInterest) && avoidsVentas)        profile = "estrategico";
   else if (isStrategic || hasStrategyInterest)                           profile = "estrategico";
 
   // Frase base (perfil)
   const baseTexts = {
     analitico() {
-      if (avoidsClients && avoidsTerrain)
-        return "Parece que te acomoda más un trabajo donde puedas analizar, ordenar y sacar conclusiones, más que estar en contacto constante con clientes o en movimiento.";
-      if (avoidsClients)
-        return "Se ve que te atrae un trabajo donde puedas analizar información y tomar decisiones con criterio, más que uno centrado en atención a clientes o metas comerciales.";
-      if (avoidsRepeat)
-        return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que repetir tareas muy definidas.";
+      if (avoidsVentas && avoidsProcesos)
+        return "Parece que te acomoda más un trabajo donde puedas analizar y sacar conclusiones, más que estar en lo comercial o ejecutar tareas muy definidas.";
+      if (avoidsVentas)
+        return "Se ve que te atrae un trabajo donde puedas analizar información y tomar decisiones con criterio, más que uno centrado en metas comerciales o venta directa.";
+      if (avoidsProcesos)
+        return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que ejecutar tareas muy definidas.";
       return "Se ve que te atrae un trabajo donde puedas analizar información, encontrar patrones y tomar decisiones con criterio.";
     },
     relacional() {
-      if (avoidsCompete)
-        return "Probablemente te sientas más cómodo en un ambiente colaborativo donde puedas conectar con personas y construir relaciones, más que en uno muy competitivo o de presión constante.";
       return "Se ve que te motiva un trabajo donde puedas trabajar con personas, acompañar equipos y generar resultados de forma colaborativa.";
     },
     operativo() {
-      if (avoidsRepeat)
+      if (avoidsProcesos)
         return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo ya esté definido y no haya margen para cambiar cómo se hacen las cosas.";
       return "Parece que te acomoda un trabajo donde puedas coordinar, ordenar y asegurarte de que los procesos funcionen bien.";
     },
     estrategico() {
-      if (avoidsClients)
+      if (avoidsVentas)
         return "Se ve que te motiva más pensar el negocio y proponer iniciativas con criterio, más que estar en la línea comercial directa.";
       return "Se ve que te motiva un trabajo donde puedas crear estrategias, proponer iniciativas y pensar con visión de negocio.";
     },

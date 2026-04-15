@@ -194,15 +194,15 @@ const DOMAIN_SIGNAL_MAP = {
   communications:  []                          // cerca-personas movido a commercial
 };
 
-// natural        → career-natural domain AND user has a signal → +5 (unchanged)
-// natural_weak   → career-natural domain but no user signal   → +2 (was +5)
-// nearby_strong  → career-nearby domain AND user has a signal → +4 (was 0)
+// natural        → career-natural domain AND user has a signal → +8 (was +5)
+// natural_weak   → career-natural domain but no user signal   → +2 (unchanged)
+// nearby_strong  → career-nearby domain AND user has a signal → +6 (was +4)
 // nearby         → career-nearby domain, no user signal       →  0 (unchanged)
 // distant        → distant domain for this career             → -4 (unchanged)
 const DOMAIN_MODIFIERS = {
-  natural:       5,
+  natural:       8,
   natural_weak:  2,
-  nearby_strong: 4,
+  nearby_strong: 6,
   nearby:        0,
   distant:      -4
 };
@@ -235,18 +235,26 @@ function getDomainFitModifier(userCareer, roleDomain, userInterests = []) {
 }
 
 // Additive avoid penalties — subtracted from final score.
+// Conditions receive (traits, role) — domain-based routing for options 2-5.
 // Rules are ordered strongest-first; only the first match per avoid value applies.
 const AVOID_PENALTY_RULES = [
-  { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 3 && t.presion >= 2, penalty: 40 },
-  { avoid: "ventas-metas",           condition: (t) => t.contacto_cliente >= 2,                   penalty: 25 },
-  { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 3,                   penalty: 30 },
-  { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 2,                   penalty: 15 },
-  { avoid: "atencion-clientes",      condition: (t) => t.contacto_cliente >= 1,                   penalty: 8  },
-  { avoid: "trabajo-terreno",        condition: (t) => t.movilidad >= 2,                          penalty: 30 },
-  { avoid: "trabajo-terreno",        condition: (t) => t.movilidad >= 1,                          penalty: 15 },
-  { avoid: "ambientes-competitivos", condition: (t) => t.presion >= 3,                            penalty: 30 },
-  { avoid: "ambientes-competitivos", condition: (t) => t.presion >= 2,                            penalty: 15 },
-  { avoid: "trabajo-repetitivo",     condition: (t) => t.aprendizaje <= 1 && t.ejecucion >= 3,   penalty: 20 }
+  // evitar-ventas: commercial domain roles, tiered by client contact intensity
+  { avoid: "evitar-ventas",       condition: (t, r) => r.domain === "commercial" && t.contacto_cliente >= 3, penalty: 18 },
+  { avoid: "evitar-ventas",       condition: (t, r) => r.domain === "commercial",                            penalty: 10 },
+
+  // evitar-analitica: analytics domain (Datos, BI, Reporting, Product Analyst)
+  { avoid: "evitar-analitica",    condition: (t, r) => r.domain === "analytics",                             penalty: 15 },
+
+  // evitar-finanzas: finance domain (Financiero, CdG, Tesorería, Riesgo, Presupuestos, Compliance)
+  { avoid: "evitar-finanzas",     condition: (t, r) => r.domain === "finance",                               penalty: 15 },
+
+  // evitar-coordinacion: projects + people_org domains (PM, Asistente Proyectos, RRHH, DO)
+  { avoid: "evitar-coordinacion", condition: (t, r) => r.domain === "projects" || r.domain === "people_org", penalty: 12 },
+  // evitar-coordinacion: secondary — high-coordination roles outside core domains (e.g. Coordinador de Operaciones)
+  { avoid: "evitar-coordinacion", condition: (t, r) => t.coordinacion >= 3,                                   penalty: 8  },
+
+  // evitar-procesos: operations domain (Ops, Logística, Supply Chain, Analista Ops)
+  { avoid: "evitar-procesos",     condition: (t, r) => r.domain === "operations",                            penalty: 12 },
 ];
 
 // -------------------------------------------------------------------
@@ -278,6 +286,17 @@ const ROLE_INTENT_GATE = {
       tasks:     ["organizar-procesos", "crear-estrategias"]
     },
     absent_penalty: 15
+  },
+  "analista-comercial-junior": {
+    // Analista Comercial tiene traits mixtos (analisis+social+ejecucion) que producen
+    // falsos positivos en perfiles de ops/proyectos sin intención comercial.
+    // "cerca-personas" es la única señal de dominio commercial disponible hoy.
+    // Sin esta señal, el rol aparece como fallback genérico en top-3 — incoherente.
+    required_signals: {
+      interests: ["cerca-personas"],
+      tasks:     []
+    },
+    absent_penalty: 18
   }
 };
 
@@ -395,7 +414,7 @@ function computeAvoidPenaltyAdditive(avoidPreferences, role) {
 
   for (const avoidVal of avoidPreferences) {
     for (const rule of AVOID_PENALTY_RULES) {
-      if (rule.avoid === avoidVal && rule.condition(rTraits)) {
+      if (rule.avoid === avoidVal && rule.condition(rTraits, role)) {
         total += rule.penalty;
         break;
       }
@@ -1337,6 +1356,13 @@ function matchRoles(profile, roleCatalog, metadata = {}) {
     const reRanked = [...topN.sort((a, b) => b.score - a.score), ...rest];
 
     const top5 = diversifyResults(reRanked);
+
+    // Flag weak matches: roles whose score is 15+ points below the top score in the set.
+    // Signals to the frontend that the match is notably weaker than the rest of the top-5.
+    if (top5.length > 0) {
+      const topScore = top5[0].score;
+      top5.forEach(r => { if (topScore - r.score >= 15) r.is_weak_match = true; });
+    }
 
     const strongMatches  = top5.filter((r) => r.score >= EXPLORE_STRONG);
     const stretchMatches = top5.filter((r) => r.score < EXPLORE_STRONG);

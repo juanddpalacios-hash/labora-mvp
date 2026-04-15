@@ -209,8 +209,8 @@
     ],
     "traits": {
       "analisis": 3,
-      "ejecucion": 2,
-      "coordinacion": 1,
+      "ejecucion": 1,
+      "coordinacion": 2,
       "contacto_cliente": 0,
       "social": 0,
       "presion": 2,
@@ -265,8 +265,8 @@
       "analisis": 2,
       "ejecucion": 2,
       "coordinacion": 1,
-      "contacto_cliente": 1,
-      "social": 1,
+      "contacto_cliente": 2,
+      "social": 2,
       "presion": 1,
       "aprendizaje": 2,
       "movilidad": 0
@@ -1177,11 +1177,11 @@
     "traits": {
       "analisis": 2,
       "ejecucion": 2,
-      "coordinacion": 2,
+      "coordinacion": 1,
       "contacto_cliente": 0,
       "social": 1,
-      "presion": 1,
-      "aprendizaje": 3,
+      "presion": 2,
+      "aprendizaje": 2,
       "movilidad": 0
     },
     "domain": "finance"
@@ -1507,7 +1507,7 @@
       "coordinacion": 0,
       "contacto_cliente": 0,
       "social": 0,
-      "presion": 1,
+      "presion": 2,
       "aprendizaje": 3,
       "movilidad": 0
     },
@@ -1558,7 +1558,7 @@
     "traits": {
       "analisis": 3,
       "ejecucion": 2,
-      "coordinacion": 1,
+      "coordinacion": 0,
       "contacto_cliente": 0,
       "social": 0,
       "presion": 2,
