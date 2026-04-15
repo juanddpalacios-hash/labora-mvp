@@ -124,37 +124,35 @@
         </div>
       </div>
 
-      <!-- Explore Step 0: Intereses conductuales + Tareas (pantalla unificada) -->
+      <!-- Explore Step: Intereses conductuales (Bloque 1 — dominio / tipo de trabajo) -->
       <div class="step" id="step-explore-areas" hidden>
         <div class="step-header">
-          <h2>Cuéntanos un poco cómo te imaginas trabajando</h2>
-          <p class="muted">No tiene que ser definitivo. Responde con lo que sientes hoy.</p>
+          <h2>¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?</h2>
+          <p class="muted">No tiene que ser definitivo. Responde con lo que sientes hoy. Elige hasta 2.</p>
         </div>
-
-        <div class="explore-block">
-          <p class="explore-block-label">¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?</p>
-          <p class="explore-block-sublabel">Elige hasta 3.</p>
-          <div id="explore-areas-interest-grid"></div>
-          <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos una opción para continuar.</p>
-        </div>
-
-        <hr class="explore-block-divider" />
-        <p class="explore-block-transition">Ahora, más allá del tipo de trabajo, pensemos en cómo te gusta trabajar.</p>
-
-        <div class="explore-block">
-          <p class="explore-block-label">Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?</p>
-          <p class="explore-block-sublabel">Elige hasta 2.</p>
-          <div class="explore-grid" id="explore-tasks-grid"></div>
-          <p class="field-hint" id="explore-tasks-hint" hidden>Elige al menos una opción en este bloque para continuar.</p>
-        </div>
-
+        <div id="explore-areas-interest-grid"></div>
+        <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos una opción para continuar.</p>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-areas">← Atrás</button>
           <button type="button" class="button primary" id="next-explore-areas" disabled>Siguiente</button>
         </div>
       </div>
 
-      <!-- Explore Step 2: Qué preferirías evitar -->
+      <!-- Explore Step: Tareas / estilo de trabajo (Bloque 2 — forma de trabajar) -->
+      <div class="step" id="step-explore-tasks" hidden>
+        <div class="step-header">
+          <h2>Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?</h2>
+          <p class="muted">Piensa en cómo te mueves en la práctica, no en cómo te gustaría ser. Elige hasta 2.</p>
+        </div>
+        <div class="explore-grid" id="explore-tasks-grid"></div>
+        <p class="field-hint" id="explore-tasks-hint" hidden>Elige al menos una opción para continuar.</p>
+        <div class="step-actions">
+          <button type="button" class="button ghost" id="back-explore-tasks">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-tasks" disabled>Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Explore Step: Qué preferirías evitar -->
       <div class="step" id="step-explore-2" hidden>
         <div class="step-header">
           <h2>¿Qué cosas hoy sientes que preferirías evitar en un trabajo?</h2>
@@ -170,23 +168,7 @@
         </div>
       </div>
 
-      <!-- Explore Step 3: Motivación -->
-      <div class="step" id="step-explore-3" hidden>
-        <div class="step-header">
-          <h2>Si hoy tuvieras que tomar una decisión, ¿qué sería más importante para ti?</h2>
-          <p class="muted">Elige hasta 2. Esto nos ayuda a priorizar mejor entre caminos que podrían calzar contigo.</p>
-        </div>
-        <div class="explore-grid" id="explore-motivation-grid">
-          <!-- renderizado por JS -->
-        </div>
-        <p class="field-hint" id="explore-motivation-hint" hidden>Elige al menos una opción para continuar.</p>
-        <div class="step-actions">
-          <button type="button" class="button ghost" id="back-explore-3">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-3" disabled>Siguiente</button>
-        </div>
-      </div>
-
-      <!-- Explore Step 4: Confirmación de áreas inferidas -->
+      <!-- Explore Step: Confirmación de orientación (reflexión UX) -->
       <div class="step" id="step-explore-confirm" hidden>
         <div class="step-header">
           <h2>Por lo que nos contaste, esto es lo que hoy se ve más natural para ti</h2>

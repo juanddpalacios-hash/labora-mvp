@@ -54,7 +54,7 @@ router.post("/", upload.single("cv"), async (req, res) => {
       avoidPreferences:          req.body.avoid_preferences ? JSON.parse(req.body.avoid_preferences) : [],
       areas_interest:            req.body.areas_interest   ? JSON.parse(req.body.areas_interest)   : [],
       task_prefs:                req.body.task_preferences      ? JSON.parse(req.body.task_preferences)      : [],
-      motivation_prefs:          req.body.motivation_preferences ? JSON.parse(req.body.motivation_preferences) : [],
+      // motivation_prefs eliminado (2026-04-15): bloque 4 descartado para MVP — ver sesión 2026-04-15
       interest_prefs:            req.body.interest_preferences  ? JSON.parse(req.body.interest_preferences)  : [],
       cv_weight: (function () {
         if (!req.file) return 1.0; // sin CV: cv_weight irrelevante (cvSignal será 0)

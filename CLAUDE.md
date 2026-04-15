@@ -12,7 +12,7 @@ Servidor activo en PM2, puerto 3000. Comando: `pm2 restart labora-mvp`.
 
 Archivos clave:
 - `server/services/roleMatcher.js` — motor de scoring; modo explore: latent profile first (cv+behavioral-avoid, sin areaBoost); modo guided: 6 dimensiones + pesos dinámicos
-- `server/routes/analyze.js` — POST /api/analyze, recibe CV + metadatos del formulario (incluyendo task_preferences y motivation_preferences)
+- `server/routes/analyze.js` — POST /api/analyze, recibe CV + metadatos del formulario (task_preferences, avoid_preferences, interest_preferences)
 - `server/services/aiExtractor.js` — extrae perfil estructurado del texto del CV
 - `data/junior_roles.json` — catálogo de 44 roles junior con required_skills, families, traits (8 dimensiones conductuales), entry_type, has_commission, requires_cv_gate
 - `public/app.js` — lógica frontend + renderizado de resultados
@@ -261,7 +261,7 @@ finalScore = cvScore(0-35) + behavioralScore(0-40) + areaBoost(0-10) - avoidPena
 ```
 
 - **cvScore (0-35):** grado IC→14 pts, skills max 12, experiencia max 5, especialización max 4
-- **behavioralScore (0-40):** `buildUserTraitVector(taskPrefs, motivPrefs, interestPrefs)` → vector 8 dims; formula: `min(role,user)*2 - max(gap,0)` por dimensión; rango [-24,+48] → normalizado [0,40]
+- **behavioralScore (0-40):** `buildUserTraitVector(taskPrefs, interestPrefs)` → vector 8 dims; formula: `min(role,user)*2 - max(gap,0)` por dimensión; rango [-24,+48] → normalizado [0,40]
 - **areaBoost (0-10):** +8 área directa seleccionada, +3 área adyacente (mapa `AREA_ADJACENCY`). NO filtra — roles sin área seleccionada reciben 0, no se excluyen
 - **avoidPenalty (aditiva):** `AVOID_PENALTY_RULES`: -15 a -40 por condición de traits; acumulable. Ej: Ejecutivo Comercial con ventas+clientes+presión avoids → -100 pts, score cae a 0
 - **diversifyResults():** top3 (máx 2/cluster, score-greedy) → #4 (non-top3 cluster, +5 discovery bonus para WIDE_CLUSTERS) → #5 (sort aprendizaje DESC, no score puro)
@@ -604,16 +604,14 @@ No reintroducir `scoreAreaBoost()` ni equivalente oculto. El `score_breakdown` s
 - `back-6` ahora vuelve a step 4.
 - `TOTAL_STEPS`: 5 → 4 (guided). Explore: 9 → 7 pasos totales.
 
-#### Pantalla unificada intereses + tareas (step-explore-areas + step-explore-1 → una pantalla)
+#### Bloques 1 y 2 en pantallas separadas (2026-04-15)
 
-**Principio:** reducir la cantidad de pantallas sin perder señal. Los dos arrays siguen siendo independientes.
+**Principio:** cada bloque captura una dimensión distinta — dominio vs estilo de trabajo. Separarlos mejora claridad cognitiva y pureza de señal.
 
-- `EXPLORE_STEP_IDS`: `["step-explore-areas", "step-explore-2", "step-explore-3", "step-explore-confirm"]` (step-explore-1 eliminado).
-- **Bloque A** (QUÉ te interesa): `exploreInterests[]` — `BEHAVIORAL_INTERESTS`, máx 3. Label: "¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?"
-- **Bloque B** (CÓMO trabajas): `exploreTaskPrefs[]` — `EXPLORE_TASKS`, máx 2. Label: "Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?"
-- Separados por `<hr class="explore-block-divider">` + línea de transición: "Ahora, más allá del tipo de trabajo, pensemos en cómo te gusta trabajar."
-- Botón `next-explore-areas` valida ambos arrays antes de avanzar.
-- `updateCombinedNext()`: botón deshabilitado hasta que cada bloque tiene ≥1 selección.
+- `EXPLORE_STEP_IDS`: `["step-explore-areas", "step-explore-tasks", "step-explore-2", "step-explore-confirm"]`
+- **step-explore-areas** (idx 0): `exploreInterests[]` — `BEHAVIORAL_INTERESTS`, máx 2. "¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?"
+- **step-explore-tasks** (idx 1): `exploreTaskPrefs[]` — `EXPLORE_TASKS`, máx 2. "Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?"
+- Cada pantalla valida su propio array (≥1) antes de avanzar.
 
 **Labels Bloque B (EXPLORE_TASKS) — estilo conductual primera persona:**
 | Value | Label visible |
@@ -915,13 +913,11 @@ No asumir que "natural siempre da +5". Depende de `userInterests`. Verificar con
 Sin esta señal, sus traits mixtos (analisis+social+ejecucion) producen falsos positivos en perfiles ops/proyectos.
 Coherente con el gate de Compliance y CdG — mismo patrón, distinto habilitador.
 
-### Prioridades actuales (2026-04-13)
-1-28: todos completados
-29. ~~Sprint rediseño bloque 3 (EXPLORE_AVOID)~~ — completado (2026-04-13)
-29b. ~~Fix Analista Comercial como fallback genérico — ROLE_INTENT_GATE agregado~~ — completado (2026-04-13)
-30. **Auditoría bloque 4 (EXPLORE_MOTIVATIONS)**
-31. **Señal de regulación/normativa** — reemplazar proxy `numeros-negocio` en ROLE_INTENT_GATE de compliance
-32. **ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+### Prioridades actuales (2026-04-15)
+1-29b: todos completados
+30. ~~Bloque 4 (EXPLORE_MOTIVATIONS) — auditado y eliminado conscientemente (2026-04-15)~~ completado
+31. **ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico
+32. **Señal de regulación/normativa** — reemplazar proxy `numeros-negocio` en ROLE_INTENT_GATE de compliance
 33. **Refactorizar public/app.js** — ~2500 líneas, deuda técnica real
 
 ### Decisiones de scope MVP (2026-04-11)
@@ -1057,9 +1053,8 @@ curl -s -X POST http://localhost:3000/api/analyze \
   -F "academicStatus=egresado" \
   -F "city=Santiago" \
   -F "user_intent_mode=explore" \
-  -F 'interest_preferences=["entender-datos","aprender-profundo"]' \
+  -F 'interest_preferences=["entender-datos","numeros-negocio"]' \
   -F 'task_preferences=["analizar-datos","resolver-problemas"]' \
-  -F 'motivation_preferences=["aprender","crecer-rapido"]' \
   -F 'avoid_preferences=["evitar-ventas","evitar-analitica"]' \
   > C:/Temp/explore.json && node -e "
 const d=JSON.parse(require('fs').readFileSync('C:/Temp/explore.json','utf8'));

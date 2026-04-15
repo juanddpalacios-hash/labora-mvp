@@ -128,9 +128,7 @@ async function handleFormSubmit(event) {
       formData.append("discovery_mode", "true");
       formData.append("task_preferences",   JSON.stringify(exploreTaskPrefs));
       formData.append("avoid_preferences",  JSON.stringify(exploreAvoid));
-      formData.append("motivation_preferences", JSON.stringify(exploreMotivations));
       formData.append("interest_preferences", JSON.stringify(exploreInterests));
-      formData.append("extra_motivation_text", document.getElementById("extra-motivation")?.value || "");
     }
 
     const fileInput = document.getElementById("cv");
@@ -151,7 +149,6 @@ async function handleFormSubmit(event) {
     if (userIntentMode === "explore") {
       sessionStorage.setItem("laboraExploreTaskPrefs",    JSON.stringify(exploreTaskPrefs));
       sessionStorage.setItem("laboraExploreAvoid",        JSON.stringify(exploreAvoid));
-      sessionStorage.setItem("laboraExploreMotivations",  JSON.stringify(exploreMotivations));
       sessionStorage.setItem("laboraExploreInterests",    JSON.stringify(exploreInterests));
     }
     window.location.href = "/results.html";
@@ -249,7 +246,6 @@ function displayTool(t) {
 function buildExploreResultsHook() {
   const tasks    = JSON.parse(sessionStorage.getItem("laboraExploreTaskPrefs")     || "[]");
   const avoid    = JSON.parse(sessionStorage.getItem("laboraExploreAvoid")         || "[]");
-  const motivs   = JSON.parse(sessionStorage.getItem("laboraExploreMotivations")   || "[]");
 
   const isAnalytic  = tasks.includes("analizar-datos") || tasks.includes("resolver-problemas");
   const isOrderly   = tasks.includes("organizar-procesos");
@@ -262,40 +258,20 @@ function buildExploreResultsHook() {
   const avoidsCoordinacion = avoid.includes("evitar-coordinacion");
   const avoidsProcesos     = avoid.includes("evitar-procesos");
 
-  const wantsLearning  = motivs.includes("aprender");
-  const wantsGrowth    = motivs.includes("crecer-rapido");
-  const wantsStability = motivs.includes("estabilidad");
-  const wantsImpact    = motivs.includes("impacto");
-
-  let primary = "";
   if (isAnalytic && avoidsVentas) {
-    primary = "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de venta o contacto comercial directo.";
+    return "Se ve una afinidad por roles más analíticos y estructurados, donde puedas trabajar con información y criterio, más que en dinámicas de venta o contacto comercial directo.";
   } else if (isAnalytic && isStrategic) {
-    primary = "Hay señales de un perfil que mezcla análisis con visión: leer información, encontrar sentido y usarla para decidir mejor, más que ejecutar desde un guión fijo.";
+    return "Hay señales de un perfil que mezcla análisis con visión: leer información, encontrar sentido y usarla para decidir mejor, más que ejecutar desde un guión fijo.";
   } else if (isAnalytic) {
-    primary = "Se ve una preferencia por roles donde puedas trabajar con información, resolver problemas concretos y comunicar hallazgos que sirvan.";
+    return "Se ve una preferencia por roles donde puedas trabajar con información, resolver problemas concretos y comunicar hallazgos que sirvan.";
   } else if (isPeople && !avoidsVentas) {
-    primary = "Se ve una preferencia por roles donde las personas estén en el centro: trabajar en equipo, acompañar procesos y construir desde las relaciones.";
+    return "Se ve una preferencia por roles donde las personas estén en el centro: trabajar en equipo, acompañar procesos y construir desde las relaciones.";
   } else if (isOrderly && !isStrategic) {
-    primary = "Hay señales de una preferencia por roles operativos: coordinar, ordenar procesos y asegurarse de que las cosas funcionen bien.";
+    return "Hay señales de una preferencia por roles operativos: coordinar, ordenar procesos y asegurarse de que las cosas funcionen bien.";
   } else if (isStrategic) {
-    primary = "Hay señales de una preferencia por roles donde puedas pensar el negocio, proponer iniciativas y tomar decisiones con más visión.";
-  } else {
-    primary = "Con lo que nos contaste, se ven señales de un perfil que puede moverse bien en roles analíticos, de coordinación o de trabajo en equipo.";
+    return "Hay señales de una preferencia por roles donde puedas pensar el negocio, proponer iniciativas y tomar decisiones con más visión.";
   }
-
-  let extra = "";
-  if (wantsLearning) {
-    extra = " La búsqueda de aprendizaje continuo orienta a roles con curva activa y entornos donde se aprende haciendo.";
-  } else if (wantsGrowth) {
-    extra = " El interés en crecer rápido orienta a entornos con más responsabilidad desde temprano.";
-  } else if (wantsStability) {
-    extra = " La búsqueda de estabilidad orienta más a empresas con procesos definidos y culturas establecidas.";
-  } else if (wantsImpact) {
-    extra = " El interés en impacto orienta a organizaciones donde el trabajo tiene un efecto visible más allá de los resultados comerciales.";
-  }
-
-  return primary + extra;
+  return "Con lo que nos contaste, se ven señales de un perfil que puede moverse bien en roles analíticos, de coordinación o de trabajo en equipo.";
 }
 
 /**
@@ -1662,7 +1638,6 @@ function initPreferences() {
 // Estado del flujo explore
 let exploreTaskPrefs      = [];  // máx 2
 let exploreAvoid          = [];  // min 1, sin límite superior
-let exploreMotivations    = [];  // min 1, máx 2
 let exploreInterests      = [];  // behavioral interest IDs seleccionados (min 1, máx 2)
 
 const EXPLORE_TASKS = [
@@ -1682,14 +1657,10 @@ const EXPLORE_AVOID = [
   { value: "evitar-procesos",     label: "Trabajos estructurados donde la mayor parte del tiempo se ejecutan tareas definidas dentro de procesos establecidos" },
 ];
 
-const EXPLORE_MOTIVATIONS = [
-  { value: "aprender",       label: "Aprender constantemente, aunque implique salir de mi zona de confort" },
-  { value: "crecer-rapido",  label: "Crecer rápido profesionalmente, aunque sea exigente" },
-  { value: "estabilidad",    label: "Tener estabilidad, aunque el crecimiento sea más lento" },
-  { value: "buen-sueldo",    label: "Ganar buen sueldo, aunque haya más presión" },
-  { value: "buen-ambiente",  label: "Tener buen ambiente laboral, aunque el sueldo no sea el más alto" },
-  { value: "impacto",        label: "Trabajar en algo con impacto o propósito, aunque no sea lo más rentable" }
-];
+// EXPLORE_MOTIVATIONS eliminado (2026-04-15):
+// Bloque 4 descartado conscientemente para MVP. Las señales eran mayoritariamente redundantes
+// con bloques 1 y 2. La única dimensión nueva (presion) no captura bien con la arquitectura
+// actual (clamping hace la dirección negativa inoperante). Documentado en sesión 2026-04-15.
 
 // Behavioral interests — bloque macro "tipo de trabajo".
 // Cada opción es monodominio: el usuario ve solo el label; áreas y traits son invisibles.
@@ -2019,7 +1990,6 @@ const AVOID_NATURAL = {
 function buildConfirmExplanation() {
   const tasks    = exploreTaskPrefs;
   const avoids   = exploreAvoid;
-  const motivs   = exploreMotivations;
   const interests = exploreInterests;
 
   // Señales de perfil — tareas
@@ -2034,12 +2004,6 @@ function buildConfirmExplanation() {
   const avoidsFinanzas     = avoids.includes("evitar-finanzas");
   const avoidsCoordinacion = avoids.includes("evitar-coordinacion");
   const avoidsProcesos     = avoids.includes("evitar-procesos");
-
-  // Señales de motivación
-  const wantsLearning  = motivs.includes("aprender");
-  const wantsGrowth    = motivs.includes("crecer-rapido");
-  const wantsStability = motivs.includes("estabilidad");
-  const wantsImpact    = motivs.includes("impacto");
 
   // Señales de behavioral interests (refuerzo) — alineado con nuevo bloque macro (2026-04-13)
   const hasAnalyticInterest = interests.some(i => ["entender-datos","numeros-negocio"].includes(i));
@@ -2091,21 +2055,7 @@ function buildConfirmExplanation() {
     }
   };
 
-  let text = (baseTexts[profile] || baseTexts.mixto)();
-
-  // Segunda frase: motivación + señal de interés de aprendizaje
-  let extra = "";
-  if (wantsLearning || hasLearningInterest) {
-    extra = " El interés en explorar y aprender en profundidad orienta a roles con curva activa y entornos donde se aprende haciendo.";
-  } else if (wantsGrowth && !wantsStability) {
-    extra = " El interés en crecer rápido orienta a entornos más exigentes donde hay más responsabilidad desde temprano.";
-  } else if (wantsStability) {
-    extra = " La búsqueda de estabilidad orienta más a empresas con procesos definidos y culturas establecidas.";
-  } else if (wantsImpact || hasStrategyInterest) {
-    extra = " El interés en impacto y estrategia orienta a organizaciones donde el trabajo tiene un efecto visible más allá de los resultados inmediatos.";
-  }
-
-  return text + extra;
+  return (baseTexts[profile] || baseTexts.mixto)();
 }
 
 const TRAIT_DIRECTIONS = [
@@ -2218,8 +2168,8 @@ function renderExploreConfirm() {
   if (hintEl)  hintEl.hidden = true;
 }
 
-// Explore step sequence: explore-areas → explore-1 → explore-2 → explore-3 → explore-confirm
-const EXPLORE_STEP_IDS = ["step-explore-areas", "step-explore-2", "step-explore-3", "step-explore-confirm"];
+// Explore step sequence: explore-areas (B1 intereses) → explore-tasks (B2 tareas) → explore-2 (B3 evitar) → explore-confirm
+const EXPLORE_STEP_IDS = ["step-explore-areas", "step-explore-tasks", "step-explore-2", "step-explore-confirm"];
 let currentExploreStep = 0;
 
 function showExploreStep(idx) {
@@ -2228,7 +2178,7 @@ function showExploreStep(idx) {
   if (target) target.hidden = false;
   currentExploreStep = idx;
 
-  // idx 0→3, 1→4, 2→5, 3→6, 4→7 (de 9 pasos totales)
+  // idx 0→3, 1→4, 2→5, 3→6 (de 7 pasos totales: carrera, etapa, B1, B2, B3, confirm, CV)
   const progressStep = 3 + idx;
   updateExploreProgress(progressStep);
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2246,28 +2196,27 @@ function updateExploreProgress(step) {
 function initExploreFlow() {
   // ── Render grids ──────────────────────────────────────────────────────
 
-  // ── Pantalla unificada: intereses (bloque A) + tareas (bloque B) ──────
-  function updateCombinedNext() {
-    const nextBtn = document.getElementById("next-explore-areas");
-    if (nextBtn) nextBtn.disabled = exploreInterests.length === 0 || exploreTaskPrefs.length === 0;
-  }
-
+  // Bloque 1 (idx 0): intereses conductuales / dominio
   function refreshInterestsGrid() {
     renderBehavioralInterestsGrid("explore-areas-interest-grid", refreshInterestsGrid);
     const hintEl = document.getElementById("explore-areas-hint");
-    if (hintEl) hintEl.hidden = exploreInterests.length > 0;
-    updateCombinedNext();
+    const nextBtn = document.getElementById("next-explore-areas");
+    if (hintEl)  hintEl.hidden = exploreInterests.length > 0;
+    if (nextBtn) nextBtn.disabled = exploreInterests.length === 0;
   }
   refreshInterestsGrid();
 
+  // Bloque 2 (idx 1): tareas / estilo de trabajo
   renderExploreGrid("explore-tasks-grid", EXPLORE_TASKS, exploreTaskPrefs, 2, (arr) => {
-    const hintEl = document.getElementById("explore-tasks-hint");
-    if (hintEl) hintEl.hidden = arr.length > 0;
-    updateCombinedNext();
+    const hintEl  = document.getElementById("explore-tasks-hint");
+    const nextBtn = document.getElementById("next-explore-tasks");
+    if (hintEl)  hintEl.hidden = arr.length > 0;
+    if (nextBtn) nextBtn.disabled = arr.length === 0;
   });
-  updateCombinedNext();
+  const nextExploreTasksBtn = document.getElementById("next-explore-tasks");
+  if (nextExploreTasksBtn) nextExploreTasksBtn.disabled = exploreTaskPrefs.length === 0;
 
-  // explore-2 (evitar) — ahora flat, validación mínimo 1
+  // Bloque 3 (idx 2): evitar — validación mínimo 1
   renderExploreGrid("explore-avoid-grid", EXPLORE_AVOID, exploreAvoid, null, (arr) => {
     const nextBtn = document.getElementById("next-explore-2");
     const hintEl  = document.getElementById("explore-avoid-hint");
@@ -2277,52 +2226,35 @@ function initExploreFlow() {
   const nextExplore2Btn = document.getElementById("next-explore-2");
   if (nextExplore2Btn) nextExplore2Btn.disabled = exploreAvoid.length === 0;
 
-  // explore-3 (motivación) — validación mínimo 1
-  renderExploreGrid("explore-motivation-grid", EXPLORE_MOTIVATIONS, exploreMotivations, 2, (arr) => {
-    const nextBtn = document.getElementById("next-explore-3");
-    const hintEl  = document.getElementById("explore-motivation-hint");
-    if (nextBtn) nextBtn.disabled = arr.length === 0;
-    if (hintEl)  hintEl.hidden = arr.length > 0;
-  });
-  const nextExplore3Btn = document.getElementById("next-explore-3");
-  if (nextExplore3Btn) nextExplore3Btn.disabled = exploreMotivations.length === 0;
-
   // ── Navegación ────────────────────────────────────────────────────────
 
-  // explore-areas (idx 0) — pantalla unificada intereses + tareas
+  // explore-areas (idx 0) — Bloque 1: intereses
   document.getElementById("back-explore-areas")?.addEventListener("click", () => showStep(2));
   document.getElementById("next-explore-areas")?.addEventListener("click", () => {
-    let valid = true;
     if (exploreInterests.length === 0) {
       const hintEl = document.getElementById("explore-areas-hint");
       if (hintEl) hintEl.hidden = false;
-      valid = false;
+      return;
     }
-    if (exploreTaskPrefs.length === 0) {
-      const hintEl = document.getElementById("explore-tasks-hint");
-      if (hintEl) hintEl.hidden = false;
-      valid = false;
-    }
-    if (!valid) return;
     showExploreStep(1);
   });
 
-  // explore-2 (idx 1)
-  document.getElementById("back-explore-2")?.addEventListener("click", () => showExploreStep(0));
-  document.getElementById("next-explore-2")?.addEventListener("click", () => {
-    if (exploreAvoid.length === 0) {
-      const hintEl = document.getElementById("explore-avoid-hint");
+  // explore-tasks (idx 1) — Bloque 2: tareas
+  document.getElementById("back-explore-tasks")?.addEventListener("click", () => showExploreStep(0));
+  document.getElementById("next-explore-tasks")?.addEventListener("click", () => {
+    if (exploreTaskPrefs.length === 0) {
+      const hintEl = document.getElementById("explore-tasks-hint");
       if (hintEl) hintEl.hidden = false;
       return;
     }
     showExploreStep(2);
   });
 
-  // explore-3 (idx 2)
-  document.getElementById("back-explore-3")?.addEventListener("click", () => showExploreStep(1));
-  document.getElementById("next-explore-3")?.addEventListener("click", () => {
-    if (exploreMotivations.length === 0) {
-      const hintEl = document.getElementById("explore-motivation-hint");
+  // explore-2 (idx 2) — Bloque 3: evitar
+  document.getElementById("back-explore-2")?.addEventListener("click", () => showExploreStep(1));
+  document.getElementById("next-explore-2")?.addEventListener("click", () => {
+    if (exploreAvoid.length === 0) {
+      const hintEl = document.getElementById("explore-avoid-hint");
       if (hintEl) hintEl.hidden = false;
       return;
     }
@@ -2330,7 +2262,7 @@ function initExploreFlow() {
     showExploreStep(3);
   });
 
-  // explore-confirm (idx 3)
+  // explore-confirm (idx 3) — reflexión UX
   document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(2));
   document.getElementById("next-explore-confirm")?.addEventListener("click", () => {
     showStep(4); // CV step
