@@ -21,14 +21,12 @@
     <!-- STEP 0: Intención (guided / explore) -->
     <section id="step-intent">
       <div class="page-header">
-        <h1>Descubre qué caminos laborales realmente pueden hacer sentido para ti</h1>
-        <p>Labora te ayuda a ordenar tus opciones y ver por dónde podrías partir, según lo que estudiaste, lo que te interesa y cómo te gustaría trabajar.</p>
-        <p class="hero-microcopy">Te tomará menos de 3 minutos. Puedes hacerlo con o sin CV.</p>
+        <h1>Descubre en qué roles del mundo laboral podrías encajar</h1>
       </div>
       <div class="intent-cards">
         <div class="intent-card card" data-mode="guided">
           <span class="intent-check" aria-hidden="true">✓</span>
-          <h3>Ya tengo una idea</h3>
+          <h3>Tengo algo en mente</h3>
           <p>Quiero validar si el camino que tengo en mente realmente calza conmigo.</p>
         </div>
         <div class="intent-card card" data-mode="explore">
@@ -38,9 +36,9 @@
         </div>
       </div>
       <div class="form-actions" style="margin-top: 24px;">
-        <button id="intent-continue" class="button primary" disabled>Ver mis opciones</button>
+        <button id="intent-continue" class="button primary" disabled>Elige una opción para continuar</button>
       </div>
-      <p class="intent-footer-note">Más adelante podrás agregar tu CV si quieres una orientación más precisa.</p>
+      <p class="intent-footer-note">Por ahora estamos enfocados en Ingeniería Comercial.</p>
     </section>
 
     <!-- Barra de progreso multi-step -->
@@ -56,45 +54,25 @@
     <!-- Formulario multi-step -->
     <form id="cv-form" class="form-card" hidden>
 
-      <!-- Step 1: Carrera -->
-      <div class="step" id="step-1">
-        <div class="step-header">
-          <h2>¿Qué estudiaste?</h2>
-          <p class="muted">Por ahora, esta versión de Labora está enfocada en estudiantes y egresados de Ingeniería Comercial.</p>
-        </div>
-        <div class="field">
-          <label>Carrera</label>
-          <p class="field-value-static">Ingeniería Comercial</p>
-          <input type="hidden" id="degree" name="degree" value="Ingeniería Comercial" />
-        </div>
-        <div class="step-actions">
-          <button type="button" class="button ghost" id="back-1">← Atrás</button>
-          <button type="button" class="button primary" id="next-1">Siguiente</button>
-        </div>
-      </div>
+      <!-- Carrera fija — no editable en MVP IC-only -->
+      <input type="hidden" id="degree" name="degree" value="Ingeniería Comercial" />
 
       <!-- Step 2: Etapa académica -->
       <div class="step" id="step-2" hidden>
         <div class="step-header">
           <h2>¿En qué etapa estás?</h2>
-          <p class="muted">Tu momento cambia mucho las opciones que hacen sentido — no es lo mismo estar partiendo que ya haber probado cosas.</p>
         </div>
         <input type="hidden" id="academicStatus" name="academicStatus" />
         <div class="intent-cards academic-status-cards">
           <div class="intent-card card" data-status="estudiante">
             <span class="intent-check" aria-hidden="true">✓</span>
             <h3>Estoy estudiando</h3>
-            <p>Aún cursando la carrera.</p>
+            <p>Aún estoy cursando la carrera.</p>
           </div>
           <div class="intent-card card" data-status="egresado">
             <span class="intent-check" aria-hidden="true">✓</span>
-            <h3>Egresado</h3>
-            <p>Terminé la carrera pero aún no tengo título.</p>
-          </div>
-          <div class="intent-card card" data-status="titulado">
-            <span class="intent-check" aria-hidden="true">✓</span>
-            <h3>Titulado</h3>
-            <p>Ya tengo mi título profesional.</p>
+            <h3>Ya terminé la carrera</h3>
+            <p>Ya terminé la carrera.</p>
           </div>
         </div>
         <div class="step-actions">
@@ -171,7 +149,7 @@
       <!-- Explore Step: Confirmación de orientación (reflexión UX) -->
       <div class="step" id="step-explore-confirm" hidden>
         <div class="step-header">
-          <h2>Por lo que nos contaste, esto es lo que hoy se ve más natural para ti</h2>
+          <h2>Esto es lo que empieza a hacer sentido para ti</h2>
           <p id="explore-confirm-explanation" style="line-height: 1.6; margin-top: 8px;"></p>
         </div>
         <div class="explore-confirm-grid" id="explore-confirm-grid">
@@ -180,7 +158,7 @@
         <p class="field-hint" id="explore-confirm-hint" hidden>Elige al menos un camino para continuar.</p>
         <div class="step-actions">
           <button type="button" class="button ghost" id="back-explore-confirm">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-confirm" disabled>Quiero ver cómo seguir desde aquí →</button>
+          <button type="button" class="button primary" id="next-explore-confirm" disabled>Ver opciones que podrían calzar conmigo</button>
         </div>
       </div>
 

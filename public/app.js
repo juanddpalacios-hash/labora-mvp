@@ -2025,33 +2025,31 @@ function buildConfirmExplanation() {
   // Frase base (perfil)
   const baseTexts = {
     analitico() {
-      if (avoidsVentas && avoidsProcesos)
-        return "Parece que te acomoda más un trabajo donde puedas analizar y sacar conclusiones, más que estar en lo comercial o ejecutar tareas muy definidas.";
       if (avoidsVentas)
-        return "Se ve que te atrae un trabajo donde puedas analizar información y tomar decisiones con criterio, más que uno centrado en metas comerciales o venta directa.";
+        return "Te acomoda más analizar y sacar tus propias conclusiones que estar cerrando negocios. Es un tipo de trabajo donde la información es el punto de partida, sin la presión de tener que convencer a nadie.";
       if (avoidsProcesos)
-        return "Se ve que te motiva más un trabajo donde puedas pensar y resolver problemas concretos, más que ejecutar tareas muy definidas.";
-      return "Se ve que te atrae un trabajo donde puedas analizar información, encontrar patrones y tomar decisiones con criterio.";
+        return "Te sientes más cómodo pensando y resolviendo problemas que ejecutando algo ya definido. Primero entender bien qué está pasando, después actuar.";
+      return "Parece que te acomoda un trabajo donde hay algo concreto que entender. Meterte en los números, ver qué está pasando de verdad y llegar a algo útil. Ahí interpretar es parte del día a día.";
     },
     relacional() {
-      return "Se ve que te motiva un trabajo donde puedas trabajar con personas, acompañar equipos y generar resultados de forma colaborativa.";
+      return "Te resulta más natural un trabajo donde estés en contacto con personas. Ayudando, coordinando o construyendo relaciones. Ahí el vínculo con otros es parte central del día a día.";
     },
     operativo() {
       if (avoidsProcesos)
-        return "Parece que te acomoda un trabajo donde puedas ordenar y mejorar procesos, más que uno donde todo ya esté definido y no haya margen para cambiar cómo se hacen las cosas.";
-      return "Parece que te acomoda un trabajo donde puedas coordinar, ordenar y asegurarte de que los procesos funcionen bien.";
+        return "Te sientes más cómodo cuando hay espacio para mejorar cómo se hacen las cosas, no solo seguir lo que ya está definido. Que haya margen para proponer.";
+      return "Te acomoda que las cosas tengan orden. Que cada uno sepa qué le toca, que todo funcione bien y que el equipo pueda avanzar sin tropiezos.";
     },
     estrategico() {
       if (avoidsVentas)
-        return "Se ve que te motiva más pensar el negocio y proponer iniciativas con criterio, más que estar en la línea comercial directa.";
-      return "Se ve que te motiva un trabajo donde puedas crear estrategias, proponer iniciativas y pensar con visión de negocio.";
+        return "Te acomoda más pensar el negocio y proponer ideas que estar en la línea comercial directa. El foco está en la estrategia, no en vender.";
+      return "Te hace sentido un trabajo donde puedas ver el panorama completo. Entender qué es importante y proponer cómo avanzar. Pensar más allá de la tarea del día.";
     },
     mixto() {
       if (isAnalytic && isStrategic)
-        return "Probablemente te sientas cómodo en roles que combinen análisis con visión: leer información y usarla para tomar decisiones que importen.";
+        return "Te resulta natural moverte entre analizar lo que está pasando y usar eso para decidir qué hacer. Primero entender bien el problema, después definir el camino.";
       if (isPeople && isAnalytic)
-        return "Hay señales de un perfil que mezcla lo relacional con lo analítico. Probablemente disfrutes roles donde trabajar con personas y trabajar con datos no sean cosas separadas.";
-      return "Hay señales de un perfil versátil. Probablemente te sientas cómodo en roles que combinen análisis, coordinación y trato con personas.";
+        return "Te resulta natural combinar lo analítico con lo relacional. Trabajar con información y con personas al mismo tiempo, sin separarlo.";
+      return "Aparece más de una dirección que podría calzar contigo. Es normal cuando uno está explorando. Abajo vas a ver los tipos de trabajo que más aparecen.";
     }
   };
 
@@ -2061,32 +2059,32 @@ function buildConfirmExplanation() {
 const TRAIT_DIRECTIONS = [
   {
     id: "informacion",
-    title: "Roles donde la información importa",
-    description: "analizar, interpretar, modelar o convertir información en decisiones útiles",
+    title: "Trabajar con información para decidir",
+    description: "Analizar, comparar e interpretar información, y convertirla en algo que sirva para actuar.",
     requiredTraits: { analisis: 2, aprendizaje: 1 }
   },
   {
     id: "control",
-    title: "Roles donde el control y la mejora importan",
-    description: "seguir procesos, detectar desvíos, ordenar cómo se hacen las cosas y asegurarte de que funcionen mejor",
+    title: "Mejorar cómo se hacen las cosas",
+    description: "Revisar cómo funcionan las cosas, detectar lo que falla y lograr que todo funcione de forma ordenada.",
     requiredTraits: { ejecucion: 2, coordinacion: 1 }
   },
   {
     id: "personas",
-    title: "Roles donde las personas importan",
-    description: "acompañar equipos, coordinar con otros, relacionarte con clientes o apoyar procesos donde el vínculo humano es clave",
+    title: "Trabajar directo con personas",
+    description: "Estar en contacto con clientes, usuarios o equipos. Construir relaciones que hagan avanzar el trabajo.",
     requiredTraits: { social: 2, contacto_cliente: 1 }
   },
   {
     id: "proyectos",
-    title: "Roles donde los proyectos y la coordinación importan",
-    description: "planificar, hacer seguimiento y asegurarte de que los equipos avancen hacia el objetivo",
+    title: "Llevar proyectos de principio a fin",
+    description: "Organizar qué hay que hacer, coordinar a los involucrados y asegurar que todo llegue a buen puerto.",
     requiredTraits: { coordinacion: 2, social: 1 }
   },
   {
     id: "aprendizaje",
-    title: "Roles donde aprender en profundidad importa",
-    description: "investigar, entender cómo funcionan las cosas y crecer en entornos técnicos o complejos que cambian rápido",
+    title: "Meterse profundo en temas complejos",
+    description: "Investigar, entender cómo funcionan las cosas de verdad y crecer en entornos donde siempre hay algo nuevo.",
     requiredTraits: { aprendizaje: 3 }
   }
 ];
@@ -2150,8 +2148,8 @@ function renderExploreConfirm() {
   if (grid) {
     const directions = buildTraitDirections();
     const introText = directions.length === 1
-      ? "Con lo que nos contaste, hay señales más claras hacia:"
-      : "No aparece un solo camino claro — vemos señales en más de una dirección:";
+      ? "Esto es lo que más se acerca a cómo te acomodaría trabajar:"
+      : "Aparecen dos caminos que podrían calzar contigo. Es normal cuando uno está explorando:";
 
     grid.innerHTML = `
       <p class="explore-confirm-section-label">${introText}</p>
@@ -2289,6 +2287,7 @@ function initIntentStep() {
       card.classList.add("selected");
       userIntentMode = card.dataset.mode;
       continueBtn.disabled = false;
+      continueBtn.textContent = userIntentMode === "guided" ? "Validar mi idea" : "Explorar caminos";
     });
   });
 
@@ -2298,7 +2297,7 @@ function initIntentStep() {
     cvForm.hidden = false;
     stepProgress.hidden = false;
     updateInterestStepCopy();
-    showStep(1);
+    showStep(2);
   });
 }
 
@@ -2325,18 +2324,21 @@ function updateProgress(n) {
   const label = document.getElementById("step-progress-label");
 
   if (userIntentMode === "explore") {
-    // 1:carrera, 2:etapa, 3-6:explore screens, 7:CV
-    const exploreMap = { 1: 1, 2: 2, 4: 7 };
-    const total = 7;
+    // 2:etapa, explore screens, 4:CV — total 6 pasos visibles
+    const exploreMap = { 2: 1, 4: 6 };
+    const total = 6;
     const mapped = exploreMap[n] || n;
     const pct = Math.round((mapped / total) * 100);
     if (fill)  fill.style.width = pct + "%";
     if (label) label.textContent = `Paso ${mapped} de ${total}`;
   } else {
-    const displayStep = Math.min(n, TOTAL_STEPS);
-    const pct = Math.round((displayStep / TOTAL_STEPS) * 100);
+    // 2:etapa, 3:intereses, 4:CV — total 3 pasos visibles
+    const guidedMap = { 2: 1, 3: 2, 4: 3 };
+    const mapped = guidedMap[n] || n;
+    const total = 3;
+    const pct = Math.round((Math.min(mapped, total) / total) * 100);
     if (fill)  fill.style.width = pct + "%";
-    if (label) label.textContent = n <= TOTAL_STEPS ? `Paso ${n} de ${TOTAL_STEPS}` : "Revisión final";
+    if (label) label.textContent = mapped <= total ? `Paso ${mapped} de ${total}` : "Revisión final";
   }
 }
 
@@ -2393,7 +2395,7 @@ function renderSummary() {
   const degree     = document.getElementById("degree")?.value.trim() ||
                      document.getElementById("degree_other")?.value.trim() || "—";
   const statusRaw  = document.getElementById("academicStatus")?.value || "";
-  const STATUS_LABELS = { estudiante: "Estoy estudiando", egresado: "Egresado", titulado: "Titulado" };
+  const STATUS_LABELS = { estudiante: "Estoy estudiando", egresado: "Ya terminé la carrera" };
   const statusBadge = STATUS_LABELS[statusRaw] || statusRaw || "—";
 
   const cvFile  = cvChoice === "yes" ? (document.getElementById("cv")?.files[0]?.name || null) : null;
@@ -2431,17 +2433,6 @@ function renderSummary() {
 function initMultiStep() {
   if (!document.getElementById("cv-form")) return;
 
-  // Step 1 next/back
-  document.getElementById("next-1")?.addEventListener("click", () => {
-    if (!validateStep(1)) return;
-    showStep(2);
-  });
-  document.getElementById("back-1")?.addEventListener("click", () => {
-    document.getElementById("cv-form").hidden     = true;
-    document.getElementById("step-progress").hidden = true;
-    document.getElementById("step-intent").hidden  = false;
-  });
-
   // Step 2 next/back — BRANCHING POINT
   document.getElementById("next-2")?.addEventListener("click", () => {
     if (!validateStep(2)) return;
@@ -2452,7 +2443,11 @@ function initMultiStep() {
       showStep(3); // guided → interests
     }
   });
-  document.getElementById("back-2")?.addEventListener("click", () => showStep(1));
+  document.getElementById("back-2")?.addEventListener("click", () => {
+    document.getElementById("cv-form").hidden      = true;
+    document.getElementById("step-progress").hidden = true;
+    document.getElementById("step-intent").hidden   = false;
+  });
 
   // Tarjetas de etapa académica
   document.querySelectorAll(".academic-status-cards .intent-card").forEach((card) => {
