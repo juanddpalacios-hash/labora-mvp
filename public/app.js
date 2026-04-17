@@ -1669,7 +1669,7 @@ const EXPLORE_AVOID = [
 // IDs reutilizados de versión anterior para mantener compatibilidad con ROLE_INTENT_GATE y DOMAIN_SIGNAL_MAP.
 const BEHAVIORAL_INTERESTS = [
   { id: "entender-datos",       label: "Trabajar con datos para encontrar patrones y convertirlos en decisiones útiles",                                                           areas: ["analitica"],                    traits: { analisis: 2, aprendizaje: 1 } },
-  { id: "numeros-negocio",      label: "Trabajar con los números del negocio — ingresos, costos y resultados — para entender si está funcionando bien y dónde se puede mejorar",  areas: ["finanzas", "control-gestion"],  traits: { analisis: 2 } },
+  { id: "numeros-negocio",      label: "Trabajar con los números del negocio (ingresos, costos y resultados) para entender si está funcionando bien y dónde se puede mejorar",  areas: ["finanzas", "control-gestion"],  traits: { analisis: 2 } },
   { id: "procesos-ordenados",   label: "Mejorar cómo funcionan las cosas en el día a día, detectando problemas y haciendo que todo sea más eficiente",                             areas: ["operaciones"],                  traits: { ejecucion: 2, coordinacion: 1 } },
   { id: "coordinar-avanzar",    label: "Sacar adelante proyectos con un objetivo claro y una fecha determinada, organizando tareas y equipos para lograrlo",                       areas: ["proyectos"],                    traits: { coordinacion: 2, aprendizaje: 1 } },
   { id: "mejorar-organizacion", label: "Atraer, seleccionar y ayudar a integrar personas en una organización",                                                                    areas: ["personas"],                     traits: { social: 2, coordinacion: 1 } },
@@ -2263,6 +2263,8 @@ function initExploreFlow() {
   // explore-confirm (idx 3) — reflexión UX
   document.getElementById("back-explore-confirm")?.addEventListener("click", () => showExploreStep(2));
   document.getElementById("next-explore-confirm")?.addEventListener("click", () => {
+    const next4 = document.getElementById("next-4");
+    if (next4) next4.textContent = "Ver mis caminos";
     showStep(4); // CV step
   });
 }
@@ -2287,7 +2289,7 @@ function initIntentStep() {
       card.classList.add("selected");
       userIntentMode = card.dataset.mode;
       continueBtn.disabled = false;
-      continueBtn.textContent = userIntentMode === "guided" ? "Validar mi idea" : "Explorar caminos";
+      continueBtn.textContent = userIntentMode === "guided" ? "Validar este camino" : "Explorar caminos";
     });
   });
 
@@ -2444,20 +2446,32 @@ function initMultiStep() {
     }
   });
   document.getElementById("back-2")?.addEventListener("click", () => {
+    clearTimeout(step2AutoAdvanceTimer);
     document.getElementById("cv-form").hidden      = true;
     document.getElementById("step-progress").hidden = true;
     document.getElementById("step-intent").hidden   = false;
   });
 
-  // Tarjetas de etapa académica
+  // Tarjetas de etapa académica — auto-avance con 300ms de feedback visual
+  let step2AutoAdvanceTimer = null;
   document.querySelectorAll(".academic-status-cards .intent-card").forEach((card) => {
     card.addEventListener("click", () => {
+      clearTimeout(step2AutoAdvanceTimer);
       document.querySelectorAll(".academic-status-cards .intent-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       const statusInput = document.getElementById("academicStatus");
       if (statusInput) statusInput.value = card.dataset.status;
       const nextBtn = document.getElementById("next-2");
       if (nextBtn) nextBtn.disabled = false;
+      // Auto-avance: 300ms para que el estado seleccionado sea visible antes de avanzar
+      step2AutoAdvanceTimer = setTimeout(() => {
+        if (!validateStep(2)) return;
+        if (userIntentMode === "explore") {
+          showExploreStep(0);
+        } else {
+          showStep(3);
+        }
+      }, 300);
     });
   });
 

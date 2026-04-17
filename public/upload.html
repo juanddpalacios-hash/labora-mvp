@@ -21,24 +21,24 @@
     <!-- STEP 0: Intención (guided / explore) -->
     <section id="step-intent">
       <div class="page-header">
-        <h1>Descubre en qué roles del mundo laboral podrías encajar</h1>
+        <h1>¿Cómo quieres empezar?</h1>
       </div>
       <div class="intent-cards">
-        <div class="intent-card card" data-mode="guided">
-          <span class="intent-check" aria-hidden="true">✓</span>
-          <h3>Tengo algo en mente</h3>
-          <p>Quiero validar si el camino que tengo en mente realmente calza conmigo.</p>
-        </div>
         <div class="intent-card card" data-mode="explore">
           <span class="intent-check" aria-hidden="true">✓</span>
           <h3>Quiero explorar</h3>
-          <p>No lo tengo tan claro todavía y quiero descubrir opciones que me hagan más sentido.</p>
+          <p>No lo tengo tan claro todavía y quiero descubrir caminos que me hagan más sentido.</p>
+        </div>
+        <div class="intent-card card" data-mode="guided">
+          <span class="intent-check" aria-hidden="true">✓</span>
+          <h3>Tengo algo en mente</h3>
+          <p>Quiero validar si el camino que estoy considerando realmente calza conmigo.</p>
         </div>
       </div>
       <div class="form-actions" style="margin-top: 24px;">
-        <button id="intent-continue" class="button primary" disabled>Elige una opción para continuar</button>
+        <button id="intent-continue" class="button primary" disabled>Continuar</button>
       </div>
-      <p class="intent-footer-note">Por ahora estamos enfocados en Ingeniería Comercial.</p>
+      <p class="intent-footer-note">Esta versión está hecha para perfiles de Ingeniería Comercial.</p>
     </section>
 
     <!-- Barra de progreso multi-step -->
@@ -67,17 +67,15 @@
           <div class="intent-card card" data-status="estudiante">
             <span class="intent-check" aria-hidden="true">✓</span>
             <h3>Estoy estudiando</h3>
-            <p>Aún estoy cursando la carrera.</p>
           </div>
           <div class="intent-card card" data-status="egresado">
             <span class="intent-check" aria-hidden="true">✓</span>
             <h3>Ya terminé la carrera</h3>
-            <p>Ya terminé la carrera.</p>
           </div>
         </div>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-2">← Atrás</button>
-          <button type="button" class="button primary" id="next-2" disabled>Siguiente</button>
+          <button type="button" class="button ghost subtle" id="back-2">← Atrás</button>
+          <button type="button" class="button primary" id="next-2" disabled>Continuar</button>
         </div>
       </div>
 
@@ -97,8 +95,8 @@
         </div>
         <p class="interests-limit-msg" id="interests-limit-msg">Ya elegiste 3. Haz clic en una para deseleccionar.</p>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-3">← Atrás</button>
-          <button type="button" class="button primary" id="next-3">Siguiente</button>
+          <button type="button" class="button ghost subtle" id="back-3">← Atrás</button>
+          <button type="button" class="button primary" id="next-3">Continuar</button>
         </div>
       </div>
 
@@ -106,13 +104,13 @@
       <div class="step" id="step-explore-areas" hidden>
         <div class="step-header">
           <h2>¿Qué tipo de cosas te gustaría estar haciendo en tu día a día?</h2>
-          <p class="muted">No tiene que ser definitivo. Responde con lo que sientes hoy. Elige hasta 2.</p>
+          <p class="step-subtitle">Responde con lo que sientes hoy, no tiene que ser definitivo. <strong>Elige hasta 2.</strong></p>
         </div>
         <div id="explore-areas-interest-grid"></div>
         <p class="field-hint" id="explore-areas-hint" hidden>Elige al menos una opción para continuar.</p>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-explore-areas">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-areas" disabled>Siguiente</button>
+          <button type="button" class="button ghost subtle" id="back-explore-areas">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-areas" disabled>Continuar</button>
         </div>
       </div>
 
@@ -120,13 +118,13 @@
       <div class="step" id="step-explore-tasks" hidden>
         <div class="step-header">
           <h2>Cuando trabajas, ¿qué forma de hacerlo se te hace más natural?</h2>
-          <p class="muted">Piensa en cómo te mueves en la práctica, no en cómo te gustaría ser. Elige hasta 2.</p>
+          <p class="step-subtitle">Piensa en cómo te mueves en la práctica, no en cómo te gustaría ser. <strong>Elige hasta 2.</strong></p>
         </div>
         <div class="explore-grid" id="explore-tasks-grid"></div>
         <p class="field-hint" id="explore-tasks-hint" hidden>Elige al menos una opción para continuar.</p>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-explore-tasks">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-tasks" disabled>Siguiente</button>
+          <button type="button" class="button ghost subtle" id="back-explore-tasks">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-tasks" disabled>Continuar</button>
         </div>
       </div>
 
@@ -134,15 +132,15 @@
       <div class="step" id="step-explore-2" hidden>
         <div class="step-header">
           <h2>¿Qué cosas hoy sientes que preferirías evitar en un trabajo?</h2>
-          <p class="muted">Esto también es importante: saber lo que no te hace sentido nos ayuda a acercarnos mejor a opciones que sí.</p>
+          <p class="step-subtitle">Lo que preferirías evitar importa tanto como lo que te interesa. <strong>Elige al menos 1.</strong></p>
         </div>
         <div class="explore-grid" id="explore-avoid-grid">
           <!-- renderizado por JS -->
         </div>
         <p class="field-hint" id="explore-avoid-hint" hidden>Elige al menos una opción para continuar.</p>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-explore-2">← Atrás</button>
-          <button type="button" class="button primary" id="next-explore-2" disabled>Siguiente</button>
+          <button type="button" class="button ghost subtle" id="back-explore-2">← Atrás</button>
+          <button type="button" class="button primary" id="next-explore-2" disabled>Continuar</button>
         </div>
       </div>
 
@@ -157,7 +155,7 @@
         </div>
         <p class="field-hint" id="explore-confirm-hint" hidden>Elige al menos un camino para continuar.</p>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-explore-confirm">← Atrás</button>
+          <button type="button" class="button ghost subtle" id="back-explore-confirm">← Atrás</button>
           <button type="button" class="button primary" id="next-explore-confirm" disabled>Ver opciones que podrían calzar conmigo</button>
         </div>
       </div>
@@ -211,8 +209,8 @@
           <input type="hidden" id="cvRelevanceInput" name="cv_relevance" value="" />
         </div>
         <div class="step-actions">
-          <button type="button" class="button ghost" id="back-4">← Atrás</button>
-          <button type="button" class="button primary" id="next-4" disabled>Siguiente</button>
+          <button type="button" class="button ghost subtle" id="back-4">← Atrás</button>
+          <button type="button" class="button primary" id="next-4" disabled>Continuar</button>
         </div>
       </div>
 
@@ -227,7 +225,7 @@
           <!-- renderizado por JS -->
         </div>
         <div class="step-actions" style="margin-top: 20px;">
-          <button type="button" class="button ghost" id="back-6">← Atrás</button>
+          <button type="button" class="button ghost subtle" id="back-6">← Atrás</button>
           <button type="submit" class="button primary">Ver mis opciones →</button>
         </div>
         <p id="form-status" class="status error"></p>

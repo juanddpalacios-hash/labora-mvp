@@ -1208,3 +1208,105 @@ No revertir a valores anteriores (+5/+4) — el widening fue validado con 7 test
 32. **"Por qué te salió este rol"** — frase contextual conectando inputs con resultado
 33. **entry_type como narrativa** — expandir de badge a sección con implicancias
 34. **Conectar top_missing_skills a UI explore**
+
+---
+
+## Estado actual (2026-04-16) — sprint UX flujo inicial + copy explore-confirm
+
+### Completado — Sprint UX flujo inicial (2026-04-16, commit 8b847eb)
+
+**Objetivo:** Reducir fricción en el onboarding inicial, simplificar copy y eliminar pasos vacíos.
+
+#### step-1 (¿Qué estudiaste?) — ELIMINADO
+
+**Problema resuelto:** el step solo mostraba un campo estático no editable. No recogía información nueva, no afectaba scoring y agregaba un clic vacío.
+
+**Cambios:**
+- Div `step-1` eliminado del HTML
+- `<input type="hidden" id="degree" name="degree" value="Ingeniería Comercial">` movido al inicio del form (fuera de cualquier step)
+- `continueBtn` en `initIntentStep`: `showStep(1)` → `showStep(2)`
+- Listeners `next-1` y `back-1` eliminados de `initMultiStep()`
+- `back-2`: `showStep(1)` → lógica de vuelta al intent (ocultar form/progress, mostrar step-intent)
+- `updateProgress` explore: `exploreMap { 1:1, 2:2, 4:7 }` → `{ 2:1, 4:6 }`, total 7→6
+- `updateProgress` guided: reemplazado por `guidedMap { 2:1, 3:2, 4:3 }`, total 4→3
+
+**Invariantes:** payload `degree` sigue llegando al backend con valor "Ingeniería Comercial". Scoring sin cambios.
+
+#### step-2 (etapa académica) — simplificado
+
+- 3 opciones → 2: "Estoy estudiando" (`estudiante`) / "Ya terminé la carrera" (`egresado`)
+- Valor "titulado" eliminado del frontend — "egresado" absorbe ambos casos
+- Texto de apoyo debajo del título eliminado (introducía sesgo de respuesta)
+- `STATUS_LABELS` actualizado: eliminado "titulado", "egresado" → "Ya terminé la carrera"
+- `cvDraftGenerator.js` no afectado (feature cortada del MVP)
+
+#### step-intent — copy y UX
+
+- Título: "Descubre en qué roles del mundo laboral podrías encajar"
+- Textos de apoyo eliminados — pantalla queda solo con título + cards + CTA + footer
+- Card 1: "Tengo algo en mente" (antes "Ya tengo una idea")
+- Botón disabled: "Elige una opción para continuar"
+- CTA dinámico: guided → "Validar mi idea", explore → "Explorar caminos"
+- Footer: "Por ahora estamos enfocados en Ingeniería Comercial."
+
+#### step-explore-confirm — copy completo renovado
+
+**Principio aplicado:** pantalla de orientación, no técnica ni explicativa. Lenguaje humano, probabilístico, sin afirmaciones categóricas.
+
+**Cambios en `public/app.js`:**
+- `buildConfirmExplanation()`: 10 variantes reescritas. Eliminado branch `avoidsVentas && avoidsProcesos` (redundante — `avoidsVentas` tiene precedencia). Frases tipo "Se ve que te motiva" → "Parece que te acomoda" / "Te resulta natural"
+- `TRAIT_DIRECTIONS`: 5 títulos y descripciones nuevos
+  - "Roles donde la información importa" → "Trabajar con información para decidir"
+  - "Roles donde el control y la mejora importan" → "Mejorar cómo se hacen las cosas"
+  - "Roles donde las personas importan" → "Trabajar directo con personas"
+  - "Roles donde los proyectos y la coordinación importan" → "Llevar proyectos de principio a fin"
+  - "Roles donde aprender en profundidad importa" → "Meterse profundo en temas complejos"
+- `renderExploreConfirm()` introText:
+  - 1 dirección: "Esto es lo que más se acerca a cómo te acomodaría trabajar:"
+  - 2 direcciones: "Aparecen dos caminos que podrían calzar contigo. Es normal cuando uno está explorando:"
+
+**Cambios en `public/upload.html`:**
+- H2: "Esto es lo que empieza a hacer sentido para ti"
+- CTA: "Ver opciones que podrían calzar conmigo"
+
+### Regla 28. step-1 eliminado — no reintroducir
+El flujo parte desde `step-intent` directo a `step-2` (etapa académica).
+No existe `step-1` ni sus listeners. El hidden input `degree` vive al inicio del form, no en un step div.
+Si en el futuro se agregan otras carreras, crear un nuevo step con ID propio — no restaurar `step-1`.
+
+### Regla 29. academicStatus: solo 2 valores válidos en frontend
+Valores actuales: `"estudiante"` y `"egresado"`. El valor `"titulado"` fue eliminado.
+`cvDraftGenerator.js` aún referencia "titulado" pero es feature cortada — no afecta el flujo activo.
+Si se reactiva el CV builder, restaurar la distinción egresado/titulado en ese punto.
+
+### Regla 30. copy step-explore-confirm: no afirmaciones categóricas
+Las variantes de `buildConfirmExplanation()` usan lenguaje probabilístico ("parece que", "te resulta natural", "tiendes a").
+No revertir a frases tipo "Se ve que te motiva" o "Está claro que prefieres" — rompen confianza si el usuario no se identifica.
+
+### Diagnóstico mecanismo avoid (2026-04-16) — bugs identificados, no resueltos
+
+Se corrieron 5 tests controlados vía `curl` para evaluar el mecanismo de avoidance en modo explore.
+
+**Hallazgos:**
+
+1. **avoidPenalty funciona** — los roles del dominio penalizado desaparecen correctamente del top-5 cuando la penalización es suficiente (ej. evitar-ventas elimina Ejecutivo Comercial/Ventas con -18/-10).
+
+2. **Fallback incoherente** — cuando avoid elimina los roles naturales del perfil, los reemplazos son de dominios que comparten traits pero no intención. Ej: perfil ops (procesos-ordenados + organizar-procesos) + evitar-operaciones → ve roles de finanzas porque el vector de traits es similar. Los resultados no tienen coherencia narrativa con el perfil del usuario.
+
+3. **Bug frontend: `buildTraitDirections()` ignora `exploreAvoid`** — las orientaciones mostradas en step-explore-confirm no filtran las direcciones incompatibles con los avoids del usuario. Ej: usuario con `evitar-analitica` ve "Trabajar con información para decidir"; usuario con `evitar-procesos` ve "Mejorar cómo se hacen las cosas". Confirmado en T2 y T4.
+
+4. **Señal conductual débil con inputs mínimos** — con 1 interés + 1 tarea, behavioral score es 13-17/40. Todos los scores en rango 27-33. Discriminación muy baja.
+
+5. **Divergencia `TRAIT_DIRECTION_TASK_SIGNALS`** — en el frontend, `trabajar-personas` tiene `contacto_cliente: 1` en el cálculo de direcciones, pero en backend (TASK_TO_TRAITS, post 2026-04-13) ese trait fue eliminado. El motor de matching y el motor de orientaciones están desincronizados.
+
+**Bugs pendientes de resolver (priorizados):**
+- B1 (ALTA): `buildTraitDirections()` debe filtrar direcciones contradictorias con `exploreAvoid`
+- B2 (MEDIA): sincronizar `TRAIT_DIRECTION_TASK_SIGNALS` con backend `TASK_TO_TRAITS` — quitar `contacto_cliente:1` de `trabajar-personas`
+- B3 (BAJA/post-MVP): diseñar fallback coherente cuando avoid elimina dominio natural del perfil
+
+### Prioridades actuales (2026-04-16)
+30. **ROLE_PRACTICE_CONTENT para 44 roles** — solo 5 tienen contenido específico (pendiente)
+31. **Jerarquía visual strong vs stretch** — top-1/2 como camino principal (pendiente)
+32. **"Por qué te salió este rol"** — frase contextual conectando inputs con resultado (pendiente)
+33. **entry_type como narrativa** — expandir de badge a sección con implicancias (pendiente)
+34. **Conectar top_missing_skills a UI explore** (pendiente)
